@@ -20,6 +20,7 @@ export const DoctorsSection: React.FC = () => {
   const [velocity, setVelocity] = useState(0);
   const [lastMoveTime, setLastMoveTime] = useState(0);
   const [lastMoveX, setLastMoveX] = useState(0);
+  const [videoLoaded, setVideoLoaded] = useState<{[key: string]: boolean}>({});
   const containerRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number>();
 
@@ -63,6 +64,11 @@ export const DoctorsSection: React.FC = () => {
       var s=document.createElement("script");
       s.src="https://scripts.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${videoId}/v4/player.js";
       s.async=true;
+      s.onload = function() {
+        console.log('VTurb doctor video loaded: ${videoId}');
+        // Mark video as loaded
+        window.doctorVideoLoaded_${videoId} = true;
+      };
       document.head.appendChild(s);
     `;
     
@@ -73,6 +79,13 @@ export const DoctorsSection: React.FC = () => {
     }
     
     document.head.appendChild(script);
+
+    // Check for video load status
+    setTimeout(() => {
+      if ((window as any)[`doctorVideoLoaded_${videoId}`]) {
+        setVideoLoaded(prev => ({ ...prev, [videoId]: true }));
+      }
+    }, 2000);
   };
 
   // Inject current doctor video when doctor changes
@@ -366,6 +379,7 @@ export const DoctorsSection: React.FC = () => {
               doctor={doctor} 
               isActive={index === currentDoctor}
               isDragging={isDragging}
+              videoLoaded={videoLoaded[doctor.videoId] || false}
             />
           </div>
         ))}
@@ -406,11 +420,17 @@ export const DoctorsSection: React.FC = () => {
   );
 };
 
-// FIXED: Doctor Card Component with VTurb video support
-const DoctorCard: React.FC<{ doctor: any; isActive: boolean; isDragging: boolean }> = ({ 
+// FIXED: Doctor Card Component - Removed overlapping placeholder
+const DoctorCard: React.FC<{ 
+  doctor: any; 
+  isActive: boolean; 
+  isDragging: boolean;
+  videoLoaded: boolean;
+}> = ({ 
   doctor, 
   isActive, 
-  isDragging 
+  isDragging,
+  videoLoaded
 }) => {
   return (
     <div className={`bg-white backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-blue-200 hover:bg-white/95 transition-all duration-300 max-w-md w-full mx-4 ${
@@ -451,40 +471,42 @@ const DoctorCard: React.FC<{ doctor: any; isActive: boolean; isDragging: boolean
         </p>
       </div>
 
-      {/* ✅ REAL VTurb Video - Dr. Mehmet Oz */}
+      {/* ✅ FIXED: VTurb Video - No overlapping placeholder */}
       {isActive && (
         <div className="mb-4">
           <div className="aspect-video rounded-xl overflow-hidden shadow-lg bg-gray-900 relative">
-            {/* VTurb Video Container with REAL ID */}
+            {/* VTurb Video Container - CLEAN, no overlay */}
             <vturb-smartplayer 
               id={`vid-${doctor.videoId}`}
               style={{
                 display: 'block',
                 margin: '0 auto',
                 width: '100%',
-                height: '100%'
+                height: '100%',
+                position: 'relative',
+                zIndex: 10
               }}
             />
             
-            {/* Fallback placeholder if video doesn't load */}
-            <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-blue-800 to-blue-900 flex items-center justify-center">
-              <div className="text-center">
-                <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-3 mx-auto">
-                  <Play className="w-6 h-6 text-white ml-0.5" />
-                </div>
-                <p className="text-white/90 text-base font-medium mb-1">
-                  {doctor.name}
-                </p>
-                <p className="text-white/70 text-sm">
-                  Video Testimonial
-                </p>
-                {doctor.videoId !== "686778a578c1d68a67597d8c" && (
-                  <p className="text-white/50 text-xs mt-2">
-                    Video ID: {doctor.videoId}
+            {/* ✅ ONLY show fallback if video hasn't loaded yet */}
+            {!videoLoaded && doctor.videoId !== "686778a578c1d68a67597d8c" && (
+              <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-blue-800 to-blue-900 flex items-center justify-center z-5">
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-3 mx-auto">
+                    <Play className="w-6 h-6 text-white ml-0.5" />
+                  </div>
+                  <p className="text-white/90 text-base font-medium mb-1">
+                    {doctor.name}
                   </p>
-                )}
+                  <p className="text-white/70 text-sm">
+                    Video Testimonial
+                  </p>
+                  <p className="text-white/50 text-xs mt-2">
+                    Loading video...
+                  </p>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       )}
