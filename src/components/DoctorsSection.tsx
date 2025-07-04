@@ -32,7 +32,7 @@ export const DoctorsSection: React.FC = () => {
       affiliation: "Columbia University",
       testimonial: "BlueDrops represents a breakthrough in natural men's health. Simple ingredients, impressive results.",
       profileImage: "https://i.imgur.com/oM0Uyij.jpeg",
-      videoId: "686778a578c1d68a67597d8c" // REAL VTurb video ID
+      videoId: "686778a578c1d68a67597d8c" // ✅ Dr. Oz VTurb video ID
     },
     {
       id: 2,
@@ -54,7 +54,7 @@ export const DoctorsSection: React.FC = () => {
     }
   ];
 
-  // ✅ FIXED: Function to inject VTurb doctor testimonial videos with proper v4 API
+  // ✅ UPDATED: Function to inject VTurb doctor testimonial videos with HTML structure
   const injectDoctorVideo = (videoId: string) => {
     console.log('🎬 Injecting doctor video:', videoId);
     
@@ -82,7 +82,7 @@ export const DoctorsSection: React.FC = () => {
       return;
     }
 
-    // ✅ FORCE clear any existing VTurb instances that might interfere
+    // ✅ Clear any existing VTurb instances that might interfere
     if (window.smartplayer && window.smartplayer.instances) {
       Object.keys(window.smartplayer.instances).forEach(key => {
         if (key !== '683ba3d1b87ae17c6e07e7db' && key === videoId) {
@@ -91,7 +91,7 @@ export const DoctorsSection: React.FC = () => {
       });
     }
 
-    // ✅ FORCE container isolation and positioning
+    // ✅ Setup container isolation and positioning
     targetContainer.style.position = 'absolute';
     targetContainer.style.top = '0';
     targetContainer.style.left = '0';
@@ -102,6 +102,25 @@ export const DoctorsSection: React.FC = () => {
     targetContainer.style.borderRadius = '0.75rem';
     targetContainer.style.isolation = 'isolate';
     targetContainer.innerHTML = ''; // Clear any existing content
+    
+    // ✅ NEW: Add the HTML structure that you provided for Dr. Oz
+    if (videoId === "686778a578c1d68a67597d8c") {
+      targetContainer.innerHTML = `
+        <div id="vid_${videoId}" style="position:relative;width:100%;padding: 56.25% 0 0 0;">
+          <img id="thumb_${videoId}" src="https://images.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${videoId}/thumbnail.jpg" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;">
+          <div id="backdrop_${videoId}" style="position:absolute;top:0;width:100%;height:100%;-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);"></div>
+        </div>
+        <style>
+          .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border-width:0;}
+        </style>
+      `;
+    } else {
+      // For other doctors, use the standard container
+      targetContainer.innerHTML = `
+        <div id="vid_${videoId}" style="position:absolute;top:0;left:0;width:100%;height:100%;"></div>
+        <div id="placeholder_${videoId}" style="position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg, #1e3a8a, #1e40af);display:flex;align-items:center;justify-content:center;z-index:10;"></div>
+      `;
+    }
 
     const script = document.createElement('script');
     script.type = 'text/javascript';
@@ -110,7 +129,7 @@ export const DoctorsSection: React.FC = () => {
     script.innerHTML = `
       (function() {
         try {
-          // ✅ CRITICAL: Safe custom element handling
+          // ✅ Safe custom element handling
           var customElementsAlreadyDefined = false;
           try {
             customElementsAlreadyDefined = window.customElements && window.customElements.get('vturb-bezel');
@@ -118,7 +137,7 @@ export const DoctorsSection: React.FC = () => {
             console.log('Custom elements check failed, proceeding safely');
           }
           
-          // ✅ CRITICAL: Prevent interference with main video
+          // ✅ Prevent interference with main video
           if (document.getElementById('vid_683ba3d1b87ae17c6e07e7db')) {
             console.log('🛡️ Main video detected, isolating doctor video ${videoId}');
           }
@@ -130,7 +149,7 @@ export const DoctorsSection: React.FC = () => {
             return;
           }
           
-          // ✅ CRITICAL: Create isolated smartplayer instance
+          // ✅ Create isolated smartplayer instance
           window.smartplayer = window.smartplayer || { instances: {} };
           
           // ✅ Ensure we don't override main video instance
@@ -142,10 +161,15 @@ export const DoctorsSection: React.FC = () => {
           }
           
           var s = document.createElement("script");
-          s.src = "https://scripts.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${videoId}/v4/player.js";
+          // ✅ UPDATED: Use the correct VTurb script URL for Dr. Oz
+          if ('${videoId}' === '686778a578c1d68a67597d8c') {
+            s.src = "https://scripts.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${videoId}/player.js";
+          } else {
+            s.src = "https://scripts.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${videoId}/v4/player.js";
+          }
           s.async = true;
           
-          // ✅ CRITICAL: Handle custom element registration errors
+          // ✅ Handle custom element registration errors gracefully
           s.onerror = function(error) {
             console.error('❌ Failed to load VTurb doctor video: ${videoId}', error);
             // Try to continue anyway if it's just a custom element error
@@ -157,12 +181,12 @@ export const DoctorsSection: React.FC = () => {
           s.onload = function() {
             console.log('✅ VTurb doctor video loaded: ${videoId}');
             
-            // ✅ CRITICAL: Restore main video instance if it was affected
+            // ✅ Restore main video instance if it was affected
             if (mainVideoInstance && !window.smartplayer.instances['683ba3d1b87ae17c6e07e7db']) {
               window.smartplayer.instances['683ba3d1b87ae17c6e07e7db'] = mainVideoInstance;
             }
             
-            // ✅ CRITICAL: Force video elements to stay within container
+            // ✅ Force video elements to stay within container
             setTimeout(function() {
               var container = document.getElementById('vid-${videoId}');
               if (container) {
@@ -171,7 +195,7 @@ export const DoctorsSection: React.FC = () => {
                 var allIframes = document.querySelectorAll('iframe');
                 
                 allVideos.forEach(function(video) {
-                  // ✅ CRITICAL: Don't touch main video elements
+                  // ✅ Don't touch main video elements
                   var mainVideoContainer = document.getElementById('vid_683ba3d1b87ae17c6e07e7db');
                   if (mainVideoContainer && mainVideoContainer.contains(video)) {
                     return; // Skip main video elements
@@ -190,7 +214,7 @@ export const DoctorsSection: React.FC = () => {
                 });
                 
                 allIframes.forEach(function(iframe) {
-                  // ✅ CRITICAL: Don't touch main video iframes
+                  // ✅ Don't touch main video iframes
                   var mainVideoContainer = document.getElementById('vid_683ba3d1b87ae17c6e07e7db');
                   if (mainVideoContainer && mainVideoContainer.contains(iframe)) {
                     return; // Skip main video iframes
@@ -202,18 +226,17 @@ export const DoctorsSection: React.FC = () => {
                   }
                 });
                 
-                // Hide placeholder
+                // Hide placeholder for non-Dr. Oz videos
                 var placeholder = document.getElementById('placeholder_${videoId}');
                 if (placeholder) {
                   placeholder.style.display = 'none';
                 }
               }
-            }, 3000); // ✅ Increased delay to ensure main video is stable
+            }, 3000);
             window.doctorVideoLoaded_${videoId} = true;
           };
           s.onerror = function() {
             console.error('❌ Failed to load VTurb doctor video: ${videoId}');
-            // ✅ Don't fail completely on custom element errors
             console.log('🔄 Attempting to continue despite error');
           };
           document.head.appendChild(s);
@@ -234,7 +257,7 @@ export const DoctorsSection: React.FC = () => {
         // Retry once if not loaded
         setTimeout(() => injectDoctorVideo(videoId), 2000);
       }
-    }, 5000); // ✅ Increased timeout
+    }, 5000);
   };
 
   // Inject current doctor video when doctor changes
@@ -242,7 +265,7 @@ export const DoctorsSection: React.FC = () => {
     const currentDoctorData = doctors[currentDoctor];
     if (currentDoctorData.videoId) {
       setTimeout(() => {
-        // ✅ CRITICAL: Only inject if main video is loaded
+        // ✅ Only inject if main video is loaded
         if (window.vslVideoLoaded) {
           injectDoctorVideo(currentDoctorData.videoId);
         } else {
@@ -258,7 +281,7 @@ export const DoctorsSection: React.FC = () => {
         if (scriptToRemove) {
           scriptToRemove.remove();
         }
-        // ✅ Also clean up the video instance
+        // Clean up the video instance
         if (window.smartplayer && window.smartplayer.instances && window.smartplayer.instances[doctor.videoId]) {
           delete window.smartplayer.instances[doctor.videoId];
         }
@@ -593,7 +616,7 @@ const DoctorCard: React.FC<{
   isDragging,
   videoLoaded
 }) => {
-  // ✅ ALL doctors now have real VTurb video IDs
+  // ✅ Check which doctors have real VTurb video IDs
   const hasRealVideo = doctor.videoId === "686778a578c1d68a67597d8c" || 
                        doctor.videoId === "68677941d890d9c12c549bbc" || 
                        doctor.videoId === "68677d0e96c6c01dd66478a3";
@@ -637,17 +660,17 @@ const DoctorCard: React.FC<{
         </p>
       </div>
 
-      {/* ✅ FIXED: Video container with proper z-index layering and v4 API */}
+      {/* ✅ Video container with proper z-index layering */}
       {isActive && (
         <div className="mb-4">
           <div 
             className="aspect-video rounded-xl overflow-hidden shadow-lg bg-gray-900 relative" 
             style={{ 
               isolation: 'isolate',
-              contain: 'layout style paint' // ✅ CSS containment for better isolation
+              contain: 'layout style paint'
             }}
           >
-            {/* ✅ CRITICAL: Container with maximum isolation */}
+            {/* ✅ Container with maximum isolation */}
             <div
               id={`vid-${doctor.videoId}`}
               style={{
@@ -660,11 +683,12 @@ const DoctorCard: React.FC<{
                 overflow: 'hidden',
                 borderRadius: '0.75rem',
                 isolation: 'isolate',
-                contain: 'layout style paint size' // ✅ Maximum containment
+                contain: 'layout style paint size'
               }}
             ></div>
             
-            {/* ✅ Placeholder */}
+            {/* ✅ Placeholder - Only show for non-Dr. Oz videos */}
+            {doctor.videoId !== "686778a578c1d68a67597d8c" && (
             <div 
               id={`placeholder_${doctor.videoId}`}
               className="absolute inset-0 bg-gradient-to-br from-blue-800 to-blue-900 flex items-center justify-center"
@@ -682,6 +706,7 @@ const DoctorCard: React.FC<{
                 </p>
               </div>
             </div>
+            )}
           </div>
         </div>
       )}
