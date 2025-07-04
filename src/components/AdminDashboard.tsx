@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import { SalesChart } from './SalesChart';
 import { ConversionFunnel } from './ConversionFunnel';
 import { ConversionHeatmap } from './ConversionHeatmap';
+import { TrackingTestPanel } from './TrackingTestPanel';
 import { 
   BarChart3, 
   Users, 
@@ -18,7 +19,8 @@ import {
   UserCheck,
   Activity,
   MapPin,
-  Zap
+  Zap,
+  Settings
 } from 'lucide-react';
 
 interface AnalyticsData {
@@ -75,6 +77,7 @@ export const AdminDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [liveSessions, setLiveSessions] = useState<LiveSession[]>([]);
+  const [activeTab, setActiveTab] = useState<'analytics' | 'tracking'>('analytics');
 
   // Enhanced country flag mapping
   const getCountryFlag = (countryCode: string, countryName?: string) => {
@@ -457,408 +460,445 @@ export const AdminDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Live Users Highlight */}
+        {/* Tab Navigation */}
         <div className="mb-8">
-          <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-6 text-white shadow-lg">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
-                  <h2 className="text-2xl font-bold">
-                    👤 {analytics.liveUsers} usuários ativos agora
-                  </h2>
-                </div>
-                {analytics.liveCountryBreakdown.length > 0 && (
-                  <p className="text-green-100 text-lg">
-                    🌎 {formatLiveCountryBreakdown()}
-                  </p>
-                )}
-              </div>
-              <div className="bg-white/20 p-4 rounded-xl">
-                <Zap className="w-8 h-8 text-white" />
-              </div>
-            </div>
+          <div className="border-b border-gray-200">
+            <nav className="-mb-px flex space-x-8">
+              <button
+                onClick={() => setActiveTab('analytics')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'analytics'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <BarChart3 className="w-4 h-4 inline mr-2" />
+                Analytics
+              </button>
+              <button
+                onClick={() => setActiveTab('tracking')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'tracking'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <Settings className="w-4 h-4 inline mr-2" />
+                Tracking & Pixels
+              </button>
+            </nav>
           </div>
         </div>
 
-        {/* Conversion Funnel */}
-        <div className="mb-8">
-          <ConversionFunnel />
-        </div>
-
-        {/* Conversion Heatmap */}
-        <div className="mb-8">
-          <ConversionHeatmap />
-        </div>
-
-        {/* Sales Chart */}
-        <div className="mb-8">
-          <SalesChart />
-        </div>
-
-        {/* Live Stats Row */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          {/* Live Users */}
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 relative overflow-hidden">
-            <div className="absolute top-2 right-2">
-              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Usuários Online</p>
-                <p className="text-3xl font-bold text-green-600">{analytics.liveUsers}</p>
-                <p className="text-xs text-gray-500">Últimos 2 minutos</p>
-              </div>
-              <div className="bg-green-100 p-3 rounded-lg">
-                <Activity className="w-6 h-6 text-green-600" />
-              </div>
-            </div>
-          </div>
-
-          {/* Countries Online */}
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Países Online</p>
-                <p className="text-3xl font-bold text-blue-600">{analytics.liveCountryBreakdown.length}</p>
-              </div>
-              <div className="bg-blue-100 p-3 rounded-lg">
-                <Globe className="w-6 h-6 text-blue-600" />
-              </div>
-            </div>
-            <div className="space-y-2 max-h-20 overflow-y-auto">
-              {analytics.liveCountryBreakdown.slice(0, 3).map((item) => (
-                <div key={item.country} className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-1">
-                    <span>{item.flag}</span>
-                    <span className="truncate">{item.country}</span>
-                  </span>
-                  <span className="font-semibold text-blue-600">{item.count}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Top Countries */}
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Top Países</p>
-                <p className="text-3xl font-bold text-purple-600">{analytics.topCountries.length}</p>
-              </div>
-              <div className="bg-purple-100 p-3 rounded-lg">
-                <MapPin className="w-6 h-6 text-purple-600" />
-              </div>
-            </div>
-            <div className="space-y-2 max-h-20 overflow-y-auto">
-              {analytics.topCountries.slice(0, 3).map((item) => (
-                <div key={item.country} className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-1">
-                    <span>{item.flag}</span>
-                    <span className="truncate">{item.country}</span>
-                  </span>
-                  <span className="font-semibold text-purple-600">{item.count}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Total Sessions */}
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total de Sessões</p>
-                <p className="text-3xl font-bold text-gray-900">{analytics.totalSessions}</p>
-                <p className="text-xs text-gray-500">Desde o início</p>
-              </div>
-              <div className="bg-gray-100 p-3 rounded-lg">
-                <Users className="w-6 h-6 text-gray-600" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {/* Video Play Rate */}
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Taxa de Play no Vídeo</p>
-                <p className="text-3xl font-bold text-gray-900">{analytics.videoPlayRate.toFixed(1)}%</p>
-              </div>
-              <div className="bg-green-100 p-3 rounded-lg">
-                <Play className="w-6 h-6 text-green-600" />
-              </div>
-            </div>
-          </div>
-
-          {/* Lead Reach Rate */}
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Taxa de Lead (7:45)</p>
-                <p className="text-3xl font-bold text-gray-900">{analytics.leadReachRate.toFixed(1)}%</p>
-              </div>
-              <div className="bg-blue-100 p-3 rounded-lg">
-                <UserCheck className="w-6 h-6 text-blue-600" />
-              </div>
-            </div>
-          </div>
-
-          {/* Pitch Reach Rate */}
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Taxa de Pitch (35:55)</p>
-                <p className="text-3xl font-bold text-gray-900">{analytics.pitchReachRate.toFixed(1)}%</p>
-              </div>
-              <div className="bg-yellow-100 p-3 rounded-lg">
-                <Target className="w-6 h-6 text-yellow-600" />
-              </div>
-            </div>
-          </div>
-
-          {/* Average Time on Page */}
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Tempo Médio na Página</p>
-                <p className="text-3xl font-bold text-gray-900">{formatTime(analytics.averageTimeOnPage)}</p>
-              </div>
-              <div className="bg-purple-100 p-3 rounded-lg">
-                <Clock className="w-6 h-6 text-purple-600" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Offer Click Rates */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Offer Performance */}
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <ShoppingCart className="w-5 h-5" />
-              Performance das Ofertas
-            </h3>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-600">6 Frascos (Best Value)</span>
-                <div className="flex items-center gap-2">
-                  <div className="w-32 bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-blue-600 h-2 rounded-full" 
-                      style={{ width: `${Math.min(analytics.offerClickRates['6-bottle'], 100)}%` }}
-                    ></div>
+        {/* Tab Content */}
+        {activeTab === 'analytics' ? (
+          <>
+            {/* Live Users Highlight */}
+            <div className="mb-8">
+              <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-6 text-white shadow-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
+                      <h2 className="text-2xl font-bold">
+                        👤 {analytics.liveUsers} usuários ativos agora
+                      </h2>
+                    </div>
+                    {analytics.liveCountryBreakdown.length > 0 && (
+                      <p className="text-green-100 text-lg">
+                        🌎 {formatLiveCountryBreakdown()}
+                      </p>
+                    )}
                   </div>
-                  <span className="text-sm font-bold text-gray-900 w-12">
-                    {analytics.offerClickRates['6-bottle'].toFixed(1)}%
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-600">3 Frascos</span>
-                <div className="flex items-center gap-2">
-                  <div className="w-32 bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-green-600 h-2 rounded-full" 
-                      style={{ width: `${Math.min(analytics.offerClickRates['3-bottle'], 100)}%` }}
-                    ></div>
+                  <div className="bg-white/20 p-4 rounded-xl">
+                    <Zap className="w-8 h-8 text-white" />
                   </div>
-                  <span className="text-sm font-bold text-gray-900 w-12">
-                    {analytics.offerClickRates['3-bottle'].toFixed(1)}%
-                  </span>
                 </div>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-600">1 Frasco</span>
-                <div className="flex items-center gap-2">
-                  <div className="w-32 bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-yellow-600 h-2 rounded-full" 
-                      style={{ width: `${Math.min(analytics.offerClickRates['1-bottle'], 100)}%` }}
-                    ></div>
+            </div>
+
+            {/* Conversion Funnel */}
+            <div className="mb-8">
+              <ConversionFunnel />
+            </div>
+
+            {/* Conversion Heatmap */}
+            <div className="mb-8">
+              <ConversionHeatmap />
+            </div>
+
+            {/* Sales Chart */}
+            <div className="mb-8">
+              <SalesChart />
+            </div>
+
+            {/* Live Stats Row */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+              {/* Live Users */}
+              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 relative overflow-hidden">
+                <div className="absolute top-2 right-2">
+                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Usuários Online</p>
+                    <p className="text-3xl font-bold text-green-600">{analytics.liveUsers}</p>
+                    <p className="text-xs text-gray-500">Últimos 2 minutos</p>
                   </div>
-                  <span className="text-sm font-bold text-gray-900 w-12">
-                    {analytics.offerClickRates['1-bottle'].toFixed(1)}%
-                  </span>
+                  <div className="bg-green-100 p-3 rounded-lg">
+                    <Activity className="w-6 h-6 text-green-600" />
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-600">Total de Cliques em Ofertas</span>
-                <span className="text-lg font-bold text-gray-900">{analytics.totalOfferClicks}</span>
-              </div>
-            </div>
-          </div>
 
-          {/* Conversion Funnel */}
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5" />
-              Funil de Conversão
-            </h3>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-600">Visitantes</span>
-                <span className="text-lg font-bold text-gray-900">{analytics.totalSessions}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-600">Assistiram Vídeo</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-lg font-bold text-gray-900">
-                    {Math.round((analytics.videoPlayRate / 100) * analytics.totalSessions)}
-                  </span>
-                  <span className="text-sm text-gray-500">({analytics.videoPlayRate.toFixed(1)}%)</span>
+              {/* Countries Online */}
+              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Países Online</p>
+                    <p className="text-3xl font-bold text-blue-600">{analytics.liveCountryBreakdown.length}</p>
+                  </div>
+                  <div className="bg-blue-100 p-3 rounded-lg">
+                    <Globe className="w-6 h-6 text-blue-600" />
+                  </div>
+                </div>
+                <div className="space-y-2 max-h-20 overflow-y-auto">
+                  {analytics.liveCountryBreakdown.slice(0, 3).map((item) => (
+                    <div key={item.country} className="flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-1">
+                        <span>{item.flag}</span>
+                        <span className="truncate">{item.country}</span>
+                      </span>
+                      <span className="font-semibold text-blue-600">{item.count}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-600">Viraram Lead (7:45)</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-lg font-bold text-gray-900">
-                    {Math.round((analytics.leadReachRate / 100) * analytics.totalSessions)}
-                  </span>
-                  <span className="text-sm text-gray-500">({analytics.leadReachRate.toFixed(1)}%)</span>
+
+              {/* Top Countries */}
+              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Top Países</p>
+                    <p className="text-3xl font-bold text-purple-600">{analytics.topCountries.length}</p>
+                  </div>
+                  <div className="bg-purple-100 p-3 rounded-lg">
+                    <MapPin className="w-6 h-6 text-purple-600" />
+                  </div>
+                </div>
+                <div className="space-y-2 max-h-20 overflow-y-auto">
+                  {analytics.topCountries.slice(0, 3).map((item) => (
+                    <div key={item.country} className="flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-1">
+                        <span>{item.flag}</span>
+                        <span className="truncate">{item.country}</span>
+                      </span>
+                      <span className="font-semibold text-purple-600">{item.count}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-600">Chegaram ao Pitch (35:55)</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-lg font-bold text-gray-900">
-                    {Math.round((analytics.pitchReachRate / 100) * analytics.totalSessions)}
-                  </span>
-                  <span className="text-sm text-gray-500">({analytics.pitchReachRate.toFixed(1)}%)</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-600">Clicaram em Ofertas</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-lg font-bold text-gray-900">{analytics.totalOfferClicks}</span>
-                  <span className="text-sm text-gray-500">
-                    ({analytics.totalSessions > 0 ? ((analytics.totalOfferClicks / analytics.totalSessions) * 100).toFixed(1) : 0}%)
-                  </span>
+
+              {/* Total Sessions */}
+              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Total de Sessões</p>
+                    <p className="text-3xl font-bold text-gray-900">{analytics.totalSessions}</p>
+                    <p className="text-xs text-gray-500">Desde o início</p>
+                  </div>
+                  <div className="bg-gray-100 p-3 rounded-lg">
+                    <Users className="w-6 h-6 text-gray-600" />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* Recent Sessions Table */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-          <div className="p-6 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <Eye className="w-5 h-5" />
-              Sessões Recentes
-            </h3>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    País
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Cidade
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    IP
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Data/Hora
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Vídeo
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Lead
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Pitch
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Oferta
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Tempo
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {analytics.recentSessions.map((session, index) => (
-                  <tr key={session.sessionId} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${session.isLive ? 'bg-green-500 animate-pulse' : 'bg-gray-300'}`}></div>
-                        <span className={`text-xs font-medium ${session.isLive ? 'text-green-600' : 'text-gray-500'}`}>
-                          {session.isLive ? 'ONLINE' : 'OFFLINE'}
-                        </span>
+            {/* Main Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              {/* Video Play Rate */}
+              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Taxa de Play no Vídeo</p>
+                    <p className="text-3xl font-bold text-gray-900">{analytics.videoPlayRate.toFixed(1)}%</p>
+                  </div>
+                  <div className="bg-green-100 p-3 rounded-lg">
+                    <Play className="w-6 h-6 text-green-600" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Lead Reach Rate */}
+              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Taxa de Lead (7:45)</p>
+                    <p className="text-3xl font-bold text-gray-900">{analytics.leadReachRate.toFixed(1)}%</p>
+                  </div>
+                  <div className="bg-blue-100 p-3 rounded-lg">
+                    <UserCheck className="w-6 h-6 text-blue-600" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Pitch Reach Rate */}
+              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Taxa de Pitch (35:55)</p>
+                    <p className="text-3xl font-bold text-gray-900">{analytics.pitchReachRate.toFixed(1)}%</p>
+                  </div>
+                  <div className="bg-yellow-100 p-3 rounded-lg">
+                    <Target className="w-6 h-6 text-yellow-600" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Average Time on Page */}
+              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">Tempo Médio na Página</p>
+                    <p className="text-3xl font-bold text-gray-900">{formatTime(analytics.averageTimeOnPage)}</p>
+                  </div>
+                  <div className="bg-purple-100 p-3 rounded-lg">
+                    <Clock className="w-6 h-6 text-purple-600" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Offer Click Rates */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              {/* Offer Performance */}
+              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <ShoppingCart className="w-5 h-5" />
+                  Performance das Ofertas
+                </h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-600">6 Frascos (Best Value)</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-32 bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-blue-600 h-2 rounded-full" 
+                          style={{ width: `${Math.min(analytics.offerClickRates['6-bottle'], 100)}%` }}
+                        ></div>
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      <div className="flex items-center gap-2">
-                        <span>{getCountryFlag(session.countryCode, session.country)}</span>
-                        <span className="truncate max-w-20">{session.country}</span>
+                      <span className="text-sm font-bold text-gray-900 w-12">
+                        {analytics.offerClickRates['6-bottle'].toFixed(1)}%
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-600">3 Frascos</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-32 bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-green-600 h-2 rounded-full" 
+                          style={{ width: `${Math.min(analytics.offerClickRates['3-bottle'], 100)}%` }}
+                        ></div>
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      <span className="truncate max-w-24">{session.city}</span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
-                      {maskIP(session.ip)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {session.timestamp ? formatDate(session.timestamp) : '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        session.playedVideo 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {session.playedVideo ? 'Sim' : 'Não'}
+                      <span className="text-sm font-bold text-gray-900 w-12">
+                        {analytics.offerClickRates['3-bottle'].toFixed(1)}%
                       </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        session.reachedLead 
-                          ? 'bg-blue-100 text-blue-800' 
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {session.reachedLead ? 'Sim' : 'Não'}
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-600">1 Frasco</span>
+                    <div className="flex items-center gap-2">
+                      <div className="w-32 bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-yellow-600 h-2 rounded-full" 
+                          style={{ width: `${Math.min(analytics.offerClickRates['1-bottle'], 100)}%` }}
+                        ></div>
+                      </div>
+                      <span className="text-sm font-bold text-gray-900 w-12">
+                        {analytics.offerClickRates['1-bottle'].toFixed(1)}%
                       </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        session.reachedPitch 
-                          ? 'bg-purple-100 text-purple-800' 
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {session.reachedPitch ? 'Sim' : 'Não'}
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-600">Total de Cliques em Ofertas</span>
+                    <span className="text-lg font-bold text-gray-900">{analytics.totalOfferClicks}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Conversion Funnel */}
+              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5" />
+                  Funil de Conversão
+                </h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-600">Visitantes</span>
+                    <span className="text-lg font-bold text-gray-900">{analytics.totalSessions}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-600">Assistiram Vídeo</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-bold text-gray-900">
+                        {Math.round((analytics.videoPlayRate / 100) * analytics.totalSessions)}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {session.clickedOffer ? (
-                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                          {session.clickedOffer}
-                        </span>
-                      ) : (
-                        '-'
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {session.timeOnPage ? formatTime(session.timeOnPage) : '-'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+                      <span className="text-sm text-gray-500">({analytics.videoPlayRate.toFixed(1)}%)</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-600">Viraram Lead (7:45)</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-bold text-gray-900">
+                        {Math.round((analytics.leadReachRate / 100) * analytics.totalSessions)}
+                      </span>
+                      <span className="text-sm text-gray-500">({analytics.leadReachRate.toFixed(1)}%)</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-600">Chegaram ao Pitch (35:55)</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-bold text-gray-900">
+                        {Math.round((analytics.pitchReachRate / 100) * analytics.totalSessions)}
+                      </span>
+                      <span className="text-sm text-gray-500">({analytics.pitchReachRate.toFixed(1)}%)</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-600">Clicaram em Ofertas</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-bold text-gray-900">{analytics.totalOfferClicks}</span>
+                      <span className="text-sm text-gray-500">
+                        ({analytics.totalSessions > 0 ? ((analytics.totalOfferClicks / analytics.totalSessions) * 100).toFixed(1) : 0}%)
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Recent Sessions Table */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+              <div className="p-6 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <Eye className="w-5 h-5" />
+                  Sessões Recentes
+                </h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        País
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Cidade
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        IP
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Data/Hora
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Vídeo
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Lead
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Pitch
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Oferta
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Tempo
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {analytics.recentSessions.map((session, index) => (
+                      <tr key={session.sessionId} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
+                            <div className={`w-2 h-2 rounded-full ${session.isLive ? 'bg-green-500 animate-pulse' : 'bg-gray-300'}`}></div>
+                            <span className={`text-xs font-medium ${session.isLive ? 'text-green-600' : 'text-gray-500'}`}>
+                              {session.isLive ? 'ONLINE' : 'OFFLINE'}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <div className="flex items-center gap-2">
+                            <span>{getCountryFlag(session.countryCode, session.country)}</span>
+                            <span className="truncate max-w-20">{session.country}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <span className="truncate max-w-24">{session.city}</span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
+                          {maskIP(session.ip)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {session.timestamp ? formatDate(session.timestamp) : '-'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            session.playedVideo 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {session.playedVideo ? 'Sim' : 'Não'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            session.reachedLead 
+                              ? 'bg-blue-100 text-blue-800' 
+                              : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {session.reachedLead ? 'Sim' : 'Não'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            session.reachedPitch 
+                              ? 'bg-purple-100 text-purple-800' 
+                              : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {session.reachedPitch ? 'Sim' : 'Não'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {session.clickedOffer ? (
+                            <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                              {session.clickedOffer}
+                            </span>
+                          ) : (
+                            '-'
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {session.timeOnPage ? formatTime(session.timeOnPage) : '-'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        ) : (
+          <TrackingTestPanel />
+        )}
       </div>
     </div>
   );

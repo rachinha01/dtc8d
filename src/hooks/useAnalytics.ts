@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
+import { initializeTracking, trackConversion } from '../utils/urlUtils';
 
 interface GeolocationData {
   ip: string;
@@ -286,6 +287,9 @@ export const useAnalytics = () => {
   useEffect(() => {
     const initializeTracking = async () => {
       try {
+        // Initialize URL tracking
+        initializeTracking();
+        
         // Load geolocation data first
         geolocationData.current = await getGeolocationData();
         isGeolocationLoaded.current = true;
@@ -357,6 +361,9 @@ export const useAnalytics = () => {
       trackEvent('video_play', { 
         country: geolocationData.current?.country_name || 'Unknown'
       });
+      
+      // Track with external pixels
+      trackConversion('VideoPlay');
     }
   };
 
@@ -372,6 +379,9 @@ export const useAnalytics = () => {
         current_time: currentTime,
         country: geolocationData.current?.country_name || 'Unknown'
       });
+      
+      // Track with external pixels
+      trackConversion('LeadReached');
     }
     
     // Track pitch reached at 35:55 (2155 seconds)
@@ -383,6 +393,9 @@ export const useAnalytics = () => {
         current_time: currentTime,
         country: geolocationData.current?.country_name || 'Unknown'
       });
+      
+      // Track with external pixels
+      trackConversion('PitchReached');
     }
 
     // Track progress milestones every 25%
@@ -411,11 +424,14 @@ export const useAnalytics = () => {
     }
   };
 
-  const trackOfferClick = (offerType: '1-bottle' | '3-bottle' | '6-bottle') => {
+  const trackOfferClick = (offerType: '1-bottle' | '3-bottle' | '6-bottle' | string) => {
     trackEvent('offer_click', { 
       offer_type: offerType,
       country: geolocationData.current?.country_name || 'Unknown'
     });
+    
+    // Track with external pixels
+    trackConversion('OfferClick');
   };
 
   return {

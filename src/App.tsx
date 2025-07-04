@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAnalytics } from './hooks/useAnalytics';
+import { initializeTracking } from './utils/urlUtils';
 
 // Import all components
 import { Header } from './components/Header';
@@ -33,6 +34,9 @@ function App() {
   const isMainPage = location.pathname === '/' || location.pathname === '/home';
 
   useEffect(() => {
+    // Initialize tracking parameters on app load
+    initializeTracking();
+    
     // Inject VTurb script immediately when component mounts
     const script = document.createElement('script');
     script.type = 'text/javascript';
@@ -271,6 +275,7 @@ declare global {
         };
       };
     };
+    pixelId?: string;
   }
 }
 
