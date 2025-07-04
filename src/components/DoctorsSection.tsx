@@ -31,7 +31,7 @@ export const DoctorsSection: React.FC = () => {
       affiliation: "Columbia University",
       testimonial: "BlueDrops represents a breakthrough in natural men's health. Simple ingredients, impressive results.",
       profileImage: "https://i.imgur.com/oM0Uyij.jpeg",
-      videoId: "dr_oz_testimonial_id" // Replace with actual VTurb video ID
+      videoId: "686778a578c1d68a67597d8c" // ✅ REAL VTurb video ID
     },
     {
       id: 2,
@@ -61,7 +61,7 @@ export const DoctorsSection: React.FC = () => {
     script.async = true;
     script.innerHTML = `
       var s=document.createElement("script");
-      s.src="https://scripts.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${videoId}/player.js";
+      s.src="https://scripts.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${videoId}/v4/player.js";
       s.async=true;
       document.head.appendChild(s);
     `;
@@ -451,36 +451,38 @@ const DoctorCard: React.FC<{ doctor: any; isActive: boolean; isDragging: boolean
         </p>
       </div>
 
-      {/* READY: Doctor Video Testimonial - VTurb integration */}
+      {/* ✅ REAL VTurb Video - Dr. Mehmet Oz */}
       {isActive && (
         <div className="mb-4">
           <div className="aspect-video rounded-xl overflow-hidden shadow-lg bg-gray-900 relative">
-            {/* VTurb Video Container - READY for your video IDs */}
-            <div
-              id={`doctor_vid_${doctor.videoId}`}
-              className="w-full h-full"
+            {/* VTurb Video Container with REAL ID */}
+            <vturb-smartplayer 
+              id={`vid-${doctor.videoId}`}
               style={{
-                position: 'relative',
+                display: 'block',
+                margin: '0 auto',
                 width: '100%',
                 height: '100%'
               }}
-            >
-              {/* Video Placeholder while loading */}
-              <div className="w-full h-full bg-gradient-to-br from-blue-800 to-blue-900 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-3 mx-auto">
-                    <Play className="w-6 h-6 text-white ml-0.5" />
-                  </div>
-                  <p className="text-white/90 text-base font-medium mb-1">
-                    {doctor.name}
-                  </p>
-                  <p className="text-white/70 text-sm">
-                    Video Testimonial
-                  </p>
+            />
+            
+            {/* Fallback placeholder if video doesn't load */}
+            <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-blue-800 to-blue-900 flex items-center justify-center">
+              <div className="text-center">
+                <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-3 mx-auto">
+                  <Play className="w-6 h-6 text-white ml-0.5" />
+                </div>
+                <p className="text-white/90 text-base font-medium mb-1">
+                  {doctor.name}
+                </p>
+                <p className="text-white/70 text-sm">
+                  Video Testimonial
+                </p>
+                {doctor.videoId !== "686778a578c1d68a67597d8c" && (
                   <p className="text-white/50 text-xs mt-2">
                     Video ID: {doctor.videoId}
                   </p>
-                </div>
+                )}
               </div>
             </div>
           </div>
