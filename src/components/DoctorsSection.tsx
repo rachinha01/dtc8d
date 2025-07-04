@@ -66,7 +66,13 @@ export const DoctorsSection: React.FC = () => {
       s.async=true;
       s.onload = function() {
         console.log('VTurb doctor video loaded: ${videoId}');
-        // Mark video as loaded
+        // Hide placeholder when video loads
+        setTimeout(function() {
+          var placeholder = document.getElementById('doctor_placeholder_${videoId}');
+          if (placeholder) {
+            placeholder.style.display = 'none';
+          }
+        }, 1000);
         window.doctorVideoLoaded_${videoId} = true;
       };
       document.head.appendChild(s);
@@ -420,7 +426,7 @@ export const DoctorsSection: React.FC = () => {
   );
 };
 
-// FIXED: Doctor Card Component - All videos now working
+// FIXED: Doctor Card Component - Proper z-index layering
 const DoctorCard: React.FC<{ 
   doctor: any; 
   isActive: boolean; 
@@ -476,11 +482,11 @@ const DoctorCard: React.FC<{
         </p>
       </div>
 
-      {/* ✅ COMPLETE: All 3 doctors now have VTurb videos */}
+      {/* ✅ FIXED: Video container with proper z-index layering */}
       {isActive && (
         <div className="mb-4">
           <div className="aspect-video rounded-xl overflow-hidden shadow-lg bg-gray-900 relative">
-            {/* VTurb Video Container - ALL DOCTORS WORKING */}
+            {/* ✅ VTurb Video Container - HIGHEST z-index */}
             <vturb-smartplayer 
               id={`vid-${doctor.videoId}`}
               style={{
@@ -488,12 +494,31 @@ const DoctorCard: React.FC<{
                 margin: '0 auto',
                 width: '100%',
                 height: '100%',
-                position: 'relative',
-                zIndex: 10
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                zIndex: 20 // ✅ HIGHEST z-index for video
               }}
             />
             
-            {/* ✅ NO fallback needed - all doctors have real videos */}
+            {/* ✅ Placeholder - LOWER z-index, hidden when video loads */}
+            <div 
+              id={`doctor_placeholder_${doctor.videoId}`}
+              className="absolute inset-0 bg-gradient-to-br from-blue-800 to-blue-900 flex items-center justify-center"
+              style={{ zIndex: 10 }} // ✅ LOWER z-index than video
+            >
+              <div className="text-center">
+                <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-3 mx-auto">
+                  <Play className="w-6 h-6 text-white ml-0.5" />
+                </div>
+                <p className="text-white/90 text-base font-medium mb-1">
+                  {doctor.name}
+                </p>
+                <p className="text-white/70 text-sm">
+                  Loading video...
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       )}

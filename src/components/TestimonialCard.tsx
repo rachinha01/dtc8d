@@ -42,6 +42,13 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
         s.async=true;
         s.onload = function() {
           console.log('VTurb testimonial video loaded: ${testimonial.videoId}');
+          // Hide placeholder when video loads
+          setTimeout(function() {
+            var placeholder = document.getElementById('placeholder_${testimonial.videoId}');
+            if (placeholder) {
+              placeholder.style.display = 'none';
+            }
+          }, 1000);
         };
         document.head.appendChild(s);
       `;
@@ -97,23 +104,33 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
         </p>
       </div>
 
-      {/* ✅ FIXED: Video only appears when card is active */}
+      {/* ✅ FIXED: Video container with proper z-index layering */}
       {isActive && (
         <div className="mb-4">
           <div className="aspect-video rounded-xl overflow-hidden shadow-lg bg-gray-900 relative">
             {hasRealVideo ? (
-              // ✅ VTurb Video Container for Michael R. - FIXED positioning
-              <div
-                id={`vid-${testimonial.videoId}`}
-                style={{
-                  position: 'relative',
-                  width: '100%',
-                  height: '100%',
-                  zIndex: 1
-                }}
-              >
-                {/* Fallback content while video loads */}
-                <div className="w-full h-full bg-gradient-to-br from-blue-800 to-blue-900 flex items-center justify-center">
+              <>
+                {/* ✅ VTurb Video Container - HIGHEST z-index */}
+                <vturb-smartplayer 
+                  id={`vid-${testimonial.videoId}`}
+                  style={{
+                    display: 'block',
+                    margin: '0 auto',
+                    width: '100%',
+                    height: '100%',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    zIndex: 20 // ✅ HIGHEST z-index for video
+                  }}
+                />
+                
+                {/* ✅ Placeholder - LOWER z-index, hidden when video loads */}
+                <div 
+                  id={`placeholder_${testimonial.videoId}`}
+                  className="absolute inset-0 bg-gradient-to-br from-blue-800 to-blue-900 flex items-center justify-center"
+                  style={{ zIndex: 10 }} // ✅ LOWER z-index than video
+                >
                   <div className="text-center">
                     <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-3 mx-auto">
                       <Play className="w-6 h-6 text-white ml-0.5" />
@@ -122,14 +139,14 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
                       {testimonial.name}
                     </p>
                     <p className="text-white/70 text-sm">
-                      Customer Story
+                      Loading video...
                     </p>
                   </div>
                 </div>
-              </div>
+              </>
             ) : (
-              // Placeholder for other testimonials
-              <div className="w-full h-full bg-gradient-to-br from-blue-800 to-blue-900 flex items-center justify-center">
+              // Placeholder for other testimonials (no real video)
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-800 to-blue-900 flex items-center justify-center">
                 <div className="text-center">
                   <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-3 mx-auto">
                     <Play className="w-6 h-6 text-white ml-0.5" />
