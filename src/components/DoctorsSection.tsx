@@ -223,11 +223,11 @@ export const DoctorsSection: React.FC = () => {
         // ✅ FIXED: Proper cleanup
         const scriptToRemove = document.getElementById(`scr_${doctor.videoId}`);
         if (scriptToRemove) {
-          scriptToRemove.remove();
-        try {
-          scriptToRemove.remove();
-        } catch (error) {
-          console.error('Error removing doctor video script:', error);
+          try {
+            scriptToRemove.remove();
+          } catch (error) {
+            console.error('Error removing doctor video script:', error);
+          }
         }
       });
     };
