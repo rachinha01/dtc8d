@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
+import { supabaseCircuitBreaker, geolocationCircuitBreaker, analyticsCircuitBreaker, withCircuitBreaker } from '../utils/circuitBreaker';
 
 interface GeolocationData {
   ip: string;
@@ -30,6 +31,9 @@ export const useAnalytics = () => {
 
   // Function to get geolocation data with multiple stable APIs and fallbacks
   const getGeolocationData = async (): Promise<GeolocationData> => {
+    return withCircuitBreaker(
+      geolocationCircuitBreaker,
+      async () => {
     // Check if we already have the data in sessionStorage
     const cachedData = sessionStorage.getItem('geolocation_data');
     if (cachedData) {
@@ -192,6 +196,22 @@ export const useAnalytics = () => {
     console.log('Using default fallback data:', defaultData);
     sessionStorage.setItem('geolocation_data', JSON.stringify(defaultData));
     return defaultData;
+      },
+      async () => {
+        // Fallback: return cached data or default
+        const cachedData = sessionStorage.getItem('geolocation_data');
+        if (cachedData) {
+          return JSON.parse(cachedData);
+        }
+        return {
+          ip: 'Circuit-Breaker-Fallback',
+          country_code: 'XX',
+          country_name: 'Unknown',
+          city: 'Unknown',
+          region: 'Unknown'
+        };
+      }
+    );
   };
 
   // Helper function to get country name from country code
@@ -267,6 +287,10 @@ export const useAnalytics = () => {
     eventType: 'page_enter' | 'video_play' | 'video_progress' | 'pitch_reached' | 'offer_click' | 'page_exit',
     eventData?: any
   ) => {
+    // Use circuit breaker for analytics tracking
+    return withCircuitBreaker(
+      analyticsCircuitBreaker,
+      async () => {
     // ✅ FIXED: Prevent multiple page_exit events
     if (eventType === 'page_exit' && pageExitTracked.current) {
       console.log('🛑 Page exit already tracked, skipping duplicate');
@@ -306,7 +330,10 @@ export const useAnalytics = () => {
         country: geolocationData.current?.country_name || 'Unknown'
       });
 
-      const { data, error } = await supabase.from('vsl_analytics').insert({
+      // Use circuit breaker for Supabase operations
+      const { data, error } = await withCircuitBreaker(
+        supabaseCircuitBreaker,
+        () => supabase.from('vsl_analytics').insert({
         session_id: sessionId.current,
         event_type: eventType,
         event_data: enrichedEventData,
@@ -317,7 +344,8 @@ export const useAnalytics = () => {
         city: geolocationData.current?.city || null,
         region: geolocationData.current?.region || null,
         last_ping: new Date().toISOString(),
-      }).select('id');
+        }).select('id')
+      );
 
       // Store the record ID for the first event (page_enter) to use for ping updates
       if (eventType === 'page_enter' && data && data[0]) {
@@ -335,6 +363,12 @@ export const useAnalytics = () => {
       console.error(`❌ ERRO ao tracking event ${eventType}:`, error);
       // Don't throw error - analytics should never break the app
     }
+      },
+      async () => {
+        // Fallback: log to console only
+        console.log(`📊 Analytics circuit breaker open, logging event: ${eventType}`, eventData);
+      }
+    );
   };
 
   // Track page enter on mount - FIXED: Remove recursive call
