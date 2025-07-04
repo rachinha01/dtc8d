@@ -142,10 +142,29 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
                   });
                 }
                 
-                var placeholder = document.getElementById('placeholder_${testimonial.videoId}');
-                if (placeholder) {
-                  placeholder.style.display = 'none';
-                }
+                // ✅ CRITICAL: Ensure video elements stay in correct container
+                setTimeout(function() {
+                  // ✅ CRITICAL: Prevent video from appearing in main video container
+                  var mainVideoContainer = document.getElementById('vid_683ba3d1b87ae17c6e07e7db');
+                  var doctorContainer = document.getElementById('vid-${testimonial.videoId}');
+                  
+                  if (mainVideoContainer && doctorContainer) {
+                    // ✅ Move any testimonial video elements that ended up in main container
+                    var orphanedElements = mainVideoContainer.querySelectorAll('[src*="${testimonial.videoId}"], [data-video-id="${testimonial.videoId}"]');
+                    orphanedElements.forEach(function(element) {
+                      if (element.parentNode === mainVideoContainer) {
+                        doctorContainer.appendChild(element);
+                        console.log('🔄 Moved testimonial video element back to correct container');
+                      }
+                    });
+                  }
+                  
+                  // Hide placeholder
+                  var placeholder = document.getElementById('placeholder_${testimonial.videoId}');
+                  if (placeholder) {
+                    placeholder.style.display = 'none';
+                  }
+                }, 2000); // ✅ Increased delay for better stability
               }, 2000); // ✅ Increased delay for better stability
             };
             s.onerror = function() {
@@ -176,6 +195,27 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
         }
       }
     };
+  }, [isActive, hasRealVideo, testimonial.videoId]);
+
+  // ✅ NEW: Add HTML structure for each testimonial video
+  useEffect(() => {
+    if (isActive && hasRealVideo) {
+      const targetContainer = document.getElementById(`vid-${testimonial.videoId}`);
+      if (targetContainer) {
+        // ✅ Add the specific HTML structure for each testimonial
+        targetContainer.innerHTML = `
+          <div id="vid_${testimonial.videoId}" style="position:relative;width:100%;padding: 56.25% 0 0 0;">
+            <img id="thumb_${testimonial.videoId}" src="https://images.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${testimonial.videoId}/thumbnail.jpg" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;">
+            <div id="backdrop_${testimonial.videoId}" style="position:absolute;top:0;width:100%;height:100%;-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);"></div>
+          </div>
+          <style>
+            .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border-width:0;}
+          </style>
+        `;
+        
+        console.log(`✅ HTML structure added for testimonial: ${testimonial.videoId}`);
+      }
+    }
   }, [isActive, hasRealVideo, testimonial.videoId]);
 
   return (
@@ -221,7 +261,7 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
           <div className="aspect-video rounded-xl overflow-hidden shadow-lg bg-gray-900 relative">
             {hasRealVideo ? (
               <>
-                {/* ✅ VTurb Video Container - HIGHEST z-index with v4 API */}
+                {/* ✅ VTurb Video Container - HIGHEST z-index */}
                 <div
                   id={`vid-${testimonial.videoId}`}
                   style={{

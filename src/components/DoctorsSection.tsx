@@ -100,11 +100,27 @@ export const DoctorsSection: React.FC = () => {
           .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border-width:0;}
         </style>
       `;
-    } else {
-      // For other doctors, use the standard container
+    } else if (videoId === "68677941d890d9c12c549bbc") {
+      // ✅ Dr. Gundry - Same HTML structure
       targetContainer.innerHTML = `
-        <div id="vid_${videoId}" style="position:absolute;top:0;left:0;width:100%;height:100%;"></div>
-        <div id="placeholder_${videoId}" style="position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg, #1e3a8a, #1e40af);display:flex;align-items:center;justify-content:center;z-index:10;"></div>
+        <div id="vid_${videoId}" style="position:relative;width:100%;padding: 56.25% 0 0 0;">
+          <img id="thumb_${videoId}" src="https://images.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${videoId}/thumbnail.jpg" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;">
+          <div id="backdrop_${videoId}" style="position:absolute;top:0;width:100%;height:100%;-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);"></div>
+        </div>
+        <style>
+          .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border-width:0;}
+        </style>
+      `;
+    } else if (videoId === "68677d0e96c6c01dd66478a3") {
+      // ✅ Dr. Rena Malik - Same HTML structure
+      targetContainer.innerHTML = `
+        <div id="vid_${videoId}" style="position:relative;width:100%;padding: 56.25% 0 0 0;">
+          <img id="thumb_${videoId}" src="https://images.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${videoId}/thumbnail.jpg" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;">
+          <div id="backdrop_${videoId}" style="position:absolute;top:0;width:100%;height:100%;-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);"></div>
+        </div>
+        <style>
+          .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border-width:0;}
+        </style>
       `;
     }
 
@@ -118,8 +134,8 @@ export const DoctorsSection: React.FC = () => {
           console.log('🎬 Loading doctor video: ${videoId}');
           
           var s = document.createElement("script");
-          // ✅ UPDATED: Use the correct VTurb script URL for Dr. Oz
-          if ('${videoId}' === '686778a578c1d68a67597d8c') {
+          // ✅ UPDATED: Use the correct VTurb script URL for each doctor
+          if ('${videoId}' === '686778a578c1d68a67597d8c' || '${videoId}' === '68677941d890d9c12c549bbc' || '${videoId}' === '68677d0e96c6c01dd66478a3') {
             s.src = "https://scripts.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${videoId}/player.js";
           } else {
             s.src = "https://scripts.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${videoId}/v4/player.js";
@@ -146,11 +162,6 @@ export const DoctorsSection: React.FC = () => {
                 });
               }
               
-              // Hide placeholder
-              var placeholder = document.getElementById('placeholder_${videoId}');
-              if (placeholder) {
-                placeholder.style.display = 'none';
-              }
             }, 2000);
             window.doctorVideoLoaded_${videoId} = true;
           };
@@ -600,7 +611,7 @@ const DoctorCard: React.FC<{
             ></div>
             
             {/* ✅ Placeholder - Only show for non-Dr. Oz videos */}
-            {doctor.videoId !== "686778a578c1d68a67597d8c" && (
+            {!hasRealVideo && (
             <div 
               id={`placeholder_${doctor.videoId}`}
               className="absolute inset-0 bg-gradient-to-br from-blue-800 to-blue-900 flex items-center justify-center"
