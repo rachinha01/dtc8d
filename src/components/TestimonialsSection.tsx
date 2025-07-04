@@ -26,13 +26,13 @@ export const TestimonialsSection: React.FC = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number>();
 
-  // ✅ UPDATED: Michael R. and Robert S. now have real VTurb video IDs and profile images
+  // ✅ UPDATED: ALL testimonials now have real VTurb video IDs and profile images
   const testimonials: Testimonial[] = [
     {
       id: 1,
       name: "Michael R.",
       location: "Texas",
-      profileImage: "https://i.imgur.com/IYyJR1B.png", // ✅ NEW profile image
+      profileImage: "https://i.imgur.com/IYyJR1B.png", // ✅ Real profile image
       videoId: "68677fbfd890d9c12c549f94", // ✅ REAL VTurb video ID
       caption: "BlueDrops completely changed my life. I felt the difference in just 2 weeks!"
     },
@@ -40,7 +40,7 @@ export const TestimonialsSection: React.FC = () => {
       id: 2,
       name: "Robert S.",
       location: "California",
-      profileImage: "https://i.imgur.com/d1raEIm.png", // ✅ NEW profile image
+      profileImage: "https://i.imgur.com/d1raEIm.png", // ✅ Real profile image
       videoId: "6867816a78c1d68a675981f1", // ✅ REAL VTurb video ID
       caption: "After 50, I thought there was no hope. BlueDrops proved me wrong!"
     },
@@ -48,8 +48,8 @@ export const TestimonialsSection: React.FC = () => {
       id: 3,
       name: "John O.",
       location: "Florida",
-      profileImage: "https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop&crop=face",
-      videoId: "john_testimonial_id", // Replace with actual VTurb video ID
+      profileImage: "https://i.imgur.com/UJ0L2tZ.png", // ✅ NEW: Real profile image
+      videoId: "68678320c5ab1e6abe6e5b6f", // ✅ NEW: REAL VTurb video ID
       caption: "My wife noticed the difference before I even told her about BlueDrops!"
     }
   ];
