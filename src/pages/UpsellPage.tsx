@@ -179,117 +179,8 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
             </p>
           </div>
 
-          {/* Critical Warning Section */}
-          <div className="w-full mb-6 animate-fadeInUp animation-delay-600">
-            <div className="bg-white/30 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-red-200 shadow-lg">
-              <div className="text-center">
-                <div className="bg-red-500 text-white px-4 py-2 rounded-full inline-block mb-4">
-                  <span className="font-bold text-sm">CRITICAL WARNING</span>
-                </div>
-                
-                <div className="space-y-3 text-blue-800 text-sm leading-relaxed">
-                  <p className="font-bold text-red-600">
-                    If you skip this step, you might be wasting your entire investment.
-                  </p>
-                  <p className="font-bold text-red-600">Yes, I'm serious.</p>
-                  <p>
-                    Because stopping this treatment too early will erase ALL your progress — and can even make your condition worse than before.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Here's the Truth Section */}
-          <div className="w-full mb-6 animate-fadeInUp animation-delay-800">
-            <div className="bg-white/30 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-blue-200 shadow-lg">
-              <h3 className="text-lg font-bold text-blue-900 mb-3 flex items-center gap-2">
-                💧 Here's the Truth:
-              </h3>
-              
-              <div className="space-y-3 text-blue-800 text-sm leading-relaxed">
-                <p>
-                  BlueDrops is a liquid formula designed to remove the toxins that disrupt blood flow and performance.
-                </p>
-                <p>
-                  From the moment you take your first drops, your body begins a slow battle — fighting against the damage caused by years of poor circulation, stress, and hormonal imbalance.
-                </p>
-                <p className="font-bold text-red-600">
-                  But here's the problem...
-                </p>
-                <p className="bg-red-50 p-3 rounded-lg border border-red-200">
-                  <strong className="text-red-700">🧠 These toxins are deeply rooted in your body.</strong> And they don't go down without a fight. They resist. They hide. They rebuild.
-                </p>
-                <p>
-                  And if you stop the treatment too soon — before they're completely eliminated — they'll come back stronger.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Consequences Section */}
-          <div className="w-full mb-6 animate-fadeInUp animation-delay-1000">
-            <div className="bg-white/30 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-red-200 shadow-lg">
-              <h3 className="text-lg font-bold text-red-700 mb-4 text-center">
-                ❌ If You Don't Complete 9 Months of Treatment…
-              </h3>
-              
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center gap-2 text-red-600">
-                  <span className="w-2 h-2 bg-red-500 rounded-full"></span>
-                  <span>Your blood flow will weaken again</span>
-                </div>
-                <div className="flex items-center gap-2 text-red-600">
-                  <span className="w-2 h-2 bg-red-500 rounded-full"></span>
-                  <span>Your confidence and energy will drop</span>
-                </div>
-                <div className="flex items-center gap-2 text-red-600">
-                  <span className="w-2 h-2 bg-red-500 rounded-full"></span>
-                  <span>And in many cases, your body becomes immune to further treatment</span>
-                </div>
-              </div>
-              
-              <div className="mt-4 p-3 bg-gray-100 rounded-lg border border-gray-200">
-                <p className="text-blue-800 text-sm italic text-center">
-                  "It's like sending your army into battle, winning the war... And then suddenly pulling them out, letting the enemy regroup and conquer your body again."
-                </p>
-              </div>
-              
-              <div className="mt-3 text-center">
-                <p className="text-red-600 font-bold text-sm">
-                  You'll lose everything you gained — and worse — you may not be able to recover again.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Solution Section */}
-          <div className="w-full mb-6 animate-fadeInUp animation-delay-1200">
-            <div className="bg-white/30 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-green-200 shadow-lg">
-              <h3 className="text-lg font-bold text-green-700 mb-3 text-center">
-                ✅ Why 9 Months of BlueDrops is Absolutely Essential
-              </h3>
-              
-              <div className="space-y-3 text-blue-800 text-sm leading-relaxed">
-                <p>
-                  Only after 9 months of consistent use will your body create a strong defensive wall — a new, healthier internal state where performance-killing toxins can never return.
-                </p>
-                
-                <div className="bg-green-50 p-3 rounded-lg border border-green-200">
-                  <p className="text-green-700 font-bold text-center">Once that happens...</p>
-                  <p className="text-green-600 text-center font-bold">You'll NEVER need another product again.</p>
-                </div>
-                
-                <div className="bg-red-50 p-3 rounded-lg border border-red-200">
-                  <p className="text-red-700 font-bold text-center">But if you stop early…</p>
-                  <p className="text-red-600 text-center font-bold">You might not be able to stand up again.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* FINAL OFFER - Same product style as main page */}
-          <div className="w-full mb-6 relative animate-fadeInUp animation-delay-1400">
+          {/* IMMEDIATE OFFER SECTION - Following the image hierarchy */}
+          <div className="w-full mb-6 relative animate-fadeInUp animation-delay-600">
             {/* FINAL CHANCE Tag - Same style as BEST VALUE */}
             <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-20">
               <div className="bg-gradient-to-r from-red-400 via-red-500 to-red-600 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-full text-sm sm:text-base font-black shadow-lg border-2 border-white/40 backdrop-blur-sm">
@@ -397,6 +288,115 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
                       className="w-full h-auto object-contain max-h-12 sm:max-h-14"
                     />
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Critical Warning Section - AFTER the offer */}
+          <div className="w-full mb-6 animate-fadeInUp animation-delay-800">
+            <div className="bg-white/30 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-red-200 shadow-lg">
+              <div className="text-center">
+                <div className="bg-red-500 text-white px-4 py-2 rounded-full inline-block mb-4">
+                  <span className="font-bold text-sm">CRITICAL WARNING</span>
+                </div>
+                
+                <div className="space-y-3 text-blue-800 text-sm leading-relaxed">
+                  <p className="font-bold text-red-600">
+                    If you skip this step, you might be wasting your entire investment.
+                  </p>
+                  <p className="font-bold text-red-600">Yes, I'm serious.</p>
+                  <p>
+                    Because stopping this treatment too early will erase ALL your progress — and can even make your condition worse than before.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Here's the Truth Section */}
+          <div className="w-full mb-6 animate-fadeInUp animation-delay-1000">
+            <div className="bg-white/30 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-blue-200 shadow-lg">
+              <h3 className="text-lg font-bold text-blue-900 mb-3 flex items-center gap-2">
+                💧 Here's the Truth:
+              </h3>
+              
+              <div className="space-y-3 text-blue-800 text-sm leading-relaxed">
+                <p>
+                  BlueDrops is a liquid formula designed to remove the toxins that disrupt blood flow and performance.
+                </p>
+                <p>
+                  From the moment you take your first drops, your body begins a slow battle — fighting against the damage caused by years of poor circulation, stress, and hormonal imbalance.
+                </p>
+                <p className="font-bold text-red-600">
+                  But here's the problem...
+                </p>
+                <p className="bg-red-50 p-3 rounded-lg border border-red-200">
+                  <strong className="text-red-700">🧠 These toxins are deeply rooted in your body.</strong> And they don't go down without a fight. They resist. They hide. They rebuild.
+                </p>
+                <p>
+                  And if you stop the treatment too soon — before they're completely eliminated — they'll come back stronger.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Consequences Section */}
+          <div className="w-full mb-6 animate-fadeInUp animation-delay-1200">
+            <div className="bg-white/30 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-red-200 shadow-lg">
+              <h3 className="text-lg font-bold text-red-700 mb-4 text-center">
+                ❌ If You Don't Complete 9 Months of Treatment…
+              </h3>
+              
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2 text-red-600">
+                  <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                  <span>Your blood flow will weaken again</span>
+                </div>
+                <div className="flex items-center gap-2 text-red-600">
+                  <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                  <span>Your confidence and energy will drop</span>
+                </div>
+                <div className="flex items-center gap-2 text-red-600">
+                  <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                  <span>And in many cases, your body becomes immune to further treatment</span>
+                </div>
+              </div>
+              
+              <div className="mt-4 p-3 bg-gray-100 rounded-lg border border-gray-200">
+                <p className="text-blue-800 text-sm italic text-center">
+                  "It's like sending your army into battle, winning the war... And then suddenly pulling them out, letting the enemy regroup and conquer your body again."
+                </p>
+              </div>
+              
+              <div className="mt-3 text-center">
+                <p className="text-red-600 font-bold text-sm">
+                  You'll lose everything you gained — and worse — you may not be able to recover again.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Solution Section */}
+          <div className="w-full mb-6 animate-fadeInUp animation-delay-1400">
+            <div className="bg-white/30 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-green-200 shadow-lg">
+              <h3 className="text-lg font-bold text-green-700 mb-3 text-center">
+                ✅ Why 9 Months of BlueDrops is Absolutely Essential
+              </h3>
+              
+              <div className="space-y-3 text-blue-800 text-sm leading-relaxed">
+                <p>
+                  Only after 9 months of consistent use will your body create a strong defensive wall — a new, healthier internal state where performance-killing toxins can never return.
+                </p>
+                
+                <div className="bg-green-50 p-3 rounded-lg border border-green-200">
+                  <p className="text-green-700 font-bold text-center">Once that happens...</p>
+                  <p className="text-green-600 text-center font-bold">You'll NEVER need another product again.</p>
+                </div>
+                
+                <div className="bg-red-50 p-3 rounded-lg border border-red-200">
+                  <p className="text-red-700 font-bold text-center">But if you stop early…</p>
+                  <p className="text-red-600 text-center font-bold">You might not be able to stand up again.</p>
                 </div>
               </div>
             </div>
