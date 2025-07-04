@@ -284,7 +284,7 @@ export const DoctorsSection: React.FC = () => {
     setTimeout(() => setIsTransitioning(false), 500);
   };
 
-  // Get position and styling for each doctor card - FIXED: Better overflow handling
+  // Get position and styling for each doctor card - REMOVED overflow limitations
   const getCardStyle = (index: number) => {
     const position = index - currentDoctor;
     const dragInfluence = dragOffset * 0.3; // Reduced influence for subtlety
@@ -309,29 +309,29 @@ export const DoctorsSection: React.FC = () => {
       translateX = 280 + dragInfluence;
       translateZ = -100;
       scale = 0.85;
-      opacity = 0.6;
-      blur = 2;
+      opacity = 0.7; // Increased opacity
+      blur = 1; // Reduced blur
       rotateY = -15;
     } else if (position === -1 || (position === 2 && doctors.length === 3)) {
       // Previous card (left side)
       translateX = -280 + dragInfluence;
       translateZ = -100;
       scale = 0.85;
-      opacity = 0.6;
-      blur = 2;
+      opacity = 0.7; // Increased opacity
+      blur = 1; // Reduced blur
       rotateY = 15;
     } else {
-      // Hidden cards
+      // Hidden cards - Still visible but further away
       translateX = position > 0 ? 400 : -400;
       translateZ = -200;
       scale = 0.7;
-      opacity = 0;
-      blur = 5;
+      opacity = 0.4; // Made visible instead of 0
+      blur = 2; // Reduced blur
     }
     
     return {
       transform: `translateX(${translateX}px) translateZ(${translateZ}px) scale(${scale}) rotateY(${rotateY}deg)`,
-      opacity: Math.max(0, opacity),
+      opacity: Math.max(0.1, opacity), // Minimum opacity to keep cards visible
       filter: `blur(${blur}px)`,
       zIndex: position === 0 ? 10 : 5 - Math.abs(position),
       transition: isDragging ? 'none' : 'all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
@@ -360,14 +360,13 @@ export const DoctorsSection: React.FC = () => {
         </p>
       </div>
 
-      {/* Slideshow Container - FIXED: Better overflow and background */}
+      {/* Slideshow Container - REMOVED overflow hidden and background */}
       <div 
         ref={containerRef}
-        className="relative h-[500px] mb-3 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl"
+        className="relative h-[500px] mb-3"
         style={{ 
           perspective: '1200px',
-          touchAction: 'pan-y pinch-zoom',
-          overflow: 'hidden' // FIXED: Prevent cards from showing outside
+          touchAction: 'pan-y pinch-zoom'
         }}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
@@ -425,14 +424,14 @@ export const DoctorsSection: React.FC = () => {
   );
 };
 
-// Separate Doctor Card Component for cleaner code - FIXED: Better opacity
+// Separate Doctor Card Component for cleaner code - IMPROVED opacity
 const DoctorCard: React.FC<{ doctor: any; isActive: boolean; isDragging: boolean }> = ({ 
   doctor, 
   isActive, 
   isDragging 
 }) => {
   return (
-    <div className={`bg-white/90 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-blue-200 hover:bg-white/95 transition-all duration-300 max-w-md w-full mx-4 ${
+    <div className={`bg-white backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-blue-200 hover:bg-white/95 transition-all duration-300 max-w-md w-full mx-4 ${
       isDragging ? 'shadow-2xl' : 'shadow-lg'
     } ${isActive ? 'ring-2 ring-blue-300' : ''}`}>
       

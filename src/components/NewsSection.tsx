@@ -236,7 +236,7 @@ export const NewsSection: React.FC = () => {
     setTimeout(() => setIsTransitioning(false), 300);
   };
 
-  // Optimized card styling with better mobile performance - FIXED: Better overflow handling
+  // Optimized card styling with better mobile performance - REMOVED overflow limitations
   const getCardStyle = (index: number) => {
     const position = index - currentNews;
     const dragInfluence = dragOffset * 0.25; // Reduced for smoother mobile performance
@@ -256,25 +256,25 @@ export const NewsSection: React.FC = () => {
       // Next card (right side)
       translateX = 300 + dragInfluence;
       scale = 0.9;
-      opacity = 0.7;
+      opacity = 0.7; // Increased opacity
       zIndex = 5;
     } else if (position === -1 || (position === 2 && newsArticles.length === 3)) {
       // Previous card (left side)
       translateX = -300 + dragInfluence;
       scale = 0.9;
-      opacity = 0.7;
+      opacity = 0.7; // Increased opacity
       zIndex = 5;
     } else {
       // Hidden cards
       translateX = position > 0 ? 400 : -400;
       scale = 0.8;
-      opacity = 0;
+      opacity = 0.4; // Made visible instead of 0
       zIndex = 1;
     }
     
     return {
       transform: `translateX(${translateX}px) scale(${scale})`,
-      opacity: Math.max(0, opacity),
+      opacity: Math.max(0.1, opacity), // Minimum opacity to keep cards visible
       zIndex,
       transition: isDragging ? 'none' : 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
     };
@@ -315,14 +315,13 @@ export const NewsSection: React.FC = () => {
           </p>
         </div>
 
-        {/* News Slideshow Container - FIXED: Better overflow and background */}
+        {/* News Slideshow Container - REMOVED overflow hidden and background */}
         <div 
           ref={containerRef}
-          className="relative h-[400px] mb-3 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl"
+          className="relative h-[400px] mb-3"
           style={{ 
             perspective: '1000px',
-            touchAction: 'pan-y pinch-zoom',
-            overflow: 'hidden' // FIXED: Prevent cards from showing outside
+            touchAction: 'pan-y pinch-zoom'
           }}
           onMouseDown={handleMouseDown}
           onTouchStart={handleTouchStart}
@@ -381,7 +380,7 @@ export const NewsSection: React.FC = () => {
   );
 };
 
-// Optimized News Card Component with softer mobile borders - FIXED: Better opacity
+// Optimized News Card Component with softer mobile borders - IMPROVED opacity
 const NewsCard: React.FC<{ 
   article: any; 
   isActive: boolean; 
@@ -389,7 +388,7 @@ const NewsCard: React.FC<{
   onRead: () => void;
 }> = ({ article, isActive, isDragging, onRead }) => {
   return (
-    <div className={`bg-white/90 rounded-3xl p-6 border-2 ${article.color} hover:shadow-lg transition-all duration-300 max-w-md w-full mx-4 ${
+    <div className={`bg-white rounded-3xl p-6 border-2 ${article.color} hover:shadow-lg transition-all duration-300 max-w-md w-full mx-4 ${
       isDragging ? 'shadow-2xl' : 'shadow-lg'
     } ${isActive ? 'ring-2 ring-blue-300' : ''}`}>
       

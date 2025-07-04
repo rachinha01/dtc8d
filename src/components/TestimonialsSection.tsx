@@ -150,7 +150,7 @@ export const TestimonialsSection: React.FC = () => {
     setTimeout(() => setIsTransitioning(false), 300);
   };
 
-  // Optimized card styling - FIXED: Better overflow handling
+  // Optimized card styling - REMOVED overflow limitations
   const getCardStyle = (index: number) => {
     const position = index - currentTestimonial;
     let translateX = 0;
@@ -166,23 +166,23 @@ export const TestimonialsSection: React.FC = () => {
     } else if (position === 1 || (position === -2 && testimonials.length === 3)) {
       translateX = 280 + dragOffset * 0.3;
       scale = 0.85;
-      opacity = 0.6;
+      opacity = 0.7; // Increased opacity
       zIndex = 5;
     } else if (position === -1 || (position === 2 && testimonials.length === 3)) {
       translateX = -280 + dragOffset * 0.3;
       scale = 0.85;
-      opacity = 0.6;
+      opacity = 0.7; // Increased opacity
       zIndex = 5;
     } else {
       translateX = position > 0 ? 400 : -400;
-      scale = 0.7;
-      opacity = 0;
+      scale = 0.8;
+      opacity = 0.4; // Made visible instead of 0
       zIndex = 1;
     }
     
     return {
       transform: `translateX(${translateX}px) scale(${scale})`,
-      opacity: Math.max(0, opacity),
+      opacity: Math.max(0.1, opacity), // Minimum opacity to keep cards visible
       zIndex,
       transition: isDragging ? 'none' : 'all 0.3s ease-out',
     };
@@ -226,13 +226,12 @@ export const TestimonialsSection: React.FC = () => {
         </p>
       </div>
 
-      {/* Slideshow Container - FIXED: Better overflow and background */}
+      {/* Slideshow Container - REMOVED overflow hidden and background */}
       <div 
-        className="relative h-[500px] mb-3 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl"
+        className="relative h-[500px] mb-3"
         style={{ 
           perspective: '1000px',
-          touchAction: 'pan-y pinch-zoom',
-          overflow: 'hidden' // FIXED: Prevent cards from showing outside
+          touchAction: 'pan-y pinch-zoom'
         }}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
