@@ -22,6 +22,7 @@ function App() {
   const [selectedPackage, setSelectedPackage] = useState('');
   const [contentDelay, setContentDelay] = useState(0); // Delay in seconds
   const [isAdmin, setIsAdmin] = useState(false);
+  const [adminDelayOverride, setAdminDelayOverride] = useState(false);
 
   // ✅ NEW: Set default delay to 35min55s (2155 seconds)
   useEffect(() => {
@@ -110,7 +111,11 @@ function App() {
 
   // ✅ FIXED: Apply delay when contentDelay changes
   useEffect(() => {
-    if (contentDelay > 0) {
+    // ✅ NEW: Admin can override delay with DTC button
+    if (adminDelayOverride) {
+      console.log('🔓 Admin override active - showing content immediately');
+      setShowPurchaseButton(true);
+    } else if (contentDelay > 0) {
       console.log('⏰ Starting delay timer:', contentDelay, 'seconds (', Math.floor(contentDelay/60), 'min', contentDelay%60, 'sec)');
       setShowPurchaseButton(false); // Hide immediately
       
@@ -126,7 +131,7 @@ function App() {
       console.log('🚀 No delay, showing purchase buttons immediately');
       setShowPurchaseButton(true);
     }
-  }, [contentDelay]);
+  }, [contentDelay, adminDelayOverride]);
 
   useEffect(() => {
     // Initialize URL tracking parameters
@@ -416,9 +421,16 @@ function App() {
     closeUpsellPopup();
   };
 
-  // Function to open admin dashboard
-  const openAdminDashboard = () => {
-    window.open('/admin', '_blank');
+  // ✅ NEW: Function to toggle admin delay override
+  const toggleAdminDelayOverride = () => {
+    const newOverride = !adminDelayOverride;
+    setAdminDelayOverride(newOverride);
+    
+    if (newOverride) {
+      console.log('🔓 Admin DTC activated - delay disabled, showing all content');
+    } else {
+      console.log('🔒 Admin DTC deactivated - delay restored');
+    }
   };
 
   return (
@@ -427,12 +439,18 @@ function App() {
       {isAdmin && (
         <div className="fixed top-4 left-4 z-50">
           <button
-            onClick={openAdminDashboard}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center gap-2 text-sm font-semibold"
-            title="Abrir Dashboard Admin"
+            onClick={toggleAdminDelayOverride}
+            className={`${
+              adminDelayOverride 
+                ? 'bg-red-600 hover:bg-red-700' 
+                : 'bg-green-600 hover:bg-green-700'
+            } text-white px-4 py-2 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center gap-2 text-sm font-semibold`}
+            title={adminDelayOverride ? "Delay desabilitado - Clique para reativar" : "Clique para desabilitar delay"}
           >
-            <span className="text-lg">📊</span>
-            <span className="hidden sm:inline">DTC</span>
+            <span className="text-lg">{adminDelayOverride ? '🔓' : '🔒'}</span>
+            <span className="hidden sm:inline">
+              {adminDelayOverride ? 'DTC ON' : 'DTC OFF'}
+            </span>
           </button>
         </div>
       )}
