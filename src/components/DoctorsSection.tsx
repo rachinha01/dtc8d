@@ -520,7 +520,7 @@ const DoctorCard: React.FC<{
             
             {/* ✅ Placeholder - LOWER z-index, hidden when video loads */}
             <div 
-              id={`placeholder_${videoId}`}
+              id={`placeholder_${doctor.videoId}`}
               className="absolute inset-0 bg-gradient-to-br from-blue-800 to-blue-900 flex items-center justify-center"
               style={{ zIndex: 10 }} // LOWER z-index than video
             >
