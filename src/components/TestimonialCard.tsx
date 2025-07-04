@@ -19,6 +19,9 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
   isActive, 
   isDragging 
 }) => {
+  // ✅ Check if this is Michael R. with real VTurb video
+  const hasRealVideo = testimonial.videoId === "68677fbfd890d9c12c549f94";
+
   return (
     <div className={`bg-white backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-blue-200 hover:bg-white/95 transition-all duration-300 max-w-md w-full mx-4 ${
       isDragging ? 'shadow-2xl' : 'shadow-lg'
@@ -56,21 +59,25 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
         </p>
       </div>
 
-      {/* READY: Customer Video Testimonial - VTurb integration */}
+      {/* ✅ WORKING: Michael R. now has VTurb video */}
       {isActive && (
         <div className="mb-4">
           <div className="aspect-video rounded-xl overflow-hidden shadow-lg bg-gray-900 relative">
-            {/* VTurb Video Container - READY for your video IDs */}
-            <div
-              id={`testimonial_vid_${testimonial.videoId}`}
-              className="w-full h-full"
-              style={{
-                position: 'relative',
-                width: '100%',
-                height: '100%'
-              }}
-            >
-              {/* Video Placeholder while loading */}
+            {hasRealVideo ? (
+              // ✅ VTurb Video Container for Michael R.
+              <vturb-smartplayer 
+                id={`vid-${testimonial.videoId}`}
+                style={{
+                  display: 'block',
+                  margin: '0 auto',
+                  width: '100%',
+                  height: '100%',
+                  position: 'relative',
+                  zIndex: 10
+                }}
+              />
+            ) : (
+              // Placeholder for other testimonials
               <div className="w-full h-full bg-gradient-to-br from-blue-800 to-blue-900 flex items-center justify-center">
                 <div className="text-center">
                   <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-3 mx-auto">
@@ -83,11 +90,11 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
                     Customer Story
                   </p>
                   <p className="text-white/50 text-xs mt-2">
-                    Video ID: {testimonial.videoId}
+                    Video coming soon
                   </p>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       )}

@@ -26,14 +26,14 @@ export const TestimonialsSection: React.FC = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number>();
 
-  // Testimonials data with VTurb video IDs
+  // ✅ UPDATED: Michael R. now has real VTurb video ID and new profile image
   const testimonials: Testimonial[] = [
     {
       id: 1,
       name: "Michael R.",
       location: "Texas",
-      profileImage: "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop&crop=face",
-      videoId: "michael_testimonial_id", // Replace with actual VTurb video ID
+      profileImage: "https://i.imgur.com/IYyJR1B.png", // ✅ NEW profile image
+      videoId: "68677fbfd890d9c12c549f94", // ✅ REAL VTurb video ID
       caption: "BlueDrops completely changed my life. I felt the difference in just 2 weeks!"
     },
     {
@@ -62,8 +62,12 @@ export const TestimonialsSection: React.FC = () => {
     script.async = true;
     script.innerHTML = `
       var s=document.createElement("script");
-      s.src="https://scripts.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${videoId}/player.js";
+      s.src="https://scripts.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${videoId}/v4/player.js";
       s.async=true;
+      s.onload = function() {
+        console.log('VTurb testimonial video loaded: ${videoId}');
+        window.testimonialVideoLoaded_${videoId} = true;
+      };
       document.head.appendChild(s);
     `;
     
