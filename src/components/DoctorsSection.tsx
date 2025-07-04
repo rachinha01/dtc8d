@@ -50,7 +50,7 @@ export const DoctorsSection: React.FC = () => {
       affiliation: "University of Maryland",
       testimonial: "BlueDrops offers men a promising natural alternative that supports both confidence and wellness.",
       profileImage: "https://i.imgur.com/iNaQpa5.jpeg",
-      videoId: "dr_malik_testimonial_id" // Replace with actual VTurb video ID
+      videoId: "68677d0e96c6c01dd66478a3" // ✅ REAL VTurb video ID - Dr. Rena Malik
     }
   ];
 
@@ -420,7 +420,7 @@ export const DoctorsSection: React.FC = () => {
   );
 };
 
-// FIXED: Doctor Card Component - Removed overlapping placeholder
+// FIXED: Doctor Card Component - All videos now working
 const DoctorCard: React.FC<{ 
   doctor: any; 
   isActive: boolean; 
@@ -432,8 +432,10 @@ const DoctorCard: React.FC<{
   isDragging,
   videoLoaded
 }) => {
-  // Check if this doctor has a real VTurb video ID
-  const hasRealVideo = doctor.videoId === "686778a578c1d68a67597d8c" || doctor.videoId === "68677941d890d9c12c549bbc";
+  // ✅ ALL doctors now have real VTurb video IDs
+  const hasRealVideo = doctor.videoId === "686778a578c1d68a67597d8c" || 
+                       doctor.videoId === "68677941d890d9c12c549bbc" || 
+                       doctor.videoId === "68677d0e96c6c01dd66478a3";
 
   return (
     <div className={`bg-white backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-blue-200 hover:bg-white/95 transition-all duration-300 max-w-md w-full mx-4 ${
@@ -474,11 +476,11 @@ const DoctorCard: React.FC<{
         </p>
       </div>
 
-      {/* ✅ FIXED: VTurb Video - No overlapping placeholder */}
+      {/* ✅ COMPLETE: All 3 doctors now have VTurb videos */}
       {isActive && (
         <div className="mb-4">
           <div className="aspect-video rounded-xl overflow-hidden shadow-lg bg-gray-900 relative">
-            {/* VTurb Video Container - CLEAN, no overlay */}
+            {/* VTurb Video Container - ALL DOCTORS WORKING */}
             <vturb-smartplayer 
               id={`vid-${doctor.videoId}`}
               style={{
@@ -491,25 +493,7 @@ const DoctorCard: React.FC<{
               }}
             />
             
-            {/* ✅ ONLY show fallback if video hasn't loaded yet AND it's not a real video */}
-            {!hasRealVideo && (
-              <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-blue-800 to-blue-900 flex items-center justify-center z-5">
-                <div className="text-center">
-                  <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-3 mx-auto">
-                    <Play className="w-6 h-6 text-white ml-0.5" />
-                  </div>
-                  <p className="text-white/90 text-base font-medium mb-1">
-                    {doctor.name}
-                  </p>
-                  <p className="text-white/70 text-sm">
-                    Video Testimonial
-                  </p>
-                  <p className="text-white/50 text-xs mt-2">
-                    Coming soon...
-                  </p>
-                </div>
-              </div>
-            )}
+            {/* ✅ NO fallback needed - all doctors have real videos */}
           </div>
         </div>
       )}
