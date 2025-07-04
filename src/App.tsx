@@ -13,7 +13,6 @@ import { NewsSection } from './components/NewsSection';
 import { GuaranteeSection } from './components/GuaranteeSection';
 import { Footer } from './components/Footer';
 import { Modals } from './components/Modals';
-import { DelayController } from './components/DelayController';
 
 function App() {
   const [showPurchaseButton, setShowPurchaseButton] = useState(false); // Start hidden
@@ -21,10 +20,6 @@ function App() {
   const [showPopup, setShowPopup] = useState(true);
   const [showUpsellPopup, setShowUpsellPopup] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState('');
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [loginEmail, setLoginEmail] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
-  const [loginError, setLoginError] = useState('');
   const [contentDelay, setContentDelay] = useState(0); // Delay in seconds
 
   const navigate = useNavigate();
@@ -290,29 +285,6 @@ function App() {
     setShowPopup(false);
   };
 
-  const handleLogoClick = () => {
-    setShowLoginModal(true);
-    setLoginError('');
-  };
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (loginEmail === 'admin@magicbluedrops.com' && loginPassword === 'gotinhaazul') {
-      setShowLoginModal(false);
-      navigate('/admin');
-    } else {
-      setLoginError('Email ou senha incorretos');
-    }
-  };
-
-  const closeLoginModal = () => {
-    setShowLoginModal(false);
-    setLoginEmail('');
-    setLoginPassword('');
-    setLoginError('');
-  };
-
   const handleSecondaryPackageClick = (packageType: '1-bottle' | '3-bottle') => {
     setSelectedPackage(packageType);
     setShowUpsellPopup(true);
@@ -360,17 +332,11 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 via-white to-gray-50 overflow-x-hidden">
-      {/* Delay Controller - Only show for admin */}
-      <DelayController 
-        currentDelay={contentDelay}
-        onDelayChange={setContentDelay}
-      />
-
       {/* Main container - Always visible */}
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-6 sm:py-8 max-w-full">
         
-        {/* Header */}
-        <Header onLogoClick={handleLogoClick} />
+        {/* Header - Removed logo click handler */}
+        <Header />
 
         {/* Main Content */}
         <div className="flex flex-col items-center justify-center w-full max-w-md mx-auto">
@@ -410,18 +376,10 @@ function App() {
       {/* All Modals - Only show popup on main page */}
       <Modals 
         showPopup={isMainPage ? showPopup : false}
-        showLoginModal={showLoginModal}
         showUpsellPopup={showUpsellPopup}
         selectedPackage={selectedPackage}
-        loginEmail={loginEmail}
-        loginPassword={loginPassword}
-        loginError={loginError}
         onClosePopup={closePopup}
-        onCloseLoginModal={closeLoginModal}
         onCloseUpsellPopup={closeUpsellPopup}
-        onLoginEmailChange={setLoginEmail}
-        onLoginPasswordChange={setLoginPassword}
-        onLogin={handleLogin}
         onUpsellAccept={handleUpsellAccept}
         onUpsellRefuse={handleUpsellRefuse}
         getUpsellSavings={getUpsellSavings}

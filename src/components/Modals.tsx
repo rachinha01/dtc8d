@@ -3,18 +3,10 @@ import { X, AlertTriangle } from 'lucide-react';
 
 interface ModalsProps {
   showPopup: boolean;
-  showLoginModal: boolean;
   showUpsellPopup: boolean;
   selectedPackage: string;
-  loginEmail: string;
-  loginPassword: string;
-  loginError: string;
   onClosePopup: () => void;
-  onCloseLoginModal: () => void;
   onCloseUpsellPopup: () => void;
-  onLoginEmailChange: (email: string) => void;
-  onLoginPasswordChange: (password: string) => void;
-  onLogin: (e: React.FormEvent) => void;
   onUpsellAccept: () => void;
   onUpsellRefuse: () => void;
   getUpsellSavings: (packageType: string) => number;
@@ -22,18 +14,10 @@ interface ModalsProps {
 
 export const Modals: React.FC<ModalsProps> = ({
   showPopup,
-  showLoginModal,
   showUpsellPopup,
   selectedPackage,
-  loginEmail,
-  loginPassword,
-  loginError,
   onClosePopup,
-  onCloseLoginModal,
   onCloseUpsellPopup,
-  onLoginEmailChange,
-  onLoginPasswordChange,
-  onLogin,
   onUpsellAccept,
   onUpsellRefuse,
   getUpsellSavings
@@ -75,69 +59,6 @@ export const Modals: React.FC<ModalsProps> = ({
                 Reveal Secret
               </button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Login Modal */}
-      {showLoginModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-md w-full mx-4 relative animate-slideInUp">
-            {/* Close button */}
-            <button 
-              onClick={onCloseLoginModal}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              <X className="w-6 h-6" />
-            </button>
-
-            {/* Login content */}
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Admin Login</h2>
-              <p className="text-gray-600">Entre com suas credenciais</p>
-            </div>
-
-            <form onSubmit={onLogin} className="space-y-4">
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  value={loginEmail}
-                  onChange={(e) => onLoginEmailChange(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                  Senha
-                </label>
-                <input
-                  type="password"
-                  id="password"
-                  value={loginPassword}
-                  onChange={(e) => onLoginPasswordChange(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-
-              {loginError && (
-                <div className="text-red-600 text-sm text-center">
-                  {loginError}
-                </div>
-              )}
-
-              <button
-                type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
-              >
-                Entrar
-              </button>
-            </form>
           </div>
         </div>
       )}

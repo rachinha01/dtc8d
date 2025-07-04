@@ -140,152 +140,147 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 via-white to-gray-50 overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 via-white to-gray-50">
       {/* Fixed Red Alert Banner */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-3 shadow-lg">
         <div className="flex items-center justify-center gap-2">
-          <AlertTriangle className="w-5 h-5" />
-          <span className="font-black text-sm sm:text-base tracking-wide">⚠️ WAIT! YOUR ORDER IS NOT COMPLETE</span>
-          <AlertTriangle className="w-5 h-5" />
+          <AlertTriangle className="w-4 sm:w-5 h-4 sm:h-5" />
+          <span className="font-black text-xs sm:text-sm md:text-base tracking-wide">⚠️ WAIT! YOUR ORDER IS NOT COMPLETE</span>
+          <AlertTriangle className="w-4 sm:w-5 h-4 sm:h-5" />
         </div>
       </div>
 
-      {/* Main container - Same as main page */}
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-6 sm:py-8 max-w-full pt-20">
-        
-        {/* Header - Same style as main page */}
-        <header className="mb-6 sm:mb-8 animate-fadeInDown animation-delay-200">
-          <img 
-            src="https://i.imgur.com/QJxTIcN.png" 
-            alt="Blue Drops Logo"
-            className="h-8 w-auto"
-          />
-        </header>
-
-        {/* Main Content Container - Same max-width as main page */}
-        <div className="flex flex-col items-center justify-center w-full max-w-md mx-auto">
+      {/* Main container */}
+      <div className="pt-16 px-4 py-6 sm:py-8">
+        <div className="max-w-md mx-auto">
           
+          {/* Header */}
+          <header className="mb-6 sm:mb-8 text-center animate-fadeInDown animation-delay-200">
+            <img 
+              src="https://i.imgur.com/QJxTIcN.png" 
+              alt="Blue Drops Logo"
+              className="h-6 sm:h-8 w-auto mx-auto"
+            />
+          </header>
+
           {/* Hero Section */}
-          <div className="mb-6 text-center w-full animate-fadeInUp animation-delay-400">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-[0.85] mb-3 px-2">
-              <span className="text-blue-900 block mb-0.5">You're Just ONE Step</span>
+          <div className="mb-6 text-center animate-fadeInUp animation-delay-400">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black leading-tight mb-3">
+              <span className="text-blue-900 block mb-1">You're Just ONE Step</span>
               <span className="bg-gradient-to-r from-blue-600 via-cyan-500 to-indigo-600 bg-clip-text text-transparent block">
                 Away From Success
               </span>
             </h1>
             
-            <p className="text-base sm:text-lg text-blue-800 mb-2 font-semibold px-2">
+            <p className="text-sm sm:text-base text-blue-800 font-semibold px-2">
               Congratulations on securing your first bottles — but now, one last step could change everything.
             </p>
           </div>
 
-          {/* IMMEDIATE OFFER SECTION - Following the image hierarchy */}
-          <div className="w-full mb-6 relative animate-fadeInUp animation-delay-600">
-            {/* FINAL CHANCE Tag - Same style as BEST VALUE */}
-            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-20">
-              <div className="bg-gradient-to-r from-red-400 via-red-500 to-red-600 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-full text-sm sm:text-base font-black shadow-lg border-2 border-white/40 backdrop-blur-sm">
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className="w-4 sm:w-5 h-4 sm:h-5 text-white fill-current" />
+          {/* Main Offer Card */}
+          <div className="mb-6 relative animate-fadeInUp animation-delay-600">
+            {/* FINAL CHANCE Tag */}
+            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-20">
+              <div className="bg-gradient-to-r from-red-400 via-red-500 to-red-600 text-white px-4 sm:px-6 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-black shadow-lg border border-white/40">
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <AlertTriangle className="w-3 sm:w-4 h-3 sm:h-4 text-white" />
                   <span className="tracking-wide">FINAL CHANCE</span>
                 </div>
               </div>
             </div>
 
-            {/* Container with glow - Same as main page */}
+            {/* Card Container */}
             <div className="relative">
-              <div className="absolute -inset-1 bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 rounded-3xl blur-lg opacity-60 animate-pulse"></div>
+              <div className="absolute -inset-1 bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 rounded-2xl sm:rounded-3xl blur-lg opacity-60 animate-pulse"></div>
               
-              <div className="relative bg-gradient-to-br from-blue-600/95 to-blue-800/95 backdrop-blur-xl rounded-3xl p-6 sm:p-8 pt-8 sm:pt-10 border-2 border-white/30 shadow-2xl">
-                <div className="absolute inset-0 rounded-3xl border border-white/20 pointer-events-none"></div>
+              <div className="relative bg-gradient-to-br from-blue-600/95 to-blue-800/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 pt-6 sm:pt-8 border-2 border-white/30 shadow-2xl">
                 
-                {/* Product Image - Same style */}
-                <div className="flex justify-center mb-3 px-2">
+                {/* Product Image */}
+                <div className="flex justify-center mb-3 sm:mb-4">
                   <img 
                     src={content.productImage} 
                     alt="BlueDrops Complete Treatment"
-                    className="w-full h-auto object-contain drop-shadow-2xl max-h-48 sm:max-h-56 md:max-h-64 lg:max-h-72"
+                    className="w-full h-auto object-contain drop-shadow-2xl max-h-32 sm:max-h-40 md:max-h-48"
                   />
                 </div>
 
-                {/* Product Name - Same style */}
-                <div className="text-center mb-4 sm:mb-5">
-                  <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-none px-2">
+                {/* Product Name */}
+                <div className="text-center mb-3 sm:mb-4">
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-white leading-none">
                     BLUEDROPS
                   </h3>
-                  <p className="text-white/80 text-base sm:text-lg md:text-xl font-bold tracking-wide -mt-1">
+                  <p className="text-white/80 text-sm sm:text-base font-bold tracking-wide -mt-1">
                     {content.offer.title}
                   </p>
                 </div>
 
                 {/* Offer Details */}
                 <div className="text-center mb-4">
-                  <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-xl font-bold text-sm sm:text-base shadow-lg mb-3">
+                  <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 sm:px-4 py-2 rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm shadow-lg mb-3">
                     {content.offer.subtitle}
                   </div>
                   
                   {/* Benefits List */}
-                  <div className="space-y-2 bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 mb-4">
-                    <div className="flex items-center justify-center gap-2 text-white text-sm">
-                      <CheckCircle className="w-4 h-4 text-green-400" />
+                  <div className="space-y-1.5 sm:space-y-2 bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-4 border border-white/20 mb-4">
+                    <div className="flex items-center justify-center gap-2 text-white text-xs sm:text-sm">
+                      <CheckCircle className="w-3 sm:w-4 h-3 sm:h-4 text-green-400 flex-shrink-0" />
                       <span>{content.pricing.totalPrice}</span>
                     </div>
-                    <div className="flex items-center justify-center gap-2 text-white text-sm">
-                      <CheckCircle className="w-4 h-4 text-green-400" />
+                    <div className="flex items-center justify-center gap-2 text-white text-xs sm:text-sm">
+                      <CheckCircle className="w-3 sm:w-4 h-3 sm:h-4 text-green-400 flex-shrink-0" />
                       <span>{content.pricing.pricePerBottle}</span>
                     </div>
-                    <div className="flex items-center justify-center gap-2 text-white text-sm">
-                      <CheckCircle className="w-4 h-4 text-green-400" />
+                    <div className="flex items-center justify-center gap-2 text-white text-xs sm:text-sm">
+                      <CheckCircle className="w-3 sm:w-4 h-3 sm:h-4 text-green-400 flex-shrink-0" />
                       <span>No extra shipping fees</span>
                     </div>
-                    <div className="flex items-center justify-center gap-2 text-white text-sm">
-                      <CheckCircle className="w-4 h-4 text-green-400" />
+                    <div className="flex items-center justify-center gap-2 text-white text-xs sm:text-sm">
+                      <CheckCircle className="w-3 sm:w-4 h-3 sm:h-4 text-green-400 flex-shrink-0" />
                       <span>{content.pricing.savings}</span>
                     </div>
                   </div>
                 </div>
 
-                {/* CTA Button - Same style as main page */}
-                <div className="relative mb-2">
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 rounded-xl blur opacity-75 animate-pulse"></div>
+                {/* CTA Button */}
+                <div className="relative mb-3">
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 rounded-lg sm:rounded-xl blur opacity-75 animate-pulse"></div>
                   <button 
                     onClick={handleAccept}
-                    className="relative w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold py-4 sm:py-5 px-4 sm:px-6 rounded-xl transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg text-lg sm:text-xl border-2 border-white/40 backdrop-blur-sm overflow-hidden"
+                    className="relative w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold py-3 sm:py-4 px-4 rounded-lg sm:rounded-xl transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg text-sm sm:text-base border-2 border-white/40 backdrop-blur-sm"
                   >
-                    <div className="absolute inset-0 rounded-xl border border-white/30 pointer-events-none"></div>
                     <span className="relative z-10">{content.acceptButtonText}</span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
                   </button>
                 </div>
 
-                {/* Benefits - Same style as main page */}
-                <div className="flex justify-center items-center gap-0.5 sm:gap-1 mb-2 px-1">
-                  <div className="bg-gradient-to-r from-blue-500/30 to-cyan-500/30 backdrop-blur-sm rounded-md px-1 sm:px-1.5 py-1 sm:py-1.5 border border-blue-300/40 flex-1">
-                    <div className="flex items-center justify-center gap-0.5 text-xs text-white">
-                      <Shield className="w-3 sm:w-4 h-3 sm:h-4 text-yellow-400 flex-shrink-0" />
+                {/* Benefits Icons */}
+                <div className="flex justify-center items-center gap-1 mb-3">
+                  <div className="bg-gradient-to-r from-blue-500/30 to-cyan-500/30 backdrop-blur-sm rounded px-2 py-1 border border-blue-300/40 flex-1">
+                    <div className="flex items-center justify-center gap-1 text-white">
+                      <Shield className="w-3 h-3 text-yellow-400 flex-shrink-0" />
                       <span className="text-center font-semibold text-xs">180-Day</span>
                     </div>
                   </div>
-                  <div className="bg-gradient-to-r from-blue-500/30 to-cyan-500/30 backdrop-blur-sm rounded-md px-1 sm:px-1.5 py-1 sm:py-1.5 border border-blue-300/40 flex-1">
-                    <div className="flex items-center justify-center gap-0.5 text-xs text-white">
-                      <Truck className="w-3 sm:w-4 h-3 sm:h-4 text-yellow-400 flex-shrink-0" />
+                  <div className="bg-gradient-to-r from-blue-500/30 to-cyan-500/30 backdrop-blur-sm rounded px-2 py-1 border border-blue-300/40 flex-1">
+                    <div className="flex items-center justify-center gap-1 text-white">
+                      <Truck className="w-3 h-3 text-yellow-400 flex-shrink-0" />
                       <span className="text-center font-semibold text-xs">Free Ship</span>
                     </div>
                   </div>
-                  <div className="bg-gradient-to-r from-blue-500/30 to-cyan-500/30 backdrop-blur-sm rounded-md px-1 sm:px-1.5 py-1 sm:py-1.5 border border-blue-300/40 flex-1">
-                    <div className="flex items-center justify-center gap-0.5 text-xs text-white">
-                      <Clock className="w-3 sm:w-4 h-3 sm:h-4 text-red-400 flex-shrink-0" />
+                  <div className="bg-gradient-to-r from-blue-500/30 to-cyan-500/30 backdrop-blur-sm rounded px-2 py-1 border border-blue-300/40 flex-1">
+                    <div className="flex items-center justify-center gap-1 text-white">
+                      <Clock className="w-3 h-3 text-red-400 flex-shrink-0" />
                       <span className="text-center font-semibold text-xs">Secure</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Box branco com imagem - Same as main page */}
+                {/* Benefits Image */}
                 <div>
-                  <div className="bg-white rounded-md p-1 shadow-sm">
+                  <div className="bg-white rounded p-1 shadow-sm">
                     <img 
                       src="https://i.imgur.com/1in1oo5.png" 
                       alt="Product Benefits"
-                      className="w-full h-auto object-contain max-h-12 sm:max-h-14"
+                      className="w-full h-auto object-contain max-h-8 sm:max-h-10"
                     />
                   </div>
                 </div>
@@ -293,15 +288,16 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
             </div>
           </div>
 
-          {/* Critical Warning Section - AFTER the offer */}
-          <div className="w-full mb-6 animate-fadeInUp animation-delay-800">
-            <div className="bg-white/30 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-red-200 shadow-lg">
+          {/* Warning Sections */}
+          <div className="space-y-4 sm:space-y-6 mb-6">
+            {/* Critical Warning */}
+            <div className="bg-white/30 backdrop-blur-sm rounded-xl p-4 border border-red-200 shadow-lg animate-fadeInUp animation-delay-800">
               <div className="text-center">
-                <div className="bg-red-500 text-white px-4 py-2 rounded-full inline-block mb-4">
-                  <span className="font-bold text-sm">CRITICAL WARNING</span>
+                <div className="bg-red-500 text-white px-3 py-1.5 rounded-full inline-block mb-3">
+                  <span className="font-bold text-xs sm:text-sm">CRITICAL WARNING</span>
                 </div>
                 
-                <div className="space-y-3 text-blue-800 text-sm leading-relaxed">
+                <div className="space-y-2 text-blue-800 text-xs sm:text-sm leading-relaxed">
                   <p className="font-bold text-red-600">
                     If you skip this step, you might be wasting your entire investment.
                   </p>
@@ -312,16 +308,14 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Here's the Truth Section */}
-          <div className="w-full mb-6 animate-fadeInUp animation-delay-1000">
-            <div className="bg-white/30 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-blue-200 shadow-lg">
-              <h3 className="text-lg font-bold text-blue-900 mb-3 flex items-center gap-2">
+            {/* Truth Section */}
+            <div className="bg-white/30 backdrop-blur-sm rounded-xl p-4 border border-blue-200 shadow-lg animate-fadeInUp animation-delay-1000">
+              <h3 className="text-base sm:text-lg font-bold text-blue-900 mb-3 flex items-center gap-2">
                 💧 Here's the Truth:
               </h3>
               
-              <div className="space-y-3 text-blue-800 text-sm leading-relaxed">
+              <div className="space-y-2 sm:space-y-3 text-blue-800 text-xs sm:text-sm leading-relaxed">
                 <p>
                   BlueDrops is a liquid formula designed to remove the toxins that disrupt blood flow and performance.
                 </p>
@@ -331,102 +325,100 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
                 <p className="font-bold text-red-600">
                   But here's the problem...
                 </p>
-                <p className="bg-red-50 p-3 rounded-lg border border-red-200">
-                  <strong className="text-red-700">🧠 These toxins are deeply rooted in your body.</strong> And they don't go down without a fight. They resist. They hide. They rebuild.
-                </p>
+                <div className="bg-red-50 p-3 rounded-lg border border-red-200">
+                  <p className="text-red-700 font-bold text-xs sm:text-sm">
+                    🧠 These toxins are deeply rooted in your body. And they don't go down without a fight. They resist. They hide. They rebuild.
+                  </p>
+                </div>
                 <p>
                   And if you stop the treatment too soon — before they're completely eliminated — they'll come back stronger.
                 </p>
               </div>
             </div>
-          </div>
 
-          {/* Consequences Section */}
-          <div className="w-full mb-6 animate-fadeInUp animation-delay-1200">
-            <div className="bg-white/30 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-red-200 shadow-lg">
-              <h3 className="text-lg font-bold text-red-700 mb-4 text-center">
+            {/* Consequences */}
+            <div className="bg-white/30 backdrop-blur-sm rounded-xl p-4 border border-red-200 shadow-lg animate-fadeInUp animation-delay-1200">
+              <h3 className="text-base sm:text-lg font-bold text-red-700 mb-3 text-center">
                 ❌ If You Don't Complete 9 Months of Treatment…
               </h3>
               
-              <div className="space-y-2 text-sm">
+              <div className="space-y-2 text-xs sm:text-sm">
                 <div className="flex items-center gap-2 text-red-600">
-                  <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                  <span className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></span>
                   <span>Your blood flow will weaken again</span>
                 </div>
                 <div className="flex items-center gap-2 text-red-600">
-                  <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                  <span className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></span>
                   <span>Your confidence and energy will drop</span>
                 </div>
                 <div className="flex items-center gap-2 text-red-600">
-                  <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                  <span className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></span>
                   <span>And in many cases, your body becomes immune to further treatment</span>
                 </div>
               </div>
               
-              <div className="mt-4 p-3 bg-gray-100 rounded-lg border border-gray-200">
-                <p className="text-blue-800 text-sm italic text-center">
+              <div className="mt-3 p-3 bg-gray-100 rounded-lg border border-gray-200">
+                <p className="text-blue-800 text-xs sm:text-sm italic text-center">
                   "It's like sending your army into battle, winning the war... And then suddenly pulling them out, letting the enemy regroup and conquer your body again."
                 </p>
               </div>
               
               <div className="mt-3 text-center">
-                <p className="text-red-600 font-bold text-sm">
+                <p className="text-red-600 font-bold text-xs sm:text-sm">
                   You'll lose everything you gained — and worse — you may not be able to recover again.
                 </p>
               </div>
             </div>
-          </div>
 
-          {/* Solution Section */}
-          <div className="w-full mb-6 animate-fadeInUp animation-delay-1400">
-            <div className="bg-white/30 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-green-200 shadow-lg">
-              <h3 className="text-lg font-bold text-green-700 mb-3 text-center">
+            {/* Solution */}
+            <div className="bg-white/30 backdrop-blur-sm rounded-xl p-4 border border-green-200 shadow-lg animate-fadeInUp animation-delay-1400">
+              <h3 className="text-base sm:text-lg font-bold text-green-700 mb-3 text-center">
                 ✅ Why 9 Months of BlueDrops is Absolutely Essential
               </h3>
               
-              <div className="space-y-3 text-blue-800 text-sm leading-relaxed">
+              <div className="space-y-2 sm:space-y-3 text-blue-800 text-xs sm:text-sm leading-relaxed">
                 <p>
                   Only after 9 months of consistent use will your body create a strong defensive wall — a new, healthier internal state where performance-killing toxins can never return.
                 </p>
                 
                 <div className="bg-green-50 p-3 rounded-lg border border-green-200">
-                  <p className="text-green-700 font-bold text-center">Once that happens...</p>
-                  <p className="text-green-600 text-center font-bold">You'll NEVER need another product again.</p>
+                  <p className="text-green-700 font-bold text-center text-xs sm:text-sm">Once that happens...</p>
+                  <p className="text-green-600 text-center font-bold text-xs sm:text-sm">You'll NEVER need another product again.</p>
                 </div>
                 
                 <div className="bg-red-50 p-3 rounded-lg border border-red-200">
-                  <p className="text-red-700 font-bold text-center">But if you stop early…</p>
-                  <p className="text-red-600 text-center font-bold">You might not be able to stand up again.</p>
+                  <p className="text-red-700 font-bold text-center text-xs sm:text-sm">But if you stop early…</p>
+                  <p className="text-red-600 text-center font-bold text-xs sm:text-sm">You might not be able to stand up again.</p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Reject Button - Same style as secondary products */}
-          <div className="w-full mb-6 animate-fadeInUp animation-delay-1600">
+          {/* Reject Button */}
+          <div className="mb-6 animate-fadeInUp animation-delay-1600">
             <button 
               onClick={handleReject}
-              className="w-full bg-gradient-to-br from-gray-400/80 to-gray-600/80 backdrop-blur-xl rounded-2xl p-4 border border-white/20 shadow-xl text-white hover:bg-gray-500/80 transition-all duration-300"
+              className="w-full bg-gradient-to-br from-gray-400/80 to-gray-600/80 backdrop-blur-xl rounded-xl p-3 sm:p-4 border border-white/20 shadow-xl text-white hover:bg-gray-500/80 transition-all duration-300"
             >
-              <span className="text-sm font-medium">❌ {content.rejectButtonText}</span>
+              <span className="text-xs sm:text-sm font-medium">❌ {content.rejectButtonText}</span>
             </button>
           </div>
-        </div>
 
-        {/* Footer - Same as main page */}
-        <footer className="mt-8 sm:mt-12 text-center text-blue-700 w-full px-4 animate-fadeInUp animation-delay-2000">
-          <div className="bg-white/30 backdrop-blur-sm rounded-2xl p-4 max-w-xl mx-auto border border-blue-200">
-            <div className="bg-red-500 text-white px-4 py-2 rounded-lg inline-block mb-2">
-              <span className="font-bold text-sm">🔴 FINAL WARNING</span>
+          {/* Footer Warning */}
+          <footer className="text-center text-blue-700 animate-fadeInUp animation-delay-2000">
+            <div className="bg-white/30 backdrop-blur-sm rounded-xl p-4 border border-blue-200">
+              <div className="bg-red-500 text-white px-3 py-1.5 rounded-lg inline-block mb-2">
+                <span className="font-bold text-xs sm:text-sm">🔴 FINAL WARNING</span>
+              </div>
+              <p className="text-xs sm:text-sm font-bold text-red-600 mb-1">
+                Once this page closes, this offer disappears forever.
+              </p>
+              <p className="text-xs opacity-70">
+                This is your only chance to secure the full 9-month protocol
+              </p>
             </div>
-            <p className="text-sm font-bold text-red-600 mb-2">
-              Once this page closes, this offer disappears forever.
-            </p>
-            <p className="text-xs opacity-70">
-              This is your only chance to secure the full 9-month protocol
-            </p>
-          </div>
-        </footer>
+          </footer>
+        </div>
       </div>
     </div>
   );

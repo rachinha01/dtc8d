@@ -99,7 +99,8 @@ export const AdminDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [liveSessions, setLiveSessions] = useState<LiveSession[]>([]);
-  const [activeTab, setActiveTab] = useState<'analytics' | 'tracking'>('analytics');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'tracking' | 'settings'>('analytics');
+  const [contentDelay, setContentDelay] = useState(0);
 
   const navigate = useNavigate();
 
@@ -541,6 +542,96 @@ export const AdminDashboard: React.FC = () => {
       .join(' • ');
   };
 
+  // Delay Controller Component
+  const DelayController = () => {
+    const [tempDelay, setTempDelay] = useState(contentDelay);
+
+    const handleApplyDelay = () => {
+      setContentDelay(tempDelay);
+    };
+
+    const presetDelays = [
+      { label: 'Sem delay', value: 0 },
+      { label: '30 segundos', value: 30 },
+      { label: '1 minuto', value: 60 },
+      { label: '2 minutos', value: 120 },
+      { label: '5 minutos', value: 300 },
+      { label: '10 minutos', value: 600 }
+    ];
+
+    return (
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Clock className="w-5 h-5 text-blue-600" />
+          <h3 className="text-lg font-semibold text-gray-900">Controle de Delay do Conteúdo</h3>
+        </div>
+
+        <p className="text-sm text-gray-600 mb-4">
+          Configure quanto tempo esperar antes de mostrar os botões de compra e seções abaixo do vídeo.
+        </p>
+
+        {/* Current Status */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+          <div className="flex items-center gap-2">
+            <Eye className="w-4 h-4 text-blue-600" />
+            <span className="text-sm font-medium text-blue-800">
+              Status atual: {contentDelay === 0 ? 'Sem delay' : `${contentDelay} segundos`}
+            </span>
+          </div>
+        </div>
+
+        {/* Preset Buttons */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
+          {presetDelays.map((preset) => (
+            <button
+              key={preset.value}
+              onClick={() => setTempDelay(preset.value)}
+              className={`p-2 text-sm rounded-lg border transition-colors ${
+                tempDelay === preset.value
+                  ? 'bg-blue-600 text-white border-blue-600'
+                  : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+              }`}
+            >
+              {preset.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Custom Input */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Delay personalizado (segundos):
+          </label>
+          <input
+            type="number"
+            min="0"
+            max="3600"
+            value={tempDelay}
+            onChange={(e) => setTempDelay(parseInt(e.target.value) || 0)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="0"
+          />
+        </div>
+
+        {/* Action Button */}
+        <button
+          onClick={handleApplyDelay}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors font-medium"
+        >
+          Aplicar Delay
+        </button>
+
+        {/* Info */}
+        <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-xs text-yellow-700">
+            <strong>Dica:</strong> Use delays para testar diferentes estratégias de conversão. 
+            O delay só afeta os botões de compra e seções abaixo do vídeo.
+          </p>
+        </div>
+      </div>
+    );
+  };
+
   // Show loading screen while checking authentication
   if (isLoading) {
     return (
@@ -714,6 +805,17 @@ export const AdminDashboard: React.FC = () => {
                 >
                   <Settings className="w-4 h-4 inline mr-2" />
                   Tracking
+                </button>
+                <button
+                  onClick={() => setActiveTab('settings')}
+                  className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                    activeTab === 'settings'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <Clock className="w-4 h-4 inline mr-2" />
+                  Configurações
                 </button>
               </nav>
             </div>
@@ -936,8 +1038,10 @@ export const AdminDashboard: React.FC = () => {
                 </div>
               </div>
             </>
-          ) : (
+          ) : activeTab === 'tracking' ? (
             <TrackingTestPanel />
+          ) : (
+            <DelayController />
           )}
         </div>
       </div>
