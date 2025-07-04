@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAnalytics } from './hooks/useAnalytics';
 
 // Import all components
@@ -26,7 +26,11 @@ function App() {
   const [loginError, setLoginError] = useState('');
 
   const navigate = useNavigate();
+  const location = useLocation();
   const { trackVideoPlay, trackVideoProgress, trackOfferClick } = useAnalytics();
+
+  // Check if we're on the main page (show popup only on main page)
+  const isMainPage = location.pathname === '/' || location.pathname === '/home';
 
   useEffect(() => {
     // Inject VTurb script immediately when component mounts
@@ -236,7 +240,7 @@ function App() {
 
       {/* All Modals - Only show popup on main page */}
       <Modals 
-        showPopup={showPopup}
+        showPopup={isMainPage ? showPopup : false}
         showLoginModal={showLoginModal}
         showUpsellPopup={showUpsellPopup}
         selectedPackage={selectedPackage}
