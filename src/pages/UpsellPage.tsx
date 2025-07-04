@@ -78,7 +78,7 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
         },
         acceptUrl: 'https://pagamento.paybluedrops.com/ex-ocu/next-offer/mWYd5nGjgx?accepted=yes',
         rejectUrl: 'https://pagamento.paybluedrops.com/ex-ocu/next-offer/mWYd5nGjgx?accepted=no',
-        productImage: 'https://i.imgur.com/hsfqxVP.png',
+        productImage: 'https://i.imgur.com/2YU6i8f.png', // ✅ UPDATED: Nova imagem
         acceptButtonText: 'YES — COMPLETE MY 9‑MONTH TREATMENT',
         rejectButtonText: 'No thanks — I\'ll throw away my progress and risk permanent failure'
       },
@@ -97,7 +97,7 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
         },
         acceptUrl: 'https://pagamento.paybluedrops.com/ex-ocu/next-offer/qJjMdRwYNl?accepted=yes',
         rejectUrl: 'https://pagamento.paybluedrops.com/ex-ocu/next-offer/qJjMdRwYNl?accepted=no',
-        productImage: 'https://i.imgur.com/hsfqxVP.png',
+        productImage: 'https://i.imgur.com/2YU6i8f.png', // ✅ UPDATED: Nova imagem
         acceptButtonText: 'YES — COMPLETE MY 9‑MONTH TREATMENT',
         rejectButtonText: 'No thanks — I\'ll throw away my progress and risk permanent failure'
       },
@@ -116,7 +116,7 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
         },
         acceptUrl: 'https://pagamento.paybluedrops.com/ex-ocu/next-offer/46jLdobjp3?accepted=yes',
         rejectUrl: 'https://pagamento.paybluedrops.com/ex-ocu/next-offer/46jLdobjp3?accepted=no',
-        productImage: 'https://i.imgur.com/hsfqxVP.png',
+        productImage: 'https://i.imgur.com/2YU6i8f.png', // ✅ UPDATED: Nova imagem
         acceptButtonText: 'YES — COMPLETE MY 9‑MONTH TREATMENT',
         rejectButtonText: 'No thanks — I\'ll throw away my progress and risk permanent failure'
       }
@@ -177,7 +177,7 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
             </p>
           </div>
 
-          {/* Main Offer Card */}
+          {/* ✅ UPDATED: Main Offer Card - SEM botão de compra */}
           <div className="mb-6 relative animate-fadeInUp animation-delay-600">
             {/* FINAL CHANCE Tag */}
             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-20">
@@ -383,16 +383,26 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
             </div>
           </div>
 
-          {/* ✅ FIXED: CTA Button AFTER all arguments */}
-          <div className="mb-6 animate-fadeInUp animation-delay-1500">
-            <div className="relative">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 rounded-lg sm:rounded-xl blur opacity-75 animate-pulse"></div>
-              <button 
-                onClick={handleAccept}
-                className="relative w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold py-3 sm:py-4 px-4 rounded-lg sm:rounded-xl transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg text-sm sm:text-base border-2 border-white/40 backdrop-blur-sm"
-              >
-                <span className="relative z-10">{content.acceptButtonText}</span>
-              </button>
+          {/* ✅ MOVED: CTA Button AFTER all arguments - SAME STYLE AS INITIAL OFFER */}
+          <div className="mb-6 relative animate-fadeInUp animation-delay-1500">
+            {/* Same glow effect as the main offer */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 rounded-2xl sm:rounded-3xl blur-lg opacity-60 animate-pulse"></div>
+            
+            <div className="relative bg-gradient-to-br from-blue-600/95 to-blue-800/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 border-2 border-white/30 shadow-2xl">
+              <div className="absolute inset-0 rounded-2xl sm:rounded-3xl border border-white/20 pointer-events-none"></div>
+              
+              {/* Same button style as main page */}
+              <div className="relative">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 rounded-xl blur opacity-75 animate-pulse"></div>
+                <button 
+                  onClick={handleAccept}
+                  className="relative w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold py-4 sm:py-5 px-4 sm:px-6 rounded-xl transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg text-lg sm:text-xl border-2 border-white/40 backdrop-blur-sm overflow-hidden"
+                >
+                  <div className="absolute inset-0 rounded-xl border border-white/30 pointer-events-none"></div>
+                  <span className="relative z-10">{content.acceptButtonText}</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+                </button>
+              </div>
             </div>
           </div>
 
