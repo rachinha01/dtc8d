@@ -133,11 +133,11 @@ export const MayoModal: React.FC<MayoModalProps> = ({ onClose, article }) => {
           </div>
         </div>
 
-        {/* ✅ UPDATED: Hero Image - Homem idoso fazendo esporte */}
+        {/* ✅ FIXED: Hero Image - VOLTOU A IMAGEM ANTERIOR */}
         <div className="mb-8">
           <img 
-            src="https://images.pexels.com/photos/2803158/pexels-photo-2803158.jpeg?auto=compress&cs=tinysrgb&w=1200&h=600&fit=crop" 
-            alt="Homem idoso correndo ao ar livre" 
+            src="https://images.pexels.com/photos/3683107/pexels-photo-3683107.jpeg?auto=compress&cs=tinysrgb&w=1200&h=600&fit=crop" 
+            alt="Men's health research" 
             className="w-full h-80 object-cover rounded"
           />
         </div>

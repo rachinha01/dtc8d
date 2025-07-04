@@ -85,7 +85,7 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
       '3-bottle': {
         offer: {
           title: 'COMPLETE 9‑MONTH TREATMENT',
-          subtitle: '✔️ Add 6 More Bottles + Get 3 Extra Bottles FREE',
+          subtitle: '✔️ Add 3 More Bottles + Get 3 Extra Bottles FREE', // ✅ FIXED: 3+3
           description: 'Complete your transformation with the full protocol'
         },
         pricing: {
@@ -93,7 +93,7 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
           totalPrice: '270 days of treatment',
           savings: 'Save $585 instantly',
           freeBottles: '3 FREE',
-          paidBottles: '6 PAID'
+          paidBottles: '3 PAID' // ✅ FIXED: 3 paid
         },
         acceptUrl: 'https://pagamento.paybluedrops.com/ex-ocu/next-offer/qJjMdRwYNl?accepted=yes',
         rejectUrl: 'https://pagamento.paybluedrops.com/ex-ocu/next-offer/qJjMdRwYNl?accepted=no',
@@ -104,15 +104,15 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
       '6-bottle': {
         offer: {
           title: 'COMPLETE 9‑MONTH TREATMENT',
-          subtitle: '✔️ Add 3 More Bottles + Get 2 Extra Bottles FREE',
-          description: 'Just 3 more bottles to ensure complete, permanent results'
+          subtitle: '✔️ Add 1 More Bottle + Get 2 Extra Bottles FREE', // ✅ FIXED: 1+2
+          description: 'Just 1 more bottle to ensure complete, permanent results'
         },
         pricing: {
           pricePerBottle: 'Biggest discount ever: only $39 per bottle',
           totalPrice: '270 days of treatment',
           savings: 'Save $585 instantly',
           freeBottles: '2 FREE',
-          paidBottles: '3 PAID'
+          paidBottles: '1 PAID' // ✅ FIXED: 1 paid
         },
         acceptUrl: 'https://pagamento.paybluedrops.com/ex-ocu/next-offer/46jLdobjp3?accepted=yes',
         rejectUrl: 'https://pagamento.paybluedrops.com/ex-ocu/next-offer/46jLdobjp3?accepted=no',
