@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { SalesChart } from './SalesChart';
 import { ConversionFunnel } from './ConversionFunnel';
@@ -20,7 +21,9 @@ import {
   Activity,
   MapPin,
   Zap,
-  Settings
+  Settings,
+  Lock,
+  LogOut
 } from 'lucide-react';
 
 interface AnalyticsData {
@@ -54,6 +57,13 @@ interface LiveSession {
 }
 
 export const AdminDashboard: React.FC = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  
   const [analytics, setAnalytics] = useState<AnalyticsData>({
     totalSessions: 0,
     videoPlayRate: 0,
@@ -78,6 +88,67 @@ export const AdminDashboard: React.FC = () => {
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [liveSessions, setLiveSessions] = useState<LiveSession[]>([]);
   const [activeTab, setActiveTab] = useState<'analytics' | 'tracking'>('analytics');
+
+  const navigate = useNavigate();
+
+  // Check authentication on component mount
+  useEffect(() => {
+    const checkAuth = () => {
+      const isLoggedIn = sessionStorage.getItem('admin_authenticated') === 'true';
+      const loginTime = sessionStorage.getItem('admin_login_time');
+      
+      // Check if login is still valid (24 hours)
+      if (isLoggedIn && loginTime) {
+        const loginTimestamp = parseInt(loginTime);
+        const now = Date.now();
+        const twentyFourHours = 24 * 60 * 60 * 1000;
+        
+        if (now - loginTimestamp < twentyFourHours) {
+          setIsAuthenticated(true);
+        } else {
+          // Session expired
+          sessionStorage.removeItem('admin_authenticated');
+          sessionStorage.removeItem('admin_login_time');
+          setIsAuthenticated(false);
+        }
+      } else {
+        setIsAuthenticated(false);
+      }
+      
+      setIsLoading(false);
+    };
+
+    checkAuth();
+  }, []);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoggingIn(true);
+    setLoginError('');
+
+    // Simulate a small delay for better UX
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    if (loginEmail === 'admin@magicbluedrops.com' && loginPassword === 'gotinhaazul') {
+      // Set authentication
+      sessionStorage.setItem('admin_authenticated', 'true');
+      sessionStorage.setItem('admin_login_time', Date.now().toString());
+      setIsAuthenticated(true);
+      setLoginEmail('');
+      setLoginPassword('');
+    } else {
+      setLoginError('Email ou senha incorretos');
+    }
+    
+    setIsLoggingIn(false);
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('admin_authenticated');
+    sessionStorage.removeItem('admin_login_time');
+    setIsAuthenticated(false);
+    navigate('/');
+  };
 
   // Enhanced country flag mapping
   const getCountryFlag = (countryCode: string, countryName?: string) => {
@@ -350,44 +421,46 @@ export const AdminDashboard: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchAnalytics();
-    
-    // Set up real-time subscription for last_ping updates
-    const subscription = supabase
-      .channel('vsl_analytics_live_users')
-      .on('postgres_changes', 
-        { 
-          event: 'UPDATE', 
-          schema: 'public', 
-          table: 'vsl_analytics',
-          filter: 'last_ping=not.is.null'
-        },
-        () => {
-          console.log('Live user ping detected, refreshing analytics...');
-          fetchAnalytics();
-        }
-      )
-      .on('postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'vsl_analytics'
-        },
-        () => {
-          console.log('New session detected, refreshing analytics...');
-          fetchAnalytics();
-        }
-      )
-      .subscribe();
+    if (isAuthenticated) {
+      fetchAnalytics();
+      
+      // Set up real-time subscription for last_ping updates
+      const subscription = supabase
+        .channel('vsl_analytics_live_users')
+        .on('postgres_changes', 
+          { 
+            event: 'UPDATE', 
+            schema: 'public', 
+            table: 'vsl_analytics',
+            filter: 'last_ping=not.is.null'
+          },
+          () => {
+            console.log('Live user ping detected, refreshing analytics...');
+            fetchAnalytics();
+          }
+        )
+        .on('postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'vsl_analytics'
+          },
+          () => {
+            console.log('New session detected, refreshing analytics...');
+            fetchAnalytics();
+          }
+        )
+        .subscribe();
 
-    // Auto-refresh every 10 seconds for live user count
-    const interval = setInterval(fetchAnalytics, 10000);
+      // Auto-refresh every 10 seconds for live user count
+      const interval = setInterval(fetchAnalytics, 10000);
 
-    return () => {
-      subscription.unsubscribe();
-      clearInterval(interval);
-    };
-  }, []);
+      return () => {
+        subscription.unsubscribe();
+        clearInterval(interval);
+      };
+    }
+  }, [isAuthenticated]);
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -418,6 +491,100 @@ export const AdminDashboard: React.FC = () => {
       .join(' • ');
   };
 
+  // Show loading screen while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+          <p className="text-gray-600">Verificando autenticação...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show login form if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Lock className="w-8 h-8 text-blue-600" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
+            <p className="text-gray-600">Entre com suas credenciais para acessar</p>
+          </div>
+
+          {/* Login Form */}
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                placeholder="admin@magicbluedrops.com"
+                required
+                disabled={isLoggingIn}
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                Senha
+              </label>
+              <input
+                type="password"
+                id="password"
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                placeholder="••••••••"
+                required
+                disabled={isLoggingIn}
+              />
+            </div>
+
+            {loginError && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <p className="text-red-600 text-sm font-medium">{loginError}</p>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={isLoggingIn}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isLoggingIn ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  Entrando...
+                </>
+              ) : (
+                'Entrar no Dashboard'
+              )}
+            </button>
+          </form>
+
+          {/* Footer */}
+          <div className="mt-8 text-center">
+            <p className="text-xs text-gray-500">
+              Acesso restrito apenas para administradores autorizados
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading screen while fetching analytics
   if (loading && analytics.totalSessions === 0) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -429,6 +596,7 @@ export const AdminDashboard: React.FC = () => {
     );
   }
 
+  // Main dashboard content (authenticated)
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
@@ -455,6 +623,13 @@ export const AdminDashboard: React.FC = () => {
               >
                 <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                 Atualizar
+              </button>
+              <button
+                onClick={handleLogout}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                Sair
               </button>
             </div>
           </div>
