@@ -291,6 +291,26 @@ function App() {
     };
   }, []);
 
+  // ✅ NEW: Expose tracking functions globally for testing
+  useEffect(() => {
+    // Make tracking functions available globally for debugging
+    (window as any).trackVideoPlay = trackVideoPlay;
+    (window as any).trackVideoProgress = trackVideoProgress;
+    (window as any).trackOfferClick = trackOfferClick;
+    
+    console.log('🧪 Funções de tracking expostas globalmente para debug:');
+    console.log('- window.trackVideoPlay()');
+    console.log('- window.trackVideoProgress(currentTime, duration)');
+    console.log('- window.trackOfferClick(offerType)');
+    
+    return () => {
+      // Cleanup
+      delete (window as any).trackVideoPlay;
+      delete (window as any).trackVideoProgress;
+      delete (window as any).trackOfferClick;
+    };
+  }, [trackVideoPlay, trackVideoProgress, trackOfferClick]);
+
   const setupVideoTracking = () => {
     // Setup tracking for VTurb player with improved detection
     let hasTrackedPlay = false;
