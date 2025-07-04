@@ -65,60 +65,60 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
     const contents = {
       '1-bottle': {
         offer: {
-          title: 'COMPLETE 9-MONTH TREATMENT',
-          subtitle: 'Add 5 More Bottles + Get 4 Extra Bottles FREE',
+          title: 'COMPLETE 9‑MONTH TREATMENT',
+          subtitle: '✔️ Add 5 More Bottles + Get 4 Extra Bottles FREE',
           description: 'All at our lowest price ever...'
         },
         pricing: {
-          pricePerBottle: 'Only $39 per bottle',
-          totalPrice: 'That\'s a total of 9 bottles (270 days) for just $195',
-          savings: 'Save up to $585 compared to the regular price ($89/bottle)',
+          pricePerBottle: 'Biggest discount ever: only $39 per bottle',
+          totalPrice: '270 days of treatment',
+          savings: 'Save $585 instantly',
           freeBottles: '4 FREE',
           paidBottles: '5 PAID'
         },
         acceptUrl: 'https://pagamento.paybluedrops.com/ex-ocu/next-offer/mWYd5nGjgx?accepted=yes',
         rejectUrl: 'https://pagamento.paybluedrops.com/ex-ocu/next-offer/mWYd5nGjgx?accepted=no',
         productImage: 'https://i.imgur.com/hsfqxVP.png',
-        acceptButtonText: 'YES — COMPLETE MY 9-MONTH TREATMENT',
-        rejectButtonText: 'No thanks — I\'ll risk losing everything'
+        acceptButtonText: 'YES — COMPLETE MY 9‑MONTH TREATMENT',
+        rejectButtonText: 'No thanks — I\'ll throw away my progress and risk permanent failure'
       },
       '3-bottle': {
         offer: {
-          title: 'UPGRADE TO 9-MONTH TREATMENT',
-          subtitle: 'Add 3 More Bottles + Get 3 Extra Bottles FREE',
+          title: 'COMPLETE 9‑MONTH TREATMENT',
+          subtitle: '✔️ Add 6 More Bottles + Get 3 Extra Bottles FREE',
           description: 'Complete your transformation with the full protocol'
         },
         pricing: {
-          pricePerBottle: 'Only $59 per bottle',
-          totalPrice: 'Total of 9 bottles for $177',
-          savings: 'You get 3 FREE bottles with zero shipping fees',
+          pricePerBottle: 'Biggest discount ever: only $39 per bottle',
+          totalPrice: '270 days of treatment',
+          savings: 'Save $585 instantly',
           freeBottles: '3 FREE',
-          paidBottles: '3 PAID'
+          paidBottles: '6 PAID'
         },
         acceptUrl: 'https://pagamento.paybluedrops.com/ex-ocu/next-offer/qJjMdRwYNl?accepted=yes',
         rejectUrl: 'https://pagamento.paybluedrops.com/ex-ocu/next-offer/qJjMdRwYNl?accepted=no',
         productImage: 'https://i.imgur.com/hsfqxVP.png',
-        acceptButtonText: 'YES — UPGRADE TO 9-MONTH TREATMENT',
-        rejectButtonText: 'No thanks — I\'ll take the risk'
+        acceptButtonText: 'YES — COMPLETE MY 9‑MONTH TREATMENT',
+        rejectButtonText: 'No thanks — I\'ll throw away my progress and risk permanent failure'
       },
       '6-bottle': {
         offer: {
-          title: 'COMPLETE YOUR JOURNEY',
-          subtitle: 'Add 1 More Bottle + Get 2 Extra Bottles FREE',
+          title: 'COMPLETE 9‑MONTH TREATMENT',
+          subtitle: '✔️ Add 3 More Bottles + Get 2 Extra Bottles FREE',
           description: 'Just 3 more bottles to ensure complete, permanent results'
         },
         pricing: {
-          pricePerBottle: 'Only $39 per bottle',
-          totalPrice: 'Total: 3 bonus bottles added to your order — no extra shipping',
-          savings: 'Maximum cellular impact guaranteed',
+          pricePerBottle: 'Biggest discount ever: only $39 per bottle',
+          totalPrice: '270 days of treatment',
+          savings: 'Save $585 instantly',
           freeBottles: '2 FREE',
-          paidBottles: '1 PAID'
+          paidBottles: '3 PAID'
         },
         acceptUrl: 'https://pagamento.paybluedrops.com/ex-ocu/next-offer/46jLdobjp3?accepted=yes',
         rejectUrl: 'https://pagamento.paybluedrops.com/ex-ocu/next-offer/46jLdobjp3?accepted=no',
         productImage: 'https://i.imgur.com/hsfqxVP.png',
-        acceptButtonText: 'YES — GIVE ME 3 MORE TO FINISH STRONG',
-        rejectButtonText: 'No thanks — I\'ll stop before it\'s complete'
+        acceptButtonText: 'YES — COMPLETE MY 9‑MONTH TREATMENT',
+        rejectButtonText: 'No thanks — I\'ll throw away my progress and risk permanent failure'
       }
     };
 
@@ -141,8 +141,17 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 via-white to-gray-50 overflow-x-hidden">
+      {/* Fixed Red Alert Banner */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-3 shadow-lg">
+        <div className="flex items-center justify-center gap-2">
+          <AlertTriangle className="w-5 h-5" />
+          <span className="font-black text-sm sm:text-base tracking-wide">⚠️ WAIT! YOUR ORDER IS NOT COMPLETE</span>
+          <AlertTriangle className="w-5 h-5" />
+        </div>
+      </div>
+
       {/* Main container - Same as main page */}
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-6 sm:py-8 max-w-full">
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-6 sm:py-8 max-w-full pt-20">
         
         {/* Header - Same style as main page */}
         <header className="mb-6 sm:mb-8 animate-fadeInDown animation-delay-200">
@@ -156,16 +165,8 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
         {/* Main Content Container - Same max-width as main page */}
         <div className="flex flex-col items-center justify-center w-full max-w-md mx-auto">
           
-          {/* Urgent Warning Header - Same style as hero section */}
+          {/* Hero Section */}
           <div className="mb-6 text-center w-full animate-fadeInUp animation-delay-400">
-            <div className="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-full mb-4 shadow-lg">
-              <div className="flex items-center justify-center gap-2">
-                <AlertTriangle className="w-5 h-5" />
-                <span className="font-black text-sm tracking-wide">⚠️ WAIT! YOUR ORDER IS NOT COMPLETE</span>
-                <AlertTriangle className="w-5 h-5" />
-              </div>
-            </div>
-            
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-[0.85] mb-3 px-2">
               <span className="text-blue-900 block mb-0.5">You're Just ONE Step</span>
               <span className="bg-gradient-to-r from-blue-600 via-cyan-500 to-indigo-600 bg-clip-text text-transparent block">
@@ -174,12 +175,11 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
             </h1>
             
             <p className="text-base sm:text-lg text-blue-800 mb-2 font-semibold px-2">
-              Congratulations on securing your first bottles — but{' '}
-              <span className="text-red-600 font-bold">I need your attention right now</span>
+              Congratulations on securing your first bottles — but now, one last step could change everything.
             </p>
           </div>
 
-          {/* Warning Message - Same card style as main page */}
+          {/* Critical Warning Section */}
           <div className="w-full mb-6 animate-fadeInUp animation-delay-600">
             <div className="bg-white/30 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-red-200 shadow-lg">
               <div className="text-center">
@@ -187,20 +187,20 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
                   <span className="font-bold text-sm">CRITICAL WARNING</span>
                 </div>
                 
-                <h2 className="text-xl sm:text-2xl font-bold text-red-700 mb-3 leading-tight">
-                  If you skip this step, you might be wasting your entire investment.
-                </h2>
-                
-                <p className="text-red-600 font-bold mb-2">Yes, I'm serious.</p>
-                
-                <p className="text-blue-800 text-sm leading-relaxed">
-                  Because stopping this treatment too early will erase ALL your progress — and can even make your condition worse than before.
-                </p>
+                <div className="space-y-3 text-blue-800 text-sm leading-relaxed">
+                  <p className="font-bold text-red-600">
+                    If you skip this step, you might be wasting your entire investment.
+                  </p>
+                  <p className="font-bold text-red-600">Yes, I'm serious.</p>
+                  <p>
+                    Because stopping this treatment too early will erase ALL your progress — and can even make your condition worse than before.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* The Truth Section - Same card style */}
+          {/* Here's the Truth Section */}
           <div className="w-full mb-6 animate-fadeInUp animation-delay-800">
             <div className="bg-white/30 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-blue-200 shadow-lg">
               <h3 className="text-lg font-bold text-blue-900 mb-3 flex items-center gap-2">
@@ -219,6 +219,9 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
                 </p>
                 <p className="bg-red-50 p-3 rounded-lg border border-red-200">
                   <strong className="text-red-700">🧠 These toxins are deeply rooted in your body.</strong> And they don't go down without a fight. They resist. They hide. They rebuild.
+                </p>
+                <p>
+                  And if you stop the treatment too soon — before they're completely eliminated — they'll come back stronger.
                 </p>
               </div>
             </div>
@@ -242,13 +245,19 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
                 </div>
                 <div className="flex items-center gap-2 text-red-600">
                   <span className="w-2 h-2 bg-red-500 rounded-full"></span>
-                  <span>Your body becomes immune to further treatment</span>
+                  <span>And in many cases, your body becomes immune to further treatment</span>
                 </div>
               </div>
               
               <div className="mt-4 p-3 bg-gray-100 rounded-lg border border-gray-200">
                 <p className="text-blue-800 text-sm italic text-center">
                   "It's like sending your army into battle, winning the war... And then suddenly pulling them out, letting the enemy regroup and conquer your body again."
+                </p>
+              </div>
+              
+              <div className="mt-3 text-center">
+                <p className="text-red-600 font-bold text-sm">
+                  You'll lose everything you gained — and worse — you may not be able to recover again.
                 </p>
               </div>
             </div>
@@ -258,22 +267,22 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
           <div className="w-full mb-6 animate-fadeInUp animation-delay-1200">
             <div className="bg-white/30 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-green-200 shadow-lg">
               <h3 className="text-lg font-bold text-green-700 mb-3 text-center">
-                ✅ That's Why 9 Months of BlueDrops is NON‑NEGOTIABLE
+                ✅ Why 9 Months of BlueDrops is Absolutely Essential
               </h3>
               
               <div className="space-y-3 text-blue-800 text-sm leading-relaxed">
                 <p>
-                  Only after 9 months of consistent use will your body create a strong defensive wall — a new, healthier internal state where those performance-killing toxins can never return.
+                  Only after 9 months of consistent use will your body create a strong defensive wall — a new, healthier internal state where performance-killing toxins can never return.
                 </p>
                 
                 <div className="bg-green-50 p-3 rounded-lg border border-green-200">
                   <p className="text-green-700 font-bold text-center">Once that happens...</p>
-                  <p className="text-green-600 text-center">You'll NEVER need another product again.</p>
+                  <p className="text-green-600 text-center font-bold">You'll NEVER need another product again.</p>
                 </div>
                 
                 <div className="bg-red-50 p-3 rounded-lg border border-red-200">
                   <p className="text-red-700 font-bold text-center">But if you stop early…</p>
-                  <p className="text-red-600 text-center">You might not be able to stand up again.</p>
+                  <p className="text-red-600 text-center font-bold">You might not be able to stand up again.</p>
                 </div>
               </div>
             </div>
@@ -286,7 +295,7 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
               <div className="bg-gradient-to-r from-red-400 via-red-500 to-red-600 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-full text-sm sm:text-base font-black shadow-lg border-2 border-white/40 backdrop-blur-sm">
                 <div className="flex items-center gap-2">
                   <AlertTriangle className="w-4 sm:w-5 h-4 sm:h-5 text-white fill-current" />
-                  <span className="tracking-wide">🎁 FINAL CHANCE</span>
+                  <span className="tracking-wide">FINAL CHANCE</span>
                 </div>
               </div>
             </div>
@@ -323,16 +332,23 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
                     {content.offer.subtitle}
                   </div>
                   
-                  {/* Pricing - Same style as main page */}
+                  {/* Benefits List */}
                   <div className="space-y-2 bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 mb-4">
-                    <div className="text-yellow-400 text-lg font-bold">
-                      💰 {content.pricing.pricePerBottle}
+                    <div className="flex items-center justify-center gap-2 text-white text-sm">
+                      <CheckCircle className="w-4 h-4 text-green-400" />
+                      <span>{content.pricing.totalPrice}</span>
                     </div>
-                    <div className="text-white text-sm">
-                      📦 {content.pricing.totalPrice}
+                    <div className="flex items-center justify-center gap-2 text-white text-sm">
+                      <CheckCircle className="w-4 h-4 text-green-400" />
+                      <span>{content.pricing.pricePerBottle}</span>
                     </div>
-                    <div className="text-green-300 text-sm font-bold">
-                      💸 {content.pricing.savings}
+                    <div className="flex items-center justify-center gap-2 text-white text-sm">
+                      <CheckCircle className="w-4 h-4 text-green-400" />
+                      <span>No extra shipping fees</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-2 text-white text-sm">
+                      <CheckCircle className="w-4 h-4 text-green-400" />
+                      <span>{content.pricing.savings}</span>
                     </div>
                   </div>
                 </div>
@@ -367,7 +383,7 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
                   <div className="bg-gradient-to-r from-blue-500/30 to-cyan-500/30 backdrop-blur-sm rounded-md px-1 sm:px-1.5 py-1 sm:py-1.5 border border-blue-300/40 flex-1">
                     <div className="flex items-center justify-center gap-0.5 text-xs text-white">
                       <Clock className="w-3 sm:w-4 h-3 sm:h-4 text-red-400 flex-shrink-0" />
-                      <span className="text-center font-semibold text-xs">Final</span>
+                      <span className="text-center font-semibold text-xs">Secure</span>
                     </div>
                   </div>
                 </div>
@@ -407,7 +423,7 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
               Once this page closes, this offer disappears forever.
             </p>
             <p className="text-xs opacity-70">
-              This is your last chance to complete the 9-month protocol at this special price.
+              This is your only chance to secure the full 9-month protocol
             </p>
           </div>
         </footer>
