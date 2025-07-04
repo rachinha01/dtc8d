@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
-import { initializeTracking, trackConversion } from '../utils/urlUtils';
 
 interface GeolocationData {
   ip: string;
@@ -20,6 +19,7 @@ export const useAnalytics = () => {
   const isGeolocationLoaded = useRef<boolean>(false);
   const pingInterval = useRef<NodeJS.Timeout | null>(null);
   const sessionRecordId = useRef<string | null>(null);
+  const isInitialized = useRef<boolean>(false);
 
   function generateSessionId(): string {
     return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -283,13 +283,14 @@ export const useAnalytics = () => {
     }
   };
 
-  // Track page enter on mount
+  // Track page enter on mount - FIXED: Remove recursive call
   useEffect(() => {
-    const initializeTracking = async () => {
+    // Prevent multiple initializations
+    if (isInitialized.current) return;
+    isInitialized.current = true;
+
+    const initializeAnalytics = async () => {
       try {
-        // Initialize URL tracking
-        initializeTracking();
-        
         // Load geolocation data first
         geolocationData.current = await getGeolocationData();
         isGeolocationLoaded.current = true;
@@ -301,12 +302,12 @@ export const useAnalytics = () => {
           region: geolocationData.current?.region || 'Unknown'
         });
       } catch (error) {
-        console.error('Error initializing tracking:', error);
+        console.error('Error initializing analytics:', error);
         // Continue without breaking the app
       }
     };
 
-    initializeTracking();
+    initializeAnalytics();
 
     // Track page exit on unmount and stop ping
     return () => {
@@ -318,7 +319,7 @@ export const useAnalytics = () => {
         country: geolocationData.current?.country_name || 'Unknown'
       });
     };
-  }, []);
+  }, []); // Empty dependency array to run only once
 
   // Track page visibility changes
   useEffect(() => {
@@ -361,9 +362,6 @@ export const useAnalytics = () => {
       trackEvent('video_play', { 
         country: geolocationData.current?.country_name || 'Unknown'
       });
-      
-      // Track with external pixels
-      trackConversion('VideoPlay');
     }
   };
 
@@ -379,9 +377,6 @@ export const useAnalytics = () => {
         current_time: currentTime,
         country: geolocationData.current?.country_name || 'Unknown'
       });
-      
-      // Track with external pixels
-      trackConversion('LeadReached');
     }
     
     // Track pitch reached at 35:55 (2155 seconds)
@@ -393,9 +388,6 @@ export const useAnalytics = () => {
         current_time: currentTime,
         country: geolocationData.current?.country_name || 'Unknown'
       });
-      
-      // Track with external pixels
-      trackConversion('PitchReached');
     }
 
     // Track progress milestones every 25%
@@ -429,9 +421,6 @@ export const useAnalytics = () => {
       offer_type: offerType,
       country: geolocationData.current?.country_name || 'Unknown'
     });
-    
-    // Track with external pixels
-    trackConversion('OfferClick');
   };
 
   return {

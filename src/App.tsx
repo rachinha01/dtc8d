@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAnalytics } from './hooks/useAnalytics';
-import { initializeTracking } from './utils/urlUtils';
 
 // Import all components
 import { Header } from './components/Header';
@@ -34,8 +33,45 @@ function App() {
   const isMainPage = location.pathname === '/' || location.pathname === '/home';
 
   useEffect(() => {
-    // Initialize tracking parameters on app load
-    initializeTracking();
+    // Initialize URL tracking parameters
+    const initializeUrlTracking = () => {
+      try {
+        // Store URL parameters in sessionStorage for persistence
+        const urlParams = new URLSearchParams(window.location.search);
+        const trackingParams: Record<string, string> = {};
+        
+        // Common tracking parameters to preserve
+        const trackingKeys = [
+          'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
+          'fbclid', 'gclid', 'ttclid', 'twclid', 'li_fat_id',
+          'affiliate_id', 'sub_id', 'click_id', 'transaction_id'
+        ];
+        
+        trackingKeys.forEach(key => {
+          const value = urlParams.get(key);
+          if (value) {
+            trackingParams[key] = value;
+          }
+        });
+        
+        if (Object.keys(trackingParams).length > 0) {
+          sessionStorage.setItem('tracking_params', JSON.stringify(trackingParams));
+        }
+        
+        // Track page view with external pixels
+        if (typeof window !== 'undefined' && (window as any).fbq) {
+          (window as any).fbq('track', 'PageView');
+        }
+        
+        if (typeof window !== 'undefined' && (window as any).utmify) {
+          (window as any).utmify('track', 'PageView');
+        }
+      } catch (error) {
+        console.error('Error initializing URL tracking:', error);
+      }
+    };
+
+    initializeUrlTracking();
     
     // Inject VTurb script with proper error handling and optimization
     const injectVTurbScript = () => {
