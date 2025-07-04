@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAnalytics } from '../hooks/useAnalytics';
-import { AlertTriangle, CheckCircle, Shield, Truck, Clock, Zap } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Shield, Truck, Clock, Zap, Star, Gift } from 'lucide-react';
 
 interface UpsellPageProps {
   variant: '1-bottle' | '3-bottle' | '6-bottle';
@@ -11,24 +11,22 @@ interface UpsellContent {
   warning: string;
   headline: string;
   subheadline: string;
-  description: string[];
-  truth: {
+  offer: {
     title: string;
-    content: string[];
+    subtitle: string;
+    description: string;
   };
-  upgrade: {
-    title: string;
-    benefits: string[];
+  pricing: {
+    pricePerBottle: string;
+    totalPrice: string;
+    savings: string;
+    freeBottles: string;
+    paidBottles: string;
   };
+  remember: string;
   acceptUrl: string;
   rejectUrl: string;
   productImage: string;
-  savings: string;
-  originalPrice: string;
-  newPrice: string;
-  installments: string;
-  bottlesOffered: string;
-  totalBottles: string;
   acceptButtonText: string;
   rejectButtonText: string;
 }
@@ -70,129 +68,73 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
   const getUpsellContent = (variant: string): UpsellContent => {
     const contents = {
       '1-bottle': {
-        warning: '⚠️ HOLD ON!',
-        headline: 'You\'re About To Waste Everything You Just Started…',
-        subheadline: 'You just purchased 1 bottle of BlueDrops — and we\'re already preparing your shipment.',
-        description: [
-          'But I need to warn you:',
-          '1 bottle is NOT enough to fix the deep-rooted damage that\'s been building in your body for years.',
-          '👉 If you stop your treatment now, everything you achieve will be lost — and you may never recover again.'
-        ],
-        truth: {
-          title: '💀 The Truth You Need To Hear:',
-          content: [
-            'BlueDrops is working to eliminate toxic blockages in your blood flow and hormone response.',
-            'But this enemy is strong.',
-            'It\'s been inside you for years.',
-            'And unless you stay in the fight for 9 months, it WILL return.',
-            '',
-            'Most men who stop early report losing all results — and some say they could never get them back.'
-          ]
+        warning: 'WAIT! Don\'t Miss This VIP Opportunity',
+        headline: 'As a VIP customer who just secured 1 bottle of BlueDrops, you\'re getting an exclusive one-time chance to claim the full 9-month treatment.',
+        subheadline: 'Add 5 More Bottles to your order and Get 4 Extra Bottles FREE',
+        offer: {
+          title: 'VIP EXCLUSIVE OFFER',
+          subtitle: '5 paid + 4 free = 9 bottles total',
+          description: 'All at our lowest price ever...'
         },
-        upgrade: {
-          title: '🎯 That\'s Why You MUST Upgrade Now',
-          benefits: [
-            '✅ 9-Month Supply',
-            '✅ Save up to $500',
-            '✅ All bottles shipped together — no extra cost',
-            '✅ 180-Day Risk-Free Guarantee'
-          ]
+        pricing: {
+          pricePerBottle: 'Only $39 per bottle',
+          totalPrice: 'That\'s a total of 9 bottles (270 days) for just $195',
+          savings: 'Save up to $585 compared to the regular price ($89/bottle)',
+          freeBottles: '4 FREE',
+          paidBottles: '5 PAID'
         },
+        remember: 'You buy 5 bottles at our deepest discount and get 4 FREE — a full 9-month supply to lock in permanent results.',
         acceptUrl: 'https://pagamento.paybluedrops.com/ex-ocu/next-offer/mWYd5nGjgx?accepted=yes',
         rejectUrl: 'https://pagamento.paybluedrops.com/ex-ocu/next-offer/mWYd5nGjgx?accepted=no',
         productImage: 'https://i.imgur.com/hsfqxVP.png',
-        savings: 'SAVE $500',
-        originalPrice: '$712.00',
-        newPrice: '$212.00',
-        installments: '12x $17.67',
-        bottlesOffered: '+8 BOTTLES',
-        totalBottles: '9 BOTTLES TOTAL',
-        acceptButtonText: 'YES — I WANT TO COMPLETE MY TREATMENT',
-        rejectButtonText: 'No thanks — I\'ll risk losing everything'
+        acceptButtonText: 'GET MY VIP DISCOUNT NOW',
+        rejectButtonText: 'No thanks, I\'ll pass on this exclusive offer'
       },
       '3-bottle': {
-        warning: '⚠️ WARNING:',
-        headline: 'You\'re Not Done Yet',
-        subheadline: 'You just ordered 3 bottles of BlueDrops — that\'s a great step... But it\'s still not enough to reach permanent, long-term results.',
-        description: [
-          'According to our clinical observations, you need 9 full months of treatment to fully eliminate the root cause of your problem.',
-          '',
-          'Stopping before that point?',
-          'That\'s how men lose their progress, and sometimes can\'t get it back — even with more product.'
-        ],
-        truth: {
-          title: '💧 Think About It:',
-          content: [
-            'Your body is in the middle of a battle.',
-            'The drops you\'re taking are pushing back the toxins and improving blood flow.',
-            '',
-            'But if you stop before month 9...',
-            'The bad cells return.',
-            'Stronger, smarter, and more resistant.',
-            'And that\'s when treatment may fail for good.'
-          ]
+        warning: 'You\'re halfway there. Let\'s finish the mission.',
+        headline: 'As our VIP customer, we\'re giving you a final upgrade to complete your transformation.',
+        subheadline: 'You purchased 3 bottles — now let\'s make it 9.',
+        offer: {
+          title: 'COMPLETE YOUR MISSION',
+          subtitle: '3 paid + 3 free = 6 additional bottles',
+          description: 'Add 3 More Bottles and Get 3 Extra Bottles FREE'
         },
-        upgrade: {
-          title: '💥 Upgrade Now To Lock In Full Recovery',
-          benefits: [
-            '✅ No added shipping',
-            '✅ Deep discount',
-            '✅ Guaranteed supply while stocks last',
-            '✅ 180-Day Risk-Free Guarantee'
-          ]
+        pricing: {
+          pricePerBottle: 'Only $59 per bottle',
+          totalPrice: 'Total of 9 bottles for $177',
+          savings: 'You get 3 FREE bottles with zero shipping fees.',
+          freeBottles: '3 FREE',
+          paidBottles: '3 PAID'
         },
+        remember: 'You pay for 3 bottles and we double it. A perfect 9-month supply to guarantee full results.',
         acceptUrl: 'https://pagamento.paybluedrops.com/ex-ocu/next-offer/qJjMdRwYNl?accepted=yes',
         rejectUrl: 'https://pagamento.paybluedrops.com/ex-ocu/next-offer/qJjMdRwYNl?accepted=no',
         productImage: 'https://i.imgur.com/hsfqxVP.png',
-        savings: 'SAVE $300',
-        originalPrice: '$474.00',
-        newPrice: '$174.00',
-        installments: '12x $14.50',
-        bottlesOffered: '+6 BOTTLES',
-        totalBottles: '9 BOTTLES TOTAL',
-        acceptButtonText: 'YES — UPGRADE TO 9-MONTH TREATMENT',
-        rejectButtonText: 'No thanks — I\'ll take the risk'
+        acceptButtonText: 'COMPLETE MY TRANSFORMATION',
+        rejectButtonText: 'No thanks, I\'ll stop halfway'
       },
       '6-bottle': {
-        warning: '🧠 You\'re 80% There...',
-        headline: 'But 80% Is NOT Enough',
-        subheadline: 'You made the smart decision of getting 6 bottles of BlueDrops. But let\'s be honest — if you stop there, you\'re leaving yourself exposed.',
-        description: [
-          'Our data shows the minimum effective cycle is 9 months.',
-          'That\'s how long it takes to build a permanent defense inside your body — so the problem never comes back.'
-        ],
-        truth: {
-          title: '❌ Stop Now And You Might Regret It',
-          content: [
-            'The worst thing that can happen?',
-            'Your body begins to change... and then you cut it short.',
-            '',
-            'Your results vanish.',
-            'And next time, the treatment might not work anymore.',
-            '',
-            'Don\'t stop 3 steps before the finish line.'
-          ]
+        warning: 'You\'re almost done — just one step left.',
+        headline: 'Since you\'ve already secured 6 bottles, you\'re closer than most.',
+        subheadline: 'But if you want to ensure complete, permanent results, this is your final step.',
+        offer: {
+          title: 'FINAL STEP TO PERFECTION',
+          subtitle: '1 paid + 2 free = 3 bonus bottles',
+          description: 'Add 1 More Bottle and Get 2 Extra Bottles FREE'
         },
-        upgrade: {
-          title: '🔒 Complete Your Journey — Just 3 More Bottles',
-          benefits: [
-            '✅ Full 9-Month Protocol',
-            '✅ Same discount per bottle',
-            '✅ Delivered together, no extra shipping',
-            '✅ 180-Day Risk-Free Guarantee'
-          ]
+        pricing: {
+          pricePerBottle: 'Only $39 per bottle',
+          totalPrice: 'Total: 3 bonus bottles added to your order — no extra shipping.',
+          savings: 'Maximum cellular impact guaranteed',
+          freeBottles: '2 FREE',
+          paidBottles: '1 PAID'
         },
+        remember: 'This is your moment to go beyond average and secure the best possible outcome. A full 9-month supply with maximum cellular impact.',
         acceptUrl: 'https://pagamento.paybluedrops.com/ex-ocu/next-offer/46jLdobjp3?accepted=yes',
         rejectUrl: 'https://pagamento.paybluedrops.com/ex-ocu/next-offer/46jLdobjp3?accepted=no',
         productImage: 'https://i.imgur.com/hsfqxVP.png',
-        savings: 'SAVE $150',
-        originalPrice: '$237.00',
-        newPrice: '$87.00',
-        installments: '12x $7.25',
-        bottlesOffered: '+3 BOTTLES',
-        totalBottles: '9 BOTTLES TOTAL',
-        acceptButtonText: 'YES — GIVE ME 3 MORE TO FINISH STRONG',
-        rejectButtonText: 'No thanks — I\'ll stop before it\'s complete'
+        acceptButtonText: 'SECURE MAXIMUM RESULTS',
+        rejectButtonText: 'No thanks, I\'ll settle for average'
       }
     };
 
@@ -210,225 +152,212 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
   const handleReject = () => {
     trackOfferClick(`upsell-${variant}-reject`);
     const url = cartParams ? `${content.rejectUrl}&${cartParams}` : content.rejectUrl;
-    window.location.href = url;
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header - Red Banner */}
-      <div className="bg-red-600 text-white text-center py-3 px-4">
-        <h1 className="text-lg sm:text-xl font-bold tracking-wide">
-          YOUR PURCHASE IS NOT FINALIZED YET
-        </h1>
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 text-white">
+      {/* Animated Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-32 h-32 bg-blue-400/10 rounded-full blur-xl animate-pulse"></div>
+        <div className="absolute top-40 right-20 w-48 h-48 bg-cyan-400/10 rounded-full blur-xl animate-pulse animation-delay-1000"></div>
+        <div className="absolute bottom-20 left-1/4 w-40 h-40 bg-blue-300/10 rounded-full blur-xl animate-pulse animation-delay-2000"></div>
       </div>
 
-      {/* Pink Section */}
-      <div className="bg-pink-400 text-center py-4 px-4">
-        <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
-          WE'RE ALMOST THERE...
-        </h2>
-        <p className="text-white text-sm sm:text-base max-w-4xl mx-auto leading-relaxed">
-          YOUR ORDER IS CONFIRMED AND BEING PREPARED FOR SHIPMENT TO YOUR ADDRESS, BUT 
-          BEFORE THAT I HAVE GREAT NEWS FOR YOU, YOU'VE BEEN SELECTED!
-        </p>
+      {/* Header - Urgent Banner */}
+      <div className="relative bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-center py-4 px-4 shadow-2xl">
+        <div className="absolute inset-0 bg-gradient-to-r from-yellow-300/20 to-orange-400/20 animate-pulse"></div>
+        <div className="relative">
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <AlertTriangle className="w-6 h-6 animate-bounce" />
+            <h1 className="text-xl sm:text-2xl font-black tracking-wide">
+              VIP EXCLUSIVE OPPORTUNITY
+            </h1>
+            <AlertTriangle className="w-6 h-6 animate-bounce" />
+          </div>
+          <p className="text-sm font-bold opacity-90">
+            Limited Time • VIP Customers Only • This Page Expires Soon
+          </p>
+        </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+      {/* Main Hero Section */}
+      <div className="relative py-12 px-4">
+        <div className="max-w-6xl mx-auto text-center">
           
-          {/* Left Side - Product Image */}
-          <div className="flex justify-center">
-            <div className="relative">
-              {/* Purple background with discount */}
-              <div className="bg-gradient-to-br from-purple-500 to-purple-700 rounded-3xl p-8 relative overflow-hidden shadow-2xl">
-                <div className="absolute top-4 left-4 bg-black text-white px-3 py-1 rounded-full text-sm font-bold">
-                  33% DISCOUNT
+          {/* Warning Badge */}
+          <div className="inline-flex items-center gap-3 bg-gradient-to-r from-red-500 to-red-600 px-6 py-3 rounded-full mb-8 shadow-2xl animate-pulse">
+            <Zap className="w-6 h-6 text-yellow-300" />
+            <span className="text-xl font-black text-white tracking-wide">
+              {content.warning}
+            </span>
+            <Zap className="w-6 h-6 text-yellow-300" />
+          </div>
+
+          {/* Main Headline */}
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black mb-6 leading-tight">
+            <span className="bg-gradient-to-r from-white via-blue-100 to-cyan-200 bg-clip-text text-transparent">
+              {content.headline}
+            </span>
+          </h1>
+
+          {/* Subheadline */}
+          <div className="bg-gradient-to-r from-blue-700/50 to-blue-600/50 backdrop-blur-sm rounded-2xl p-6 mb-8 border border-blue-400/30">
+            <h2 className="text-2xl sm:text-3xl font-bold text-yellow-300 mb-4">
+              👉 {content.subheadline}
+            </h2>
+            <p className="text-xl text-blue-100 font-medium">
+              {content.offer.description}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content Grid */}
+      <div className="max-w-7xl mx-auto px-4 pb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          
+          {/* Left Side - Product Showcase */}
+          <div className="relative">
+            <div className="relative bg-gradient-to-br from-blue-600/30 to-purple-600/30 backdrop-blur-xl rounded-3xl p-8 border border-blue-400/30 shadow-2xl">
+              
+              {/* VIP Badge */}
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-6 py-2 rounded-full font-black text-sm shadow-lg">
+                  <Star className="w-4 h-4 inline mr-2" />
+                  VIP EXCLUSIVE
+                </div>
+              </div>
+
+              {/* Product Image */}
+              <div className="text-center mb-8 mt-4">
+                <img 
+                  src={content.productImage}
+                  alt="BlueDrops VIP Package"
+                  className="w-80 h-auto mx-auto object-contain drop-shadow-2xl"
+                />
+              </div>
+
+              {/* Offer Details */}
+              <div className="text-center space-y-4">
+                <h3 className="text-2xl font-black text-yellow-300">
+                  {content.offer.title}
+                </h3>
+                <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl font-bold text-lg shadow-lg">
+                  {content.offer.subtitle}
                 </div>
                 
-                {/* Product Image */}
-                <div className="flex justify-center mb-6">
-                  <img 
-                    src={content.productImage}
-                    alt="BlueDrops Upsell Package"
-                    className="w-64 h-auto object-contain drop-shadow-2xl"
-                  />
-                </div>
-
-                {/* Price Badge */}
-                <div className="text-center">
-                  <div className="bg-red-600 text-white px-4 py-2 rounded-lg inline-block mb-2">
-                    <span className="text-sm">from </span>
-                    <span className="line-through text-lg">{content.originalPrice}</span>
+                {/* Pricing Breakdown */}
+                <div className="space-y-3 bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                  <div className="text-yellow-300 text-xl font-bold">
+                    💰 {content.pricing.pricePerBottle}
                   </div>
-                  <div className="text-center">
-                    <span className="text-white text-sm">FOR </span>
-                    <span className="text-yellow-300 text-4xl font-bold">
-                      {content.newPrice}
-                    </span>
+                  <div className="text-white text-lg">
+                    📦 {content.pricing.totalPrice}
+                  </div>
+                  <div className="text-green-300 text-lg font-bold">
+                    💸 {content.pricing.savings}
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Right Side - Offer Details */}
-          <div className="space-y-6">
+          {/* Right Side - Call to Action */}
+          <div className="space-y-8">
             
-            {/* Discount Box */}
-            <div className="border-2 border-gray-300 rounded-lg p-6 text-center bg-white shadow-lg">
-              <h3 className="text-xl font-bold text-gray-800 mb-2">
-                YOU JUST WON
-              </h3>
-              <div className="text-2xl font-bold text-gray-800 mb-2">
-                33% DISCOUNT TO
+            {/* Remember Section */}
+            <div className="bg-gradient-to-r from-purple-600/30 to-blue-600/30 backdrop-blur-xl rounded-2xl p-8 border border-purple-400/30 shadow-2xl">
+              <div className="flex items-start gap-4 mb-6">
+                <div className="bg-yellow-400 p-3 rounded-full flex-shrink-0">
+                  <Gift className="w-8 h-8 text-black" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-black text-yellow-300 mb-4">
+                    🧠 REMEMBER:
+                  </h3>
+                  <p className="text-white text-lg leading-relaxed">
+                    {content.remember}
+                  </p>
+                </div>
               </div>
-              <div className="text-2xl font-bold text-gray-800 mb-4">
-                BUY {content.bottlesOffered}!
+            </div>
+
+            {/* Benefits Grid */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-green-500/20 backdrop-blur-sm rounded-xl p-4 border border-green-400/30 text-center">
+                <div className="text-3xl font-black text-green-300 mb-2">
+                  {content.pricing.freeBottles}
+                </div>
+                <div className="text-white font-bold">BOTTLES FREE</div>
+              </div>
+              <div className="bg-blue-500/20 backdrop-blur-sm rounded-xl p-4 border border-blue-400/30 text-center">
+                <div className="text-3xl font-black text-blue-300 mb-2">
+                  {content.pricing.paidBottles}
+                </div>
+                <div className="text-white font-bold">BOTTLES PAID</div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="space-y-4">
+              
+              {/* Accept Button */}
+              <div className="relative">
+                <div className="absolute -inset-1 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 rounded-2xl blur opacity-75 animate-pulse"></div>
+                <button
+                  onClick={handleAccept}
+                  className="relative w-full bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-black font-black py-6 px-8 rounded-2xl text-xl transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-2xl border-2 border-white/20"
+                >
+                  <div className="flex items-center justify-center gap-3">
+                    <CheckCircle className="w-6 h-6" />
+                    <span>{content.acceptButtonText}</span>
+                    <CheckCircle className="w-6 h-6" />
+                  </div>
+                </button>
               </div>
               
-              <div className="bg-pink-500 text-white px-4 py-2 rounded-lg inline-block mb-4">
-                <span className="text-lg font-bold">
-                  GET {content.bottlesOffered} FOR{' '}
-                  <span className="bg-pink-600 px-2 py-1 rounded">HALF</span> THE PRICE.
-                </span>
-              </div>
-
-              <div className="text-gray-700 mb-4">
-                <div className="text-lg">
-                  From <span className="line-through text-red-600">{content.originalPrice}</span> for only
-                </div>
-                <div className="text-3xl font-bold text-green-600 mb-2">
-                  {content.installments}
-                </div>
-                <div className="text-gray-600">
-                  or, {content.newPrice} cash
-                </div>
-              </div>
-
-              {/* Accept Button */}
+              {/* Reject Button */}
               <button
-                onClick={handleAccept}
-                className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-4 px-6 rounded-lg text-lg transition-colors mb-4 border-2 border-gray-400 shadow-lg transform hover:scale-105 active:scale-95"
+                onClick={handleReject}
+                className="w-full bg-gray-600/30 hover:bg-gray-600/50 text-gray-300 hover:text-white font-medium py-4 px-6 rounded-xl transition-all duration-300 border border-gray-500/30 text-lg backdrop-blur-sm"
               >
-                YES, I WANT THIS PROMOTION
+                ❌ {content.rejectButtonText}
               </button>
             </div>
 
-            {/* Warning Message */}
-            <div className="text-center bg-red-50 p-4 rounded-lg border border-red-200">
-              <p className="text-red-600 font-semibold text-sm">
-                <span className="font-bold">Important Notice:</span> This is your only chance to get {content.bottlesOffered.toLowerCase()} at this 
-                price. You won't have another opportunity!
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Warning Section - More Impactful Layout */}
-        <div className="mt-12 max-w-5xl mx-auto">
-          <div className="bg-gradient-to-r from-red-50 to-orange-50 border-l-8 border-red-500 p-8 rounded-lg shadow-lg">
-            <div className="flex items-start">
-              <div className="bg-red-500 p-3 rounded-full mr-6 flex-shrink-0">
-                <AlertTriangle className="w-8 h-8 text-white" />
+            {/* Guarantee Badges */}
+            <div className="flex justify-center items-center gap-8 flex-wrap pt-6">
+              <div className="flex flex-col items-center gap-2 text-center">
+                <div className="bg-green-500/20 p-4 rounded-full border border-green-400/30">
+                  <Shield className="w-8 h-8 text-green-300" />
+                </div>
+                <span className="text-sm font-bold text-green-300">180-Day<br />Guarantee</span>
               </div>
-              <div className="flex-1">
-                <h3 className="text-3xl font-black text-red-800 mb-4 leading-tight">
-                  {content.warning}
-                </h3>
-                <h4 className="text-2xl font-bold text-red-700 mb-4">
-                  {content.headline}
-                </h4>
-                <p className="text-lg text-red-700 mb-6 font-medium">
-                  {content.subheadline}
-                </p>
-                
-                <div className="space-y-3 mb-8">
-                  {content.description.map((desc, index) => (
-                    <p key={index} className="text-red-700 text-lg leading-relaxed">
-                      {desc}
-                    </p>
-                  ))}
+              <div className="flex flex-col items-center gap-2 text-center">
+                <div className="bg-blue-500/20 p-4 rounded-full border border-blue-400/30">
+                  <Truck className="w-8 h-8 text-blue-300" />
                 </div>
-
-                <div className="bg-white/70 backdrop-blur-sm rounded-xl p-6 mb-8 border border-red-200">
-                  <h4 className="font-black text-red-800 mb-4 text-xl flex items-center">
-                    <Zap className="w-6 h-6 mr-2" />
-                    {content.truth.title}
-                  </h4>
-                  <div className="space-y-3">
-                    {content.truth.content.map((item, index) => (
-                      <p key={index} className={`text-red-700 ${item === '' ? 'h-2' : 'text-lg leading-relaxed'}`}>
-                        {item}
-                      </p>
-                    ))}
-                  </div>
+                <span className="text-sm font-bold text-blue-300">Free<br />Shipping</span>
+              </div>
+              <div className="flex flex-col items-center gap-2 text-center">
+                <div className="bg-purple-500/20 p-4 rounded-full border border-purple-400/30">
+                  <Clock className="w-8 h-8 text-purple-300" />
                 </div>
-
-                <div className="bg-gradient-to-r from-blue-50 to-green-50 rounded-xl p-6 border border-blue-200">
-                  <h4 className="font-black text-blue-800 mb-4 text-xl flex items-center">
-                    <CheckCircle className="w-6 h-6 mr-2 text-green-600" />
-                    {content.upgrade.title}
-                  </h4>
-                  <p className="text-blue-700 mb-4 text-lg">
-                    We're giving you a final, one-time offer to complete the full 9-month protocol — by adding {content.bottlesOffered.toLowerCase()} at the lowest price ever.
-                  </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {content.upgrade.benefits.map((benefit, index) => (
-                      <div key={index} className="flex items-center text-blue-700 bg-white/50 p-3 rounded-lg">
-                        <CheckCircle className="w-5 h-5 text-green-600 mr-3 flex-shrink-0" />
-                        <span className="font-medium">{benefit}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <span className="text-sm font-bold text-purple-300">Limited Time<br />VIP Offer</span>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Action Buttons - More Prominent */}
-        <div className="mt-12 max-w-2xl mx-auto space-y-6">
-          <button
-            onClick={handleAccept}
-            className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-black py-6 px-8 rounded-2xl text-xl transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-2xl border-4 border-white/50"
-          >
-            🟨 {content.acceptButtonText}
-          </button>
-          
-          <button
-            onClick={handleReject}
-            className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-4 px-6 rounded-xl transition-colors border border-gray-300 text-lg"
-          >
-            ❌ {content.rejectButtonText}
-          </button>
-        </div>
-
-        {/* Benefits Icons - Enhanced */}
-        <div className="mt-12 bg-gray-50 rounded-2xl p-8">
-          <h3 className="text-center text-xl font-bold text-gray-800 mb-6">
-            Your Purchase Is Protected By:
-          </h3>
-          <div className="flex justify-center items-center gap-12 flex-wrap">
-            <div className="flex flex-col items-center gap-3 text-gray-600">
-              <div className="bg-green-100 p-4 rounded-full">
-                <Shield className="w-8 h-8 text-green-600" />
-              </div>
-              <span className="text-sm font-bold text-center">180-Day<br />Guarantee</span>
-            </div>
-            <div className="flex flex-col items-center gap-3 text-gray-600">
-              <div className="bg-blue-100 p-4 rounded-full">
-                <Truck className="w-8 h-8 text-blue-600" />
-              </div>
-              <span className="text-sm font-bold text-center">Free<br />Shipping</span>
-            </div>
-            <div className="flex flex-col items-center gap-3 text-gray-600">
-              <div className="bg-purple-100 p-4 rounded-full">
-                <Clock className="w-8 h-8 text-purple-600" />
-              </div>
-              <span className="text-sm font-bold text-center">Limited Time<br />Offer</span>
-            </div>
-          </div>
+      {/* Bottom Urgency Bar */}
+      <div className="bg-gradient-to-r from-red-600 to-red-700 text-white text-center py-4 px-4 shadow-2xl">
+        <div className="flex items-center justify-center gap-3">
+          <AlertTriangle className="w-5 h-5 animate-bounce" />
+          <span className="font-bold text-lg">
+            This VIP offer expires when you leave this page • Don't miss out!
+          </span>
+          <AlertTriangle className="w-5 h-5 animate-bounce" />
         </div>
       </div>
     </div>
