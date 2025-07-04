@@ -11,25 +11,29 @@ interface MayoModalProps {
 export const MayoModal: React.FC<MayoModalProps> = ({ onClose, article }) => {
   return (
     <div className="bg-white min-h-screen">
-      {/* Mayo Clinic Header - Replicating real Mayo style */}
-      <div className="bg-white border-b-2 border-blue-900">
-        <div className="px-4 py-4">
-          <div className="max-w-6xl mx-auto">
+      {/* Mayo Clinic Header - Replicando exatamente a imagem */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="px-4 py-3">
+          <div className="max-w-7xl mx-auto">
             <div className="flex items-center justify-between">
+              {/* Left side - Logo e Navigation */}
               <div className="flex items-center gap-8">
-                {/* Mayo Clinic Logo - UPDATED */}
-                <img src="https://i.imgur.com/AYQHh2i.png" alt="Mayo Clinic" className="h-12" />
+                {/* Mayo Clinic Logo */}
+                <img src="https://i.imgur.com/AYQHh2i.png" alt="Mayo Clinic" className="h-10" />
                 
-                {/* Navigation */}
-                <div className="hidden md:flex items-center gap-6 text-sm text-blue-900">
-                  <span className="hover:text-blue-700 cursor-pointer font-medium">Patient Care</span>
-                  <span className="hover:text-blue-700 cursor-pointer font-medium">Health Information</span>
-                  <span className="text-blue-700 font-semibold border-b-2 border-blue-700 pb-1">Research</span>
-                  <span className="hover:text-blue-700 cursor-pointer font-medium">Education</span>
+                {/* Navigation Menu - Exatamente como na imagem */}
+                <div className="hidden md:flex items-center gap-8 text-sm">
+                  <span className="text-gray-700 hover:text-gray-900 cursor-pointer font-medium">News Network</span>
+                  <span className="text-gray-700 hover:text-gray-900 cursor-pointer font-medium">News Releases</span>
+                  <span className="text-gray-700 hover:text-gray-900 cursor-pointer font-medium">Health Topics</span>
+                  <span className="text-gray-700 hover:text-gray-900 cursor-pointer font-medium">Medical Research</span>
+                  <span className="text-gray-700 hover:text-gray-900 cursor-pointer font-medium">Media Contacts</span>
+                  <span className="text-gray-700 hover:text-gray-900 cursor-pointer font-medium">About</span>
                 </div>
               </div>
               
-              <button onClick={onClose} className="text-blue-900 hover:text-blue-700">
+              {/* Right side - Close button */}
+              <button onClick={onClose} className="text-gray-600 hover:text-gray-800">
                 <X className="w-6 h-6" />
               </button>
             </div>
@@ -39,20 +43,61 @@ export const MayoModal: React.FC<MayoModalProps> = ({ onClose, article }) => {
 
       {/* Content */}
       <div className="max-w-4xl mx-auto p-8">
-        <div className="text-blue-900 text-sm font-semibold mb-2 uppercase tracking-wide">
-          Men's Health Research
+        {/* Breadcrumb/Category */}
+        <div className="text-gray-600 text-sm mb-4 uppercase tracking-wide font-medium">
+          Mayo Clinic Q and A: Signs of overtraining
         </div>
         
-        <h1 className="text-4xl font-serif font-bold text-blue-900 mb-6">
-          The Science Behind Herbal Support for Men's Vitality
+        {/* Main Title */}
+        <h1 className="text-4xl font-bold text-gray-900 mb-6 leading-tight">
+          Mayo Clinic Q and A: Signs of overtraining
         </h1>
 
-        <div className="text-gray-600 mb-8 bg-blue-50 p-4 rounded border-l-4 border-blue-900">
-          <p className="text-sm"><strong>Reviewed by Mayo Clinic Experts – May 30, 2025</strong></p>
+        {/* Author and Date */}
+        <div className="mb-6">
+          <p className="text-gray-900 font-semibold mb-1">Patty Miller</p>
+          <p className="text-gray-600 text-sm">July 3, 2025</p>
         </div>
 
+        {/* Social Share Icons */}
+        <div className="flex items-center gap-3 mb-8">
+          <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
+            <span className="text-white text-sm font-bold">f</span>
+          </div>
+          <div className="w-8 h-8 bg-black rounded flex items-center justify-center">
+            <span className="text-white text-sm font-bold">X</span>
+          </div>
+          <div className="w-8 h-8 bg-blue-700 rounded flex items-center justify-center">
+            <span className="text-white text-sm font-bold">in</span>
+          </div>
+          <div className="w-8 h-8 bg-orange-500 rounded flex items-center justify-center">
+            <span className="text-white text-sm font-bold">@</span>
+          </div>
+          <div className="w-8 h-8 bg-yellow-500 rounded flex items-center justify-center">
+            <span className="text-white text-sm font-bold">📄</span>
+          </div>
+        </div>
+
+        {/* Hero Image */}
+        <div className="mb-8">
+          <img 
+            src="https://images.pexels.com/photos/2803158/pexels-photo-2803158.jpeg?auto=compress&cs=tinysrgb&w=1200&h=600&fit=crop" 
+            alt="Man running outdoors" 
+            className="w-full h-80 object-cover rounded"
+          />
+        </div>
+
+        {/* Article Body */}
         <div className="prose prose-lg max-w-none">
-          <p className="text-gray-800 leading-relaxed mb-6">
+          <p className="text-lg text-gray-800 leading-relaxed mb-6">
+            <strong>DEAR MAYO CLINIC:</strong> I've taken up running again and decided to enter a half-marathon. I know I have to push myself to get ready for the race, but I don't want to overdo it. What should I watch out for as I train?
+          </p>
+          
+          <p className="text-gray-700 leading-relaxed mb-6">
+            <strong>ANSWER:</strong> We're surrounded by warning signs — on the roads, at work, and on packaging and equipment. Your body sends warning signs, too. As your race date nears, it's tempting to pull out all the stops. But that makes this a prime time to watch for warning signs of overtraining.
+          </p>
+
+          <p className="text-gray-700 leading-relaxed mb-6">
             Mayo Clinic researchers have been exploring natural methods to support men's sexual health without the need for pharmaceutical intervention. A recent review analyzed non-prescription supplements with active botanical compounds and amino acids that promote vascular and hormonal support.
           </p>
 
@@ -60,8 +105,8 @@ export const MayoModal: React.FC<MayoModalProps> = ({ onClose, article }) => {
             BlueDrops emerged as a noteworthy product, incorporating adaptogens like ashwagandha and nitric-oxide precursors in a precise, daily-use formula. Physicians who followed a 30-day observational group reported:
           </p>
 
-          <div className="bg-blue-50 border-l-4 border-blue-900 rounded-lg p-6 my-8">
-            <h3 className="font-serif font-semibold text-blue-900 mb-3">Clinical Observations</h3>
+          <div className="bg-blue-50 border-l-4 border-blue-600 rounded-lg p-6 my-8">
+            <h3 className="font-bold text-blue-900 mb-3">Clinical Observations</h3>
             <ul className="list-disc list-inside text-gray-700 space-y-2">
               <li><strong>Enhanced penile blood flow</strong> in 67% of subjects</li>
               <li><strong>45% noted increased stamina</strong> and improved mood</li>
@@ -77,12 +122,24 @@ export const MayoModal: React.FC<MayoModalProps> = ({ onClose, article }) => {
             While clinical trials are still underway, early data suggest that supplements like BlueDrops can serve as valuable tools in men's wellness routines.
           </p>
 
-          <div className="border-t-2 border-blue-900 pt-6 mt-8">
+          <div className="border-t border-gray-200 pt-6 mt-8">
             <div className="bg-gray-50 p-4 rounded">
               <p className="text-sm text-gray-600 italic">
                 <strong>Medical Disclaimer:</strong> This information is for educational purposes and should not replace professional medical advice. Always consult with your healthcare provider before starting any new supplement regimen.
               </p>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer - Simplified Mayo style */}
+      <div className="bg-gray-50 border-t border-gray-200 py-8 mt-12">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center">
+            <img src="https://i.imgur.com/AYQHh2i.png" alt="Mayo Clinic" className="h-8 mx-auto mb-4" />
+            <p className="text-sm text-gray-600">
+              © 2025 Mayo Foundation for Medical Education and Research. All rights reserved.
+            </p>
           </div>
         </div>
       </div>
