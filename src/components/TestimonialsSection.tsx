@@ -54,51 +54,7 @@ export const TestimonialsSection: React.FC = () => {
     }
   ];
 
-  // Function to inject VTurb testimonial videos
-  const injectTestimonialVideo = (videoId: string) => {
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.id = `scr_testimonial_${videoId}`;
-    script.async = true;
-    script.innerHTML = `
-      var s=document.createElement("script");
-      s.src="https://scripts.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${videoId}/v4/player.js";
-      s.async=true;
-      s.onload = function() {
-        console.log('VTurb testimonial video loaded: ${videoId}');
-        window.testimonialVideoLoaded_${videoId} = true;
-      };
-      document.head.appendChild(s);
-    `;
-    
-    // Remove existing script if any
-    const existingScript = document.getElementById(`scr_testimonial_${videoId}`);
-    if (existingScript) {
-      existingScript.remove();
-    }
-    
-    document.head.appendChild(script);
-  };
-
-  // Inject current testimonial video when testimonial changes
-  useEffect(() => {
-    const currentTestimonialData = testimonials[currentTestimonial];
-    if (currentTestimonialData.videoId) {
-      setTimeout(() => {
-        injectTestimonialVideo(currentTestimonialData.videoId);
-      }, 300);
-    }
-
-    // Cleanup function
-    return () => {
-      testimonials.forEach((testimonial) => {
-        const scriptToRemove = document.getElementById(`scr_testimonial_${testimonial.videoId}`);
-        if (scriptToRemove) {
-          scriptToRemove.remove();
-        }
-      });
-    };
-  }, [currentTestimonial]);
+  // ✅ REMOVED: Global video injection - now handled per card
 
   // Intersection Observer for lazy loading
   useEffect(() => {

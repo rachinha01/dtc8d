@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { CheckCircle, Star, Play } from 'lucide-react';
 
 interface TestimonialCardProps {
@@ -21,6 +21,44 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
 }) => {
   // ✅ Check if this is Michael R. with real VTurb video
   const hasRealVideo = testimonial.videoId === "68677fbfd890d9c12c549f94";
+
+  // ✅ FIXED: Inject VTurb script only when card is active and has real video
+  useEffect(() => {
+    if (isActive && hasRealVideo) {
+      // Remove any existing script first
+      const existingScript = document.getElementById(`scr_testimonial_${testimonial.videoId}`);
+      if (existingScript) {
+        existingScript.remove();
+      }
+
+      // Inject VTurb script specifically for this testimonial
+      const script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.id = `scr_testimonial_${testimonial.videoId}`;
+      script.async = true;
+      script.innerHTML = `
+        var s=document.createElement("script");
+        s.src="https://scripts.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${testimonial.videoId}/v4/player.js";
+        s.async=true;
+        s.onload = function() {
+          console.log('VTurb testimonial video loaded: ${testimonial.videoId}');
+        };
+        document.head.appendChild(s);
+      `;
+      
+      document.head.appendChild(script);
+    }
+
+    // Cleanup when card becomes inactive
+    return () => {
+      if (hasRealVideo) {
+        const scriptToRemove = document.getElementById(`scr_testimonial_${testimonial.videoId}`);
+        if (scriptToRemove) {
+          scriptToRemove.remove();
+        }
+      }
+    };
+  }, [isActive, hasRealVideo, testimonial.videoId]);
 
   return (
     <div className={`bg-white backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-blue-200 hover:bg-white/95 transition-all duration-300 max-w-md w-full mx-4 ${
@@ -59,23 +97,36 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
         </p>
       </div>
 
-      {/* ✅ WORKING: Michael R. now has VTurb video */}
+      {/* ✅ FIXED: Video only appears when card is active */}
       {isActive && (
         <div className="mb-4">
           <div className="aspect-video rounded-xl overflow-hidden shadow-lg bg-gray-900 relative">
             {hasRealVideo ? (
-              // ✅ VTurb Video Container for Michael R.
-              <vturb-smartplayer 
+              // ✅ VTurb Video Container for Michael R. - FIXED positioning
+              <div
                 id={`vid-${testimonial.videoId}`}
                 style={{
-                  display: 'block',
-                  margin: '0 auto',
+                  position: 'relative',
                   width: '100%',
                   height: '100%',
-                  position: 'relative',
-                  zIndex: 10
+                  zIndex: 1
                 }}
-              />
+              >
+                {/* Fallback content while video loads */}
+                <div className="w-full h-full bg-gradient-to-br from-blue-800 to-blue-900 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-3 mx-auto">
+                      <Play className="w-6 h-6 text-white ml-0.5" />
+                    </div>
+                    <p className="text-white/90 text-base font-medium mb-1">
+                      {testimonial.name}
+                    </p>
+                    <p className="text-white/70 text-sm">
+                      Customer Story
+                    </p>
+                  </div>
+                </div>
+              </div>
             ) : (
               // Placeholder for other testimonials
               <div className="w-full h-full bg-gradient-to-br from-blue-800 to-blue-900 flex items-center justify-center">
