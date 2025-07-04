@@ -84,6 +84,17 @@ export const DoctorsSection: React.FC = () => {
             console.log('✅ VTurb doctor video loaded: ${videoId}');
             // Hide placeholder when video loads
             setTimeout(function() {
+              // ✅ FIXED: Ensure video stays within its container
+              var videoContainer = document.getElementById('vid-${videoId}');
+              if (videoContainer) {
+                videoContainer.style.position = 'absolute';
+                videoContainer.style.top = '0';
+                videoContainer.style.left = '0';
+                videoContainer.style.width = '100%';
+                videoContainer.style.height = '100%';
+                videoContainer.style.zIndex = '20';
+                videoContainer.style.overflow = 'hidden';
+              }
               var placeholder = document.getElementById('placeholder_${videoId}');
               if (placeholder) {
                 placeholder.style.display = 'none';
@@ -502,7 +513,7 @@ const DoctorCard: React.FC<{
       {/* ✅ FIXED: Video container with proper z-index layering and v4 API */}
       {isActive && (
         <div className="mb-4">
-          <div className="aspect-video rounded-xl overflow-hidden shadow-lg bg-gray-900 relative">
+          <div className="aspect-video rounded-xl overflow-hidden shadow-lg bg-gray-900 relative" style={{ isolation: 'isolate' }}>
             {/* ✅ VTurb Video Container - HIGHEST z-index with v4 API */}
             <div
               id={`vid-${doctor.videoId}`}
@@ -514,7 +525,10 @@ const DoctorCard: React.FC<{
                 position: 'absolute',
                 top: 0,
                 left: 0,
-                zIndex: 20 // HIGHEST z-index for video
+                zIndex: 20, // HIGHEST z-index for video
+                overflow: 'hidden',
+                borderRadius: '0.75rem', // Match parent border radius
+                isolation: 'isolate'
               }}
             ></div>
             
