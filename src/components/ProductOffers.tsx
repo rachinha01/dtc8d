@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Star, Shield, Truck, CreditCard } from 'lucide-react';
+import { buildUrlWithParams, trackPurchase } from '../utils/urlUtils';
 
 interface ProductOffersProps {
   showPurchaseButton: boolean;
@@ -12,6 +13,42 @@ export const ProductOffers: React.FC<ProductOffersProps> = ({
   onPurchase,
   onSecondaryPackageClick
 }) => {
+  // Purchase URLs with tracking
+  const purchaseUrls = {
+    '1-bottle': 'https://pagamento.paybluedrops.com/checkout/176654642:1',
+    '3-bottle': 'https://pagamento.paybluedrops.com/checkout/176845818:1',
+    '6-bottle': 'https://pagamento.paybluedrops.com/checkout/176849703:1'
+  };
+
+  // Purchase values for tracking
+  const purchaseValues = {
+    '1-bottle': 79,
+    '3-bottle': 198,
+    '6-bottle': 294
+  };
+
+  const handlePurchaseClick = (packageType: '1-bottle' | '3-bottle' | '6-bottle') => {
+    // Track the purchase intent
+    trackPurchase(purchaseValues[packageType], 'BRL', packageType);
+    
+    // Call the original onPurchase handler
+    onPurchase(packageType);
+    
+    // Build URL with tracking parameters
+    const urlWithParams = buildUrlWithParams(purchaseUrls[packageType]);
+    
+    // Open the purchase page
+    window.open(urlWithParams, '_blank');
+  };
+
+  const handleSecondaryClick = (packageType: '1-bottle' | '3-bottle') => {
+    // Track the secondary package click
+    trackPurchase(purchaseValues[packageType], 'BRL', `${packageType}-secondary`);
+    
+    // Call the original handler
+    onSecondaryPackageClick(packageType);
+  };
+
   if (!showPurchaseButton) return null;
 
   return (
@@ -65,7 +102,7 @@ export const ProductOffers: React.FC<ProductOffersProps> = ({
             <div className="relative mb-2">
               <div className="absolute -inset-0.5 bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 rounded-xl blur opacity-75 animate-pulse"></div>
               <button 
-                onClick={() => onPurchase('6-bottle')}
+                onClick={() => handlePurchaseClick('6-bottle')}
                 className="relative w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold py-4 sm:py-5 px-4 sm:px-6 rounded-xl transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg text-lg sm:text-xl border-2 border-white/40 backdrop-blur-sm overflow-hidden"
               >
                 <div className="absolute inset-0 rounded-xl border border-white/30 pointer-events-none"></div>
@@ -153,7 +190,7 @@ export const ProductOffers: React.FC<ProductOffersProps> = ({
             {/* CTA Button */}
             <div className="relative mb-2">
               <button 
-                onClick={() => onSecondaryPackageClick('3-bottle')}
+                onClick={() => handleSecondaryClick('3-bottle')}
                 className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold py-2 sm:py-2.5 px-2 rounded-lg transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg text-xs sm:text-sm border border-white/30"
               >
                 <span>BUY NOW</span>
@@ -224,7 +261,7 @@ export const ProductOffers: React.FC<ProductOffersProps> = ({
             {/* CTA Button */}
             <div className="relative mb-2">
               <button 
-                onClick={() => onSecondaryPackageClick('1-bottle')}
+                onClick={() => handleSecondaryClick('1-bottle')}
                 className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold py-2 sm:py-2.5 px-2 rounded-lg transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg text-xs sm:text-sm border border-white/30"
               >
                 <span>BUY NOW</span>
