@@ -602,6 +602,7 @@ declare global {
       };
     };
     vslVideoLoaded?: boolean;
+    vslCustomElementsRegistered?: boolean;
     pixelId?: string;
   }
 }

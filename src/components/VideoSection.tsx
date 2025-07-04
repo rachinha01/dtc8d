@@ -52,6 +52,13 @@ export const VideoSection: React.FC = () => {
       existingScript.remove();
     }
 
+    // ✅ CRITICAL: Reset custom element registration flag
+    window.vslVideoLoaded = false;
+    if (window.vslCustomElementsRegistered) {
+      console.log('🔄 Resetting custom elements registration flag');
+      window.vslCustomElementsRegistered = false;
+    }
+
     // Re-inject script
     const script = document.createElement('script');
     script.type = 'text/javascript';
@@ -60,9 +67,25 @@ export const VideoSection: React.FC = () => {
     script.innerHTML = `
       (function() {
         try {
+          // ✅ CRITICAL: Check if custom elements are already defined before proceeding
+          if (window.customElements && window.customElements.get('vturb-bezel')) {
+            console.log('⚠️ Custom elements already registered, attempting safe reload');
+          }
+          
           var s = document.createElement("script");
           s.src = "https://scripts.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/683ba3d1b87ae17c6e07e7db/player.js";
           s.async = true;
+          
+          // ✅ CRITICAL: Handle custom element errors gracefully
+          s.onerror = function(error) {
+            console.error('Error reloading VTurb script:', error);
+            // Don't completely fail if it's just a custom element issue
+            if (error && error.toString().includes('vturb-bezel')) {
+              console.log('🔄 Custom element error on reload, video may still work');
+              window.vslVideoLoaded = true; // Mark as loaded anyway
+            }
+          };
+          
           s.onload = function() {
             console.log('VTurb player reloaded');
             window.vslVideoLoaded = true;

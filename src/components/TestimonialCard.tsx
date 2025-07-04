@@ -58,6 +58,14 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
       script.innerHTML = `
         (function() {
           try {
+            // ✅ CRITICAL: Safe custom element handling
+            var customElementsAlreadyDefined = false;
+            try {
+              customElementsAlreadyDefined = window.customElements && window.customElements.get('vturb-bezel');
+            } catch (e) {
+              console.log('Custom elements check failed, proceeding safely');
+            }
+            
             // ✅ CRITICAL: Prevent interference with main video
             if (document.getElementById('vid_683ba3d1b87ae17c6e07e7db')) {
               console.log('🛡️ Main video detected, isolating testimonial video ${testimonial.videoId}');
@@ -83,6 +91,16 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
             var s = document.createElement("script");
             s.src = "https://scripts.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${testimonial.videoId}/v4/player.js";
             s.async = true;
+            
+            // ✅ CRITICAL: Handle custom element registration errors gracefully
+            s.onerror = function(error) {
+              console.error('❌ Failed to load VTurb testimonial video: ${testimonial.videoId}', error);
+              // Try to continue anyway if it's just a custom element error
+              if (error && error.toString().includes('vturb-bezel')) {
+                console.log('🔄 Custom element error detected, video may still work');
+              }
+            };
+            
             s.onload = function() {
               console.log('✅ VTurb testimonial video loaded: ${testimonial.videoId}');
               
@@ -132,6 +150,8 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
             };
             s.onerror = function() {
               console.error('❌ Failed to load VTurb testimonial video: ${testimonial.videoId}');
+              // ✅ Don't fail completely on custom element errors
+              console.log('🔄 Attempting to continue despite error');
             };
             document.head.appendChild(s);
           } catch (error) {

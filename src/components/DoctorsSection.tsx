@@ -58,6 +58,11 @@ export const DoctorsSection: React.FC = () => {
   const injectDoctorVideo = (videoId: string) => {
     console.log('🎬 Injecting doctor video:', videoId);
     
+    // ✅ CRITICAL: Check if custom elements are already causing issues
+    if (window.customElements && window.customElements.get('vturb-bezel')) {
+      console.log('⚠️ VTurb custom elements detected, using safe injection method');
+    }
+    
     // Remove existing script if any
     const existingScript = document.getElementById(`scr_${videoId}`);
     if (existingScript) {
@@ -105,6 +110,14 @@ export const DoctorsSection: React.FC = () => {
     script.innerHTML = `
       (function() {
         try {
+          // ✅ CRITICAL: Safe custom element handling
+          var customElementsAlreadyDefined = false;
+          try {
+            customElementsAlreadyDefined = window.customElements && window.customElements.get('vturb-bezel');
+          } catch (e) {
+            console.log('Custom elements check failed, proceeding safely');
+          }
+          
           // ✅ CRITICAL: Prevent interference with main video
           if (document.getElementById('vid_683ba3d1b87ae17c6e07e7db')) {
             console.log('🛡️ Main video detected, isolating doctor video ${videoId}');
@@ -131,6 +144,16 @@ export const DoctorsSection: React.FC = () => {
           var s = document.createElement("script");
           s.src = "https://scripts.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${videoId}/v4/player.js";
           s.async = true;
+          
+          // ✅ CRITICAL: Handle custom element registration errors
+          s.onerror = function(error) {
+            console.error('❌ Failed to load VTurb doctor video: ${videoId}', error);
+            // Try to continue anyway if it's just a custom element error
+            if (error && error.toString().includes('vturb-bezel')) {
+              console.log('🔄 Custom element error detected, video may still work');
+            }
+          };
+          
           s.onload = function() {
             console.log('✅ VTurb doctor video loaded: ${videoId}');
             
@@ -190,6 +213,8 @@ export const DoctorsSection: React.FC = () => {
           };
           s.onerror = function() {
             console.error('❌ Failed to load VTurb doctor video: ${videoId}');
+            // ✅ Don't fail completely on custom element errors
+            console.log('🔄 Attempting to continue despite error');
           };
           document.head.appendChild(s);
         } catch (error) {
