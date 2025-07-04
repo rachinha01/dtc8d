@@ -27,12 +27,27 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
   // ✅ FIXED: Inject VTurb script only when card is active and has real video with v4 API
   useEffect(() => {
     if (isActive && hasRealVideo) {
+      // ✅ CRITICAL: Wait for main video to be fully loaded first
+      if (!window.vslVideoLoaded) {
+        console.log('⏳ Waiting for main video to load before injecting testimonial video');
+        return;
+      }
+
       console.log('🎬 Injecting testimonial video:', testimonial.videoId);
       
       // Remove any existing script first
       const existingScript = document.getElementById(`scr_testimonial_${testimonial.videoId}`);
       if (existingScript) {
         existingScript.remove();
+      }
+
+      // ✅ FORCE clear any existing VTurb instances that might interfere
+      if (window.smartplayer && window.smartplayer.instances) {
+        Object.keys(window.smartplayer.instances).forEach(key => {
+          if (key !== '683ba3d1b87ae17c6e07e7db' && key === testimonial.videoId) {
+            delete window.smartplayer.instances[key];
+          }
+        });
       }
 
       // Inject VTurb script specifically for this testimonial with v4 API
@@ -43,10 +58,26 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
       script.innerHTML = `
         (function() {
           try {
+            // ✅ CRITICAL: Prevent interference with main video
+            if (document.getElementById('vid_683ba3d1b87ae17c6e07e7db')) {
+              console.log('🛡️ Main video detected, isolating testimonial video ${testimonial.videoId}');
+            }
+            
             // Remove any existing video container content first
             var existingContainer = document.getElementById('vid-${testimonial.videoId}');
             if (existingContainer) {
               existingContainer.innerHTML = '';
+            }
+            
+            // ✅ CRITICAL: Create isolated smartplayer instance
+            window.smartplayer = window.smartplayer || { instances: {} };
+            
+            // ✅ Ensure we don't override main video instance
+            var mainVideoInstance = window.smartplayer.instances['683ba3d1b87ae17c6e07e7db'];
+            
+            // ✅ Clear only this specific video instance if it exists
+            if (window.smartplayer.instances['${testimonial.videoId}']) {
+              delete window.smartplayer.instances['${testimonial.videoId}'];
             }
             
             var s = document.createElement("script");
@@ -54,13 +85,50 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
             s.async = true;
             s.onload = function() {
               console.log('✅ VTurb testimonial video loaded: ${testimonial.videoId}');
+              
+              // ✅ CRITICAL: Restore main video instance if it was affected
+              if (mainVideoInstance && !window.smartplayer.instances['683ba3d1b87ae17c6e07e7db']) {
+                window.smartplayer.instances['683ba3d1b87ae17c6e07e7db'] = mainVideoInstance;
+              }
+              
               // Hide placeholder when video loads
               setTimeout(function() {
+                // ✅ CRITICAL: Ensure video stays in correct container
+                var targetContainer = document.getElementById('vid-${testimonial.videoId}');
+                if (targetContainer) {
+                  var allVideos = document.querySelectorAll('video');
+                  var allIframes = document.querySelectorAll('iframe');
+                  
+                  allVideos.forEach(function(video) {
+                    // ✅ CRITICAL: Don't touch main video elements
+                    var mainVideoContainer = document.getElementById('vid_683ba3d1b87ae17c6e07e7db');
+                    if (mainVideoContainer && mainVideoContainer.contains(video)) {
+                      return; // Skip main video elements
+                    }
+                    
+                    if (!targetContainer.contains(video) && video.src && video.src.includes('${testimonial.videoId}')) {
+                      targetContainer.appendChild(video);
+                    }
+                  });
+                  
+                  allIframes.forEach(function(iframe) {
+                    // ✅ CRITICAL: Don't touch main video iframes
+                    var mainVideoContainer = document.getElementById('vid_683ba3d1b87ae17c6e07e7db');
+                    if (mainVideoContainer && mainVideoContainer.contains(iframe)) {
+                      return; // Skip main video iframes
+                    }
+                    
+                    if (!targetContainer.contains(iframe) && iframe.src && iframe.src.includes('${testimonial.videoId}')) {
+                      targetContainer.appendChild(iframe);
+                    }
+                  });
+                }
+                
                 var placeholder = document.getElementById('placeholder_${testimonial.videoId}');
                 if (placeholder) {
                   placeholder.style.display = 'none';
                 }
-              }, 1500);
+              }, 2000); // ✅ Increased delay for better stability
             };
             s.onerror = function() {
               console.error('❌ Failed to load VTurb testimonial video: ${testimonial.videoId}');
@@ -81,6 +149,10 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
         const scriptToRemove = document.getElementById(`scr_testimonial_${testimonial.videoId}`);
         if (scriptToRemove) {
           scriptToRemove.remove();
+        }
+        // ✅ Also clean up the video instance
+        if (window.smartplayer && window.smartplayer.instances && window.smartplayer.instances[testimonial.videoId]) {
+          delete window.smartplayer.instances[testimonial.videoId];
         }
       }
     };

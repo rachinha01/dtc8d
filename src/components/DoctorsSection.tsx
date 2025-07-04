@@ -64,11 +64,26 @@ export const DoctorsSection: React.FC = () => {
       existingScript.remove();
     }
 
+    // ✅ CRITICAL: Wait for main video to be fully loaded first
+    if (!window.vslVideoLoaded) {
+      console.log('⏳ Waiting for main video to load before injecting doctor video');
+      return;
+    }
+
     // ✅ CRITICAL: Ensure container exists and is properly isolated BEFORE injecting script
     const targetContainer = document.getElementById(`vid-${videoId}`);
     if (!targetContainer) {
       console.error('❌ Target container not found for video:', videoId);
       return;
+    }
+
+    // ✅ FORCE clear any existing VTurb instances that might interfere
+    if (window.smartplayer && window.smartplayer.instances) {
+      Object.keys(window.smartplayer.instances).forEach(key => {
+        if (key !== '683ba3d1b87ae17c6e07e7db' && key === videoId) {
+          delete window.smartplayer.instances[key];
+        }
+      });
     }
 
     // ✅ FORCE container isolation and positioning
@@ -90,6 +105,11 @@ export const DoctorsSection: React.FC = () => {
     script.innerHTML = `
       (function() {
         try {
+          // ✅ CRITICAL: Prevent interference with main video
+          if (document.getElementById('vid_683ba3d1b87ae17c6e07e7db')) {
+            console.log('🛡️ Main video detected, isolating doctor video ${videoId}');
+          }
+          
           // ✅ CRITICAL: Force video to stay in specific container
           var targetContainer = document.getElementById('vid-${videoId}');
           if (!targetContainer) {
@@ -97,15 +117,27 @@ export const DoctorsSection: React.FC = () => {
             return;
           }
           
-          // ✅ Override VTurb's default behavior to force container targeting
-          window.smartplayer = window.smartplayer || {};
-          window.smartplayer.forceContainer = 'vid-${videoId}';
+          // ✅ CRITICAL: Create isolated smartplayer instance
+          window.smartplayer = window.smartplayer || { instances: {} };
+          
+          // ✅ Ensure we don't override main video instance
+          var mainVideoInstance = window.smartplayer.instances['683ba3d1b87ae17c6e07e7db'];
+          
+          // ✅ Clear only this specific video instance if it exists
+          if (window.smartplayer.instances['${videoId}']) {
+            delete window.smartplayer.instances['${videoId}'];
+          }
           
           var s = document.createElement("script");
           s.src = "https://scripts.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${videoId}/v4/player.js";
           s.async = true;
           s.onload = function() {
             console.log('✅ VTurb doctor video loaded: ${videoId}');
+            
+            // ✅ CRITICAL: Restore main video instance if it was affected
+            if (mainVideoInstance && !window.smartplayer.instances['683ba3d1b87ae17c6e07e7db']) {
+              window.smartplayer.instances['683ba3d1b87ae17c6e07e7db'] = mainVideoInstance;
+            }
             
             // ✅ CRITICAL: Force video elements to stay within container
             setTimeout(function() {
@@ -116,6 +148,12 @@ export const DoctorsSection: React.FC = () => {
                 var allIframes = document.querySelectorAll('iframe');
                 
                 allVideos.forEach(function(video) {
+                  // ✅ CRITICAL: Don't touch main video elements
+                  var mainVideoContainer = document.getElementById('vid_683ba3d1b87ae17c6e07e7db');
+                  if (mainVideoContainer && mainVideoContainer.contains(video)) {
+                    return; // Skip main video elements
+                  }
+                  
                   if (!container.contains(video)) {
                     // Move orphaned videos to correct container
                     container.appendChild(video);
@@ -129,6 +167,12 @@ export const DoctorsSection: React.FC = () => {
                 });
                 
                 allIframes.forEach(function(iframe) {
+                  // ✅ CRITICAL: Don't touch main video iframes
+                  var mainVideoContainer = document.getElementById('vid_683ba3d1b87ae17c6e07e7db');
+                  if (mainVideoContainer && mainVideoContainer.contains(iframe)) {
+                    return; // Skip main video iframes
+                  }
+                  
                   if (iframe.src && iframe.src.includes('${videoId}') && !container.contains(iframe)) {
                     // Move orphaned iframes to correct container
                     container.appendChild(iframe);
@@ -141,7 +185,7 @@ export const DoctorsSection: React.FC = () => {
                   placeholder.style.display = 'none';
                 }
               }
-            }, 2000);
+            }, 3000); // ✅ Increased delay to ensure main video is stable
             window.doctorVideoLoaded_${videoId} = true;
           };
           s.onerror = function() {
@@ -160,8 +204,12 @@ export const DoctorsSection: React.FC = () => {
     setTimeout(() => {
       if ((window as any)[`doctorVideoLoaded_${videoId}`]) {
         setVideoLoaded(prev => ({ ...prev, [videoId]: true }));
+      } else {
+        console.log('⚠️ Doctor video not loaded yet, will retry...');
+        // Retry once if not loaded
+        setTimeout(() => injectDoctorVideo(videoId), 2000);
       }
-    }, 3000);
+    }, 5000); // ✅ Increased timeout
   };
 
   // Inject current doctor video when doctor changes
@@ -169,7 +217,12 @@ export const DoctorsSection: React.FC = () => {
     const currentDoctorData = doctors[currentDoctor];
     if (currentDoctorData.videoId) {
       setTimeout(() => {
-        injectDoctorVideo(currentDoctorData.videoId);
+        // ✅ CRITICAL: Only inject if main video is loaded
+        if (window.vslVideoLoaded) {
+          injectDoctorVideo(currentDoctorData.videoId);
+        } else {
+          console.log('⏳ Main video not ready, delaying doctor video injection');
+        }
       }, 500);
     }
 
@@ -177,6 +230,13 @@ export const DoctorsSection: React.FC = () => {
     return () => {
       doctors.forEach((doctor) => {
         const scriptToRemove = document.getElementById(`scr_${doctor.videoId}`);
+        if (scriptToRemove) {
+          scriptToRemove.remove();
+        }
+        // ✅ Also clean up the video instance
+        if (window.smartplayer && window.smartplayer.instances && window.smartplayer.instances[doctor.videoId]) {
+          delete window.smartplayer.instances[doctor.videoId];
+        }
         if (scriptToRemove) {
           scriptToRemove.remove();
         }

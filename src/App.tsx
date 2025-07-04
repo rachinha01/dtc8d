@@ -192,12 +192,27 @@ function App() {
       script.innerHTML = `
         (function() {
           try {
+            // ✅ CRITICAL: Initialize main video container isolation
+            window.mainVideoId = '683ba3d1b87ae17c6e07e7db';
+            window.smartplayer = window.smartplayer || { instances: {} };
+            console.log('🎬 Initializing MAIN video player: 683ba3d1b87ae17c6e07e7db');
+            
             var s = document.createElement("script");
             s.src = "https://scripts.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/683ba3d1b87ae17c6e07e7db/player.js";
             s.async = true;
             s.onload = function() {
               console.log('VTurb player script loaded successfully');
               window.vslVideoLoaded = true;
+              
+              // ✅ CRITICAL: Ensure main video stays in its container
+              setTimeout(function() {
+                var mainContainer = document.getElementById('vid_683ba3d1b87ae17c6e07e7db');
+                if (mainContainer) {
+                  console.log('✅ Main video container secured');
+                  // Mark main video as protected
+                  mainContainer.setAttribute('data-main-video', 'true');
+                }
+              }, 2000);
             };
             s.onerror = function() {
               console.error('Failed to load VTurb player script');

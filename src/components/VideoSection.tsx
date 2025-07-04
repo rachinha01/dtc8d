@@ -84,7 +84,7 @@ export const VideoSection: React.FC = () => {
           {/* VTurb Video Container - FIXED */}
           <div
             id="vid_683ba3d1b87ae17c6e07e7db"
-            className="absolute inset-0 w-full h-full z-10"
+            className="absolute inset-0 w-full h-full z-30"
             style={{
               position: 'absolute',
               top: 0,
@@ -93,6 +93,7 @@ export const VideoSection: React.FC = () => {
               height: '100%'
             }}
           >
+            {/* ✅ Main video content will be injected here by VTurb */}
             {/* Thumbnail - Always show as fallback */}
             <img 
               id="thumb_683ba3d1b87ae17c6e07e7db" 
@@ -109,6 +110,7 @@ export const VideoSection: React.FC = () => {
               style={{
                 WebkitBackdropFilter: 'blur(5px)',
                 backdropFilter: 'blur(5px)',
+                zIndex: 5
               }}
             />
 
@@ -141,7 +143,7 @@ export const VideoSection: React.FC = () => {
             )}
 
             {/* Play Button Overlay - Always visible for better UX */}
-            <div className="absolute inset-0 flex items-center justify-center z-15 pointer-events-none">
+            <div className="absolute inset-0 flex items-center justify-center z-25 pointer-events-none">
               <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white/30">
                 <Play className="w-10 h-10 text-white ml-1" />
               </div>
