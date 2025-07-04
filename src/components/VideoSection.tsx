@@ -138,7 +138,7 @@ export const VideoSection: React.FC = () => {
             />
 
             {/* Loading Overlay */}
-            {isLoading && !hasError && (
+            {isLoading && !hasError && !window.vslVideoLoaded && (
               <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-20">
                 <div className="text-center text-white">
                   <div className="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin mb-4 mx-auto"></div>
@@ -166,11 +166,13 @@ export const VideoSection: React.FC = () => {
             )}
 
             {/* Play Button Overlay - Always visible for better UX */}
+            {!window.vslVideoLoaded && (
             <div className="absolute inset-0 flex items-center justify-center z-25 pointer-events-none">
               <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white/30">
                 <Play className="w-10 h-10 text-white ml-1" />
               </div>
             </div>
+            )}
           </div>
         </div>
       </div>

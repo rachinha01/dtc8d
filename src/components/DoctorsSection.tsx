@@ -58,11 +58,6 @@ export const DoctorsSection: React.FC = () => {
   const injectDoctorVideo = (videoId: string) => {
     console.log('🎬 Injecting doctor video:', videoId);
     
-    // ✅ CRITICAL: Check if custom elements are already causing issues
-    if (window.customElements && window.customElements.get('vturb-bezel')) {
-      console.log('⚠️ VTurb custom elements detected, using safe injection method');
-    }
-    
     // Remove existing script if any
     const existingScript = document.getElementById(`scr_${videoId}`);
     if (existingScript) {
@@ -82,15 +77,6 @@ export const DoctorsSection: React.FC = () => {
       return;
     }
 
-    // ✅ Clear any existing VTurb instances that might interfere
-    if (window.smartplayer && window.smartplayer.instances) {
-      Object.keys(window.smartplayer.instances).forEach(key => {
-        if (key !== '683ba3d1b87ae17c6e07e7db' && key === videoId) {
-          delete window.smartplayer.instances[key];
-        }
-      });
-    }
-
     // ✅ Setup container isolation and positioning
     targetContainer.style.position = 'absolute';
     targetContainer.style.top = '0';
@@ -101,7 +87,7 @@ export const DoctorsSection: React.FC = () => {
     targetContainer.style.overflow = 'hidden';
     targetContainer.style.borderRadius = '0.75rem';
     targetContainer.style.isolation = 'isolate';
-    targetContainer.innerHTML = ''; // Clear any existing content
+    targetContainer.innerHTML = ''; // ✅ Clear any existing content
     
     // ✅ NEW: Add the HTML structure that you provided for Dr. Oz
     if (videoId === "686778a578c1d68a67597d8c") {
@@ -129,36 +115,7 @@ export const DoctorsSection: React.FC = () => {
     script.innerHTML = `
       (function() {
         try {
-          // ✅ Safe custom element handling
-          var customElementsAlreadyDefined = false;
-          try {
-            customElementsAlreadyDefined = window.customElements && window.customElements.get('vturb-bezel');
-          } catch (e) {
-            console.log('Custom elements check failed, proceeding safely');
-          }
-          
-          // ✅ Prevent interference with main video
-          if (document.getElementById('vid_683ba3d1b87ae17c6e07e7db')) {
-            console.log('🛡️ Main video detected, isolating doctor video ${videoId}');
-          }
-          
-          // ✅ CRITICAL: Force video to stay in specific container
-          var targetContainer = document.getElementById('vid-${videoId}');
-          if (!targetContainer) {
-            console.error('Target container not found for ${videoId}');
-            return;
-          }
-          
-          // ✅ Create isolated smartplayer instance
-          window.smartplayer = window.smartplayer || { instances: {} };
-          
-          // ✅ Ensure we don't override main video instance
-          var mainVideoInstance = window.smartplayer.instances['683ba3d1b87ae17c6e07e7db'];
-          
-          // ✅ Clear only this specific video instance if it exists
-          if (window.smartplayer.instances['${videoId}']) {
-            delete window.smartplayer.instances['${videoId}'];
-          }
+          console.log('🎬 Loading doctor video: ${videoId}');
           
           var s = document.createElement("script");
           // ✅ UPDATED: Use the correct VTurb script URL for Dr. Oz
@@ -169,75 +126,36 @@ export const DoctorsSection: React.FC = () => {
           }
           s.async = true;
           
-          // ✅ Handle custom element registration errors gracefully
-          s.onerror = function(error) {
-            console.error('❌ Failed to load VTurb doctor video: ${videoId}', error);
-            // Try to continue anyway if it's just a custom element error
-            if (error && error.toString().includes('vturb-bezel')) {
-              console.log('🔄 Custom element error detected, video may still work');
-            }
-          };
-          
           s.onload = function() {
             console.log('✅ VTurb doctor video loaded: ${videoId}');
             
-            // ✅ Restore main video instance if it was affected
-            if (mainVideoInstance && !window.smartplayer.instances['683ba3d1b87ae17c6e07e7db']) {
-              window.smartplayer.instances['683ba3d1b87ae17c6e07e7db'] = mainVideoInstance;
-            }
-            
-            // ✅ Force video elements to stay within container
+            // ✅ FIXED: Ensure video elements stay in correct container
             setTimeout(function() {
-              var container = document.getElementById('vid-${videoId}');
-              if (container) {
-                // Force all video elements to stay within container
-                var allVideos = document.querySelectorAll('video');
-                var allIframes = document.querySelectorAll('iframe');
-                
-                allVideos.forEach(function(video) {
-                  // ✅ Don't touch main video elements
-                  var mainVideoContainer = document.getElementById('vid_683ba3d1b87ae17c6e07e7db');
-                  if (mainVideoContainer && mainVideoContainer.contains(video)) {
-                    return; // Skip main video elements
-                  }
-                  
-                  if (!container.contains(video)) {
-                    // Move orphaned videos to correct container
-                    container.appendChild(video);
-                  }
-                  video.style.position = 'absolute';
-                  video.style.top = '0';
-                  video.style.left = '0';
-                  video.style.width = '100%';
-                  video.style.height = '100%';
-                  video.style.objectFit = 'cover';
-                });
-                
-                allIframes.forEach(function(iframe) {
-                  // ✅ Don't touch main video iframes
-                  var mainVideoContainer = document.getElementById('vid_683ba3d1b87ae17c6e07e7db');
-                  if (mainVideoContainer && mainVideoContainer.contains(iframe)) {
-                    return; // Skip main video iframes
-                  }
-                  
-                  if (iframe.src && iframe.src.includes('${videoId}') && !container.contains(iframe)) {
-                    // Move orphaned iframes to correct container
-                    container.appendChild(iframe);
+              // ✅ CRITICAL: Prevent video from appearing in main video container
+              var mainVideoContainer = document.getElementById('vid_683ba3d1b87ae17c6e07e7db');
+              var doctorContainer = document.getElementById('vid-${videoId}');
+              
+              if (mainVideoContainer && doctorContainer) {
+                // ✅ Move any doctor video elements that ended up in main container
+                var orphanedElements = mainVideoContainer.querySelectorAll('[src*="${videoId}"], [data-video-id="${videoId}"]');
+                orphanedElements.forEach(function(element) {
+                  if (element.parentNode === mainVideoContainer) {
+                    doctorContainer.appendChild(element);
+                    console.log('🔄 Moved doctor video element back to correct container');
                   }
                 });
-                
-                // Hide placeholder for non-Dr. Oz videos
-                var placeholder = document.getElementById('placeholder_${videoId}');
-                if (placeholder) {
-                  placeholder.style.display = 'none';
-                }
               }
-            }, 3000);
+              
+              // Hide placeholder
+              var placeholder = document.getElementById('placeholder_${videoId}');
+              if (placeholder) {
+                placeholder.style.display = 'none';
+              }
+            }, 2000);
             window.doctorVideoLoaded_${videoId} = true;
           };
           s.onerror = function() {
             console.error('❌ Failed to load VTurb doctor video: ${videoId}');
-            console.log('🔄 Attempting to continue despite error');
           };
           document.head.appendChild(s);
         } catch (error) {
@@ -277,14 +195,8 @@ export const DoctorsSection: React.FC = () => {
     // Cleanup function
     return () => {
       doctors.forEach((doctor) => {
+        // ✅ FIXED: Proper cleanup
         const scriptToRemove = document.getElementById(`scr_${doctor.videoId}`);
-        if (scriptToRemove) {
-          scriptToRemove.remove();
-        }
-        // Clean up the video instance
-        if (window.smartplayer && window.smartplayer.instances && window.smartplayer.instances[doctor.videoId]) {
-          delete window.smartplayer.instances[doctor.videoId];
-        }
         if (scriptToRemove) {
           scriptToRemove.remove();
         }

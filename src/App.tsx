@@ -17,7 +17,7 @@ import { Modals } from './components/Modals';
 function App() {
   const [showPurchaseButton, setShowPurchaseButton] = useState(false); // Start hidden
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
-  const [showPopup, setShowPopup] = useState(true);
+  const [showPopup, setShowPopup] = useState(false); // ✅ DISABLED: Popup removido
   const [showUpsellPopup, setShowUpsellPopup] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState('');
   const [contentDelay, setContentDelay] = useState(0); // Delay in seconds
@@ -177,7 +177,7 @@ function App() {
     // Inject VTurb script with proper error handling and optimization
     const injectVTurbScript = () => {
       // ✅ CRITICAL: Prevent multiple VTurb custom element registrations
-      if (window.vslVideoLoaded || document.getElementById('scr_683ba3d1b87ae17c6e07e7db')) {
+      if (window.vslVideoLoaded) {
         console.log('🛡️ VTurb script already loaded, skipping injection');
         return;
       }
@@ -199,11 +199,7 @@ function App() {
         (function() {
           try {
             // ✅ CRITICAL: Check if custom elements are already defined
-            if (window.customElements && window.customElements.get('vturb-bezel')) {
-              console.log('🛡️ VTurb custom elements already registered, skipping');
-              window.vslVideoLoaded = true;
-              return;
-            }
+            // Removed custom element check to allow video to load properly
             
             // ✅ CRITICAL: Initialize main video container isolation
             window.mainVideoId = '683ba3d1b87ae17c6e07e7db';
@@ -217,8 +213,40 @@ function App() {
               console.log('VTurb player script loaded successfully');
               window.vslVideoLoaded = true;
               
-              // ✅ CRITICAL: Mark custom elements as registered
-              window.vslCustomElementsRegistered = true;
+              // ✅ AUTO-PLAY: Tentar dar play automaticamente no vídeo principal
+              setTimeout(function() {
+                try {
+                  // Método 1: Via smartplayer instance
+                  if (window.smartplayer && window.smartplayer.instances && window.smartplayer.instances['683ba3d1b87ae17c6e07e7db']) {
+                    var player = window.smartplayer.instances['683ba3d1b87ae17c6e07e7db'];
+                    if (player.play) {
+                      player.play();
+                      console.log('✅ Auto-play via smartplayer instance');
+                    }
+                  }
+                  
+                  // Método 2: Via elemento de vídeo direto
+                  var videoElements = document.querySelectorAll('#vid_683ba3d1b87ae17c6e07e7db video');
+                  videoElements.forEach(function(video) {
+                    if (video.play) {
+                      video.play().then(function() {
+                        console.log('✅ Auto-play via video element');
+                      }).catch(function(error) {
+                        console.log('⚠️ Auto-play blocked by browser:', error);
+                      });
+                    }
+                  });
+                  
+                  // Método 3: Simular clique no container (fallback)
+                  var container = document.getElementById('vid_683ba3d1b87ae17c6e07e7db');
+                  if (container) {
+                    container.click();
+                    console.log('✅ Auto-play via container click');
+                  }
+                } catch (error) {
+                  console.log('⚠️ Auto-play failed:', error);
+                }
+              }, 3000); // Aguardar 3 segundos para o vídeo carregar
               
               // ✅ CRITICAL: Ensure main video stays in its container
               setTimeout(function() {
@@ -251,8 +279,8 @@ function App() {
       // Setup video tracking after script loads
       setTimeout(() => {
         setupVideoTracking();
-      }, 3000);
-    }, 1000); // Reduced delay for faster video loading
+      }, 5000); // ✅ Increased delay to ensure video loads first
+    }, 500); // ✅ Faster injection for immediate video load
 
     return () => {
       clearTimeout(scriptTimeout);
@@ -574,7 +602,7 @@ function App() {
 
       {/* All Modals - Only show popup on main page */}
       <Modals 
-        showPopup={isMainPage ? showPopup : false}
+        showPopup={false} // ✅ DISABLED: Popup completamente removido
         showUpsellPopup={showUpsellPopup}
         selectedPackage={selectedPackage}
         onClosePopup={closePopup}
