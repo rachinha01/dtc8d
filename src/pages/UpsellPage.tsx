@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAnalytics } from '../hooks/useAnalytics';
-import { AlertTriangle, CheckCircle, Shield, Truck, Clock, Zap, Star, Gift, XCircle, Target } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Shield, Truck, Clock, Star, X } from 'lucide-react';
 
 interface UpsellPageProps {
   variant: '1-bottle' | '3-bottle' | '6-bottle';
@@ -140,303 +140,277 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 text-white">
-      {/* Animated Background Elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-32 h-32 bg-blue-400/10 rounded-full blur-xl animate-pulse"></div>
-        <div className="absolute top-40 right-20 w-48 h-48 bg-cyan-400/10 rounded-full blur-xl animate-pulse animation-delay-1000"></div>
-        <div className="absolute bottom-20 left-1/4 w-40 h-40 bg-blue-300/10 rounded-full blur-xl animate-pulse animation-delay-2000"></div>
-      </div>
-
-      {/* Header - Urgent Banner */}
-      <div className="relative bg-gradient-to-r from-red-600 to-red-700 text-white text-center py-4 px-4 shadow-2xl">
-        <div className="absolute inset-0 bg-gradient-to-r from-red-500/20 to-red-600/20 animate-pulse"></div>
-        <div className="relative">
-          <div className="flex items-center justify-center gap-3 mb-2">
-            <AlertTriangle className="w-6 h-6 animate-bounce" />
-            <h1 className="text-xl sm:text-2xl font-black tracking-wide">
-              ⚠️ WAIT! YOUR ORDER IS NOT COMPLETE
-            </h1>
-            <AlertTriangle className="w-6 h-6 animate-bounce" />
-          </div>
-          <p className="text-sm font-bold opacity-90">
-            ⏳ You're Just ONE Step Away From Changing Your Life — Forever.
-          </p>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 via-white to-gray-50 overflow-x-hidden">
+      {/* Main container - Same as main page */}
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-6 sm:py-8 max-w-full">
         
-        {/* Opening Message */}
-        <div className="text-center mb-8">
-          <div className="bg-gradient-to-r from-blue-700/50 to-blue-600/50 backdrop-blur-sm rounded-2xl p-6 border border-blue-400/30">
-            <p className="text-xl text-blue-100 font-medium leading-relaxed">
-              Congratulations on securing your first bottles of BlueDrops — but I need your attention right now.
+        {/* Header - Same style as main page */}
+        <header className="mb-6 sm:mb-8 animate-fadeInDown animation-delay-200">
+          <img 
+            src="https://i.imgur.com/QJxTIcN.png" 
+            alt="Blue Drops Logo"
+            className="h-8 w-auto"
+          />
+        </header>
+
+        {/* Main Content Container - Same max-width as main page */}
+        <div className="flex flex-col items-center justify-center w-full max-w-md mx-auto">
+          
+          {/* Urgent Warning Header - Same style as hero section */}
+          <div className="mb-6 text-center w-full animate-fadeInUp animation-delay-400">
+            <div className="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-full mb-4 shadow-lg">
+              <div className="flex items-center justify-center gap-2">
+                <AlertTriangle className="w-5 h-5" />
+                <span className="font-black text-sm tracking-wide">⚠️ WAIT! YOUR ORDER IS NOT COMPLETE</span>
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+            </div>
+            
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-[0.85] mb-3 px-2">
+              <span className="text-blue-900 block mb-0.5">You're Just ONE Step</span>
+              <span className="bg-gradient-to-r from-blue-600 via-cyan-500 to-indigo-600 bg-clip-text text-transparent block">
+                Away From Success
+              </span>
+            </h1>
+            
+            <p className="text-base sm:text-lg text-blue-800 mb-2 font-semibold px-2">
+              Congratulations on securing your first bottles — but{' '}
+              <span className="text-red-600 font-bold">I need your attention right now</span>
             </p>
           </div>
-        </div>
 
-        {/* Warning Section */}
-        <div className="bg-gradient-to-r from-red-600/30 to-red-700/30 backdrop-blur-xl rounded-2xl p-8 mb-8 border border-red-400/30 shadow-2xl">
-          <div className="text-center">
-            <div className="inline-flex items-center gap-3 bg-red-600 px-6 py-3 rounded-full mb-6 shadow-lg">
-              <XCircle className="w-6 h-6 text-white" />
-              <span className="text-xl font-black text-white">CRITICAL WARNING</span>
-              <XCircle className="w-6 h-6 text-white" />
-            </div>
-            
-            <h2 className="text-3xl sm:text-4xl font-black text-white mb-6 leading-tight">
-              If you skip this step, you might be wasting your entire investment.
-            </h2>
-            
-            <p className="text-xl text-red-100 font-bold mb-4">
-              Yes, I'm serious.
-            </p>
-            
-            <p className="text-lg text-white leading-relaxed">
-              Because stopping this treatment too early will erase ALL your progress — and can even make your condition worse than before.
-            </p>
-          </div>
-        </div>
-
-        {/* The Truth Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          
-          {/* Left Side - The Truth */}
-          <div className="bg-gradient-to-br from-blue-600/30 to-purple-600/30 backdrop-blur-xl rounded-2xl p-8 border border-blue-400/30 shadow-2xl">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="bg-blue-500 p-3 rounded-full">
-                <Target className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-2xl font-black text-blue-300">💧 Here's the Truth:</h3>
-            </div>
-            
-            <div className="space-y-4 text-white leading-relaxed">
-              <p>
-                BlueDrops is a liquid formula designed to remove the toxins that disrupt blood flow and performance.
-              </p>
-              <p>
-                From the moment you take your first drops, your body begins a slow battle — fighting against the damage caused by years of poor circulation, stress, and hormonal imbalance.
-              </p>
-              <p className="font-bold text-yellow-300">
-                But here's the problem...
-              </p>
-            </div>
-          </div>
-
-          {/* Right Side - The Problem */}
-          <div className="bg-gradient-to-br from-red-600/30 to-orange-600/30 backdrop-blur-xl rounded-2xl p-8 border border-red-400/30 shadow-2xl">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="bg-red-500 p-3 rounded-full">
-                <AlertTriangle className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-2xl font-black text-red-300">🧠 The Enemy Fights Back:</h3>
-            </div>
-            
-            <div className="space-y-4 text-white leading-relaxed">
-              <p className="font-bold">
-                These toxins are deeply rooted in your body. And they don't go down without a fight.
-              </p>
-              <p>They resist. They hide. They rebuild.</p>
-              <p className="text-red-200">
-                And if you stop the treatment too soon — before they're completely eliminated — they'll come back stronger.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Consequences Section */}
-        <div className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 backdrop-blur-xl rounded-2xl p-8 mb-8 border border-gray-600/30 shadow-2xl">
-          <div className="text-center mb-6">
-            <h3 className="text-3xl font-black text-red-400 mb-4">
-              ❌ If You Don't Complete 9 Months of Treatment…
-            </h3>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center p-4 bg-red-500/20 rounded-xl border border-red-400/30">
-              <div className="text-4xl mb-3">💔</div>
-              <p className="text-red-200 font-bold">Your blood flow will weaken again</p>
-            </div>
-            <div className="text-center p-4 bg-red-500/20 rounded-xl border border-red-400/30">
-              <div className="text-4xl mb-3">📉</div>
-              <p className="text-red-200 font-bold">Your confidence and energy will drop</p>
-            </div>
-            <div className="text-center p-4 bg-red-500/20 rounded-xl border border-red-400/30">
-              <div className="text-4xl mb-3">🚫</div>
-              <p className="text-red-200 font-bold">Your body becomes immune to further treatment</p>
-            </div>
-          </div>
-          
-          <div className="mt-8 text-center">
-            <div className="bg-gray-700/50 rounded-xl p-6 border border-gray-500/30">
-              <p className="text-white text-lg leading-relaxed italic">
-                "It's like sending your army into battle, winning the war... And then suddenly pulling them out, letting the enemy regroup and conquer your body again."
-              </p>
-              <p className="text-red-300 font-bold mt-4">
-                You'll lose everything you gained — and worse — you may not be able to recover again.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Solution Section */}
-        <div className="bg-gradient-to-r from-green-600/30 to-emerald-600/30 backdrop-blur-xl rounded-2xl p-8 mb-8 border border-green-400/30 shadow-2xl">
-          <div className="text-center mb-6">
-            <h3 className="text-3xl font-black text-green-300 mb-4">
-              ✅ That's Why 9 Months of BlueDrops is NON‑NEGOTIABLE
-            </h3>
-          </div>
-          
-          <div className="space-y-4 text-white leading-relaxed text-center">
-            <p className="text-lg">
-              Only after 9 months of consistent use will your body create a strong defensive wall — a new, healthier internal state where those performance-killing toxins can never return.
-            </p>
-            
-            <div className="bg-green-500/20 rounded-xl p-6 border border-green-400/30">
-              <p className="text-green-200 font-bold text-xl mb-4">Once that happens...</p>
-              <p className="text-white text-lg">You'll NEVER need another product again.</p>
-            </div>
-            
-            <div className="bg-red-500/20 rounded-xl p-6 border border-red-400/30">
-              <p className="text-red-200 font-bold text-xl mb-4">But if you stop early…</p>
-              <div className="space-y-2">
-                <p className="text-white">You'll fall back.</p>
-                <p className="text-red-300 font-bold">And this time, you might not be able to stand up again.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Final Offer Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          
-          {/* Left Side - Product */}
-          <div className="relative">
-            <div className="bg-gradient-to-br from-yellow-500/30 to-orange-500/30 backdrop-blur-xl rounded-3xl p-8 border border-yellow-400/30 shadow-2xl">
-              
-              {/* Final Chance Badge */}
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                <div className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-2 rounded-full font-black text-sm shadow-lg animate-pulse">
-                  🎁 FINAL CHANCE
-                </div>
-              </div>
-
-              {/* Product Image */}
-              <div className="text-center mb-6 mt-4">
-                <img 
-                  src={content.productImage}
-                  alt="BlueDrops Complete Treatment"
-                  className="w-80 h-auto mx-auto object-contain drop-shadow-2xl"
-                />
-              </div>
-
-              {/* Offer Details */}
-              <div className="text-center space-y-4">
-                <h3 className="text-2xl font-black text-yellow-300">
-                  {content.offer.title}
-                </h3>
-                <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl font-bold text-lg shadow-lg">
-                  {content.offer.subtitle}
+          {/* Warning Message - Same card style as main page */}
+          <div className="w-full mb-6 animate-fadeInUp animation-delay-600">
+            <div className="bg-white/30 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-red-200 shadow-lg">
+              <div className="text-center">
+                <div className="bg-red-500 text-white px-4 py-2 rounded-full inline-block mb-4">
+                  <span className="font-bold text-sm">CRITICAL WARNING</span>
                 </div>
                 
-                {/* Pricing */}
-                <div className="space-y-3 bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-                  <div className="text-yellow-300 text-xl font-bold">
-                    💰 {content.pricing.pricePerBottle}
+                <h2 className="text-xl sm:text-2xl font-bold text-red-700 mb-3 leading-tight">
+                  If you skip this step, you might be wasting your entire investment.
+                </h2>
+                
+                <p className="text-red-600 font-bold mb-2">Yes, I'm serious.</p>
+                
+                <p className="text-blue-800 text-sm leading-relaxed">
+                  Because stopping this treatment too early will erase ALL your progress — and can even make your condition worse than before.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* The Truth Section - Same card style */}
+          <div className="w-full mb-6 animate-fadeInUp animation-delay-800">
+            <div className="bg-white/30 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-blue-200 shadow-lg">
+              <h3 className="text-lg font-bold text-blue-900 mb-3 flex items-center gap-2">
+                💧 Here's the Truth:
+              </h3>
+              
+              <div className="space-y-3 text-blue-800 text-sm leading-relaxed">
+                <p>
+                  BlueDrops is a liquid formula designed to remove the toxins that disrupt blood flow and performance.
+                </p>
+                <p>
+                  From the moment you take your first drops, your body begins a slow battle — fighting against the damage caused by years of poor circulation, stress, and hormonal imbalance.
+                </p>
+                <p className="font-bold text-red-600">
+                  But here's the problem...
+                </p>
+                <p className="bg-red-50 p-3 rounded-lg border border-red-200">
+                  <strong className="text-red-700">🧠 These toxins are deeply rooted in your body.</strong> And they don't go down without a fight. They resist. They hide. They rebuild.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Consequences Section */}
+          <div className="w-full mb-6 animate-fadeInUp animation-delay-1000">
+            <div className="bg-white/30 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-red-200 shadow-lg">
+              <h3 className="text-lg font-bold text-red-700 mb-4 text-center">
+                ❌ If You Don't Complete 9 Months of Treatment…
+              </h3>
+              
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2 text-red-600">
+                  <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                  <span>Your blood flow will weaken again</span>
+                </div>
+                <div className="flex items-center gap-2 text-red-600">
+                  <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                  <span>Your confidence and energy will drop</span>
+                </div>
+                <div className="flex items-center gap-2 text-red-600">
+                  <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                  <span>Your body becomes immune to further treatment</span>
+                </div>
+              </div>
+              
+              <div className="mt-4 p-3 bg-gray-100 rounded-lg border border-gray-200">
+                <p className="text-blue-800 text-sm italic text-center">
+                  "It's like sending your army into battle, winning the war... And then suddenly pulling them out, letting the enemy regroup and conquer your body again."
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Solution Section */}
+          <div className="w-full mb-6 animate-fadeInUp animation-delay-1200">
+            <div className="bg-white/30 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-green-200 shadow-lg">
+              <h3 className="text-lg font-bold text-green-700 mb-3 text-center">
+                ✅ That's Why 9 Months of BlueDrops is NON‑NEGOTIABLE
+              </h3>
+              
+              <div className="space-y-3 text-blue-800 text-sm leading-relaxed">
+                <p>
+                  Only after 9 months of consistent use will your body create a strong defensive wall — a new, healthier internal state where those performance-killing toxins can never return.
+                </p>
+                
+                <div className="bg-green-50 p-3 rounded-lg border border-green-200">
+                  <p className="text-green-700 font-bold text-center">Once that happens...</p>
+                  <p className="text-green-600 text-center">You'll NEVER need another product again.</p>
+                </div>
+                
+                <div className="bg-red-50 p-3 rounded-lg border border-red-200">
+                  <p className="text-red-700 font-bold text-center">But if you stop early…</p>
+                  <p className="text-red-600 text-center">You might not be able to stand up again.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* FINAL OFFER - Same product style as main page */}
+          <div className="w-full mb-6 relative animate-fadeInUp animation-delay-1400">
+            {/* FINAL CHANCE Tag - Same style as BEST VALUE */}
+            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-20">
+              <div className="bg-gradient-to-r from-red-400 via-red-500 to-red-600 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-full text-sm sm:text-base font-black shadow-lg border-2 border-white/40 backdrop-blur-sm">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="w-4 sm:w-5 h-4 sm:h-5 text-white fill-current" />
+                  <span className="tracking-wide">🎁 FINAL CHANCE</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Container with glow - Same as main page */}
+            <div className="relative">
+              <div className="absolute -inset-1 bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 rounded-3xl blur-lg opacity-60 animate-pulse"></div>
+              
+              <div className="relative bg-gradient-to-br from-blue-600/95 to-blue-800/95 backdrop-blur-xl rounded-3xl p-6 sm:p-8 pt-8 sm:pt-10 border-2 border-white/30 shadow-2xl">
+                <div className="absolute inset-0 rounded-3xl border border-white/20 pointer-events-none"></div>
+                
+                {/* Product Image - Same style */}
+                <div className="flex justify-center mb-3 px-2">
+                  <img 
+                    src={content.productImage} 
+                    alt="BlueDrops Complete Treatment"
+                    className="w-full h-auto object-contain drop-shadow-2xl max-h-48 sm:max-h-56 md:max-h-64 lg:max-h-72"
+                  />
+                </div>
+
+                {/* Product Name - Same style */}
+                <div className="text-center mb-4 sm:mb-5">
+                  <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-none px-2">
+                    BLUEDROPS
+                  </h3>
+                  <p className="text-white/80 text-base sm:text-lg md:text-xl font-bold tracking-wide -mt-1">
+                    {content.offer.title}
+                  </p>
+                </div>
+
+                {/* Offer Details */}
+                <div className="text-center mb-4">
+                  <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-xl font-bold text-sm sm:text-base shadow-lg mb-3">
+                    {content.offer.subtitle}
                   </div>
-                  <div className="text-white text-lg">
-                    📦 {content.pricing.totalPrice}
+                  
+                  {/* Pricing - Same style as main page */}
+                  <div className="space-y-2 bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 mb-4">
+                    <div className="text-yellow-400 text-lg font-bold">
+                      💰 {content.pricing.pricePerBottle}
+                    </div>
+                    <div className="text-white text-sm">
+                      📦 {content.pricing.totalPrice}
+                    </div>
+                    <div className="text-green-300 text-sm font-bold">
+                      💸 {content.pricing.savings}
+                    </div>
                   </div>
-                  <div className="text-green-300 text-lg font-bold">
-                    💸 {content.pricing.savings}
+                </div>
+
+                {/* CTA Button - Same style as main page */}
+                <div className="relative mb-2">
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 rounded-xl blur opacity-75 animate-pulse"></div>
+                  <button 
+                    onClick={handleAccept}
+                    className="relative w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold py-4 sm:py-5 px-4 sm:px-6 rounded-xl transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg text-lg sm:text-xl border-2 border-white/40 backdrop-blur-sm overflow-hidden"
+                  >
+                    <div className="absolute inset-0 rounded-xl border border-white/30 pointer-events-none"></div>
+                    <span className="relative z-10">{content.acceptButtonText}</span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+                  </button>
+                </div>
+
+                {/* Benefits - Same style as main page */}
+                <div className="flex justify-center items-center gap-0.5 sm:gap-1 mb-2 px-1">
+                  <div className="bg-gradient-to-r from-blue-500/30 to-cyan-500/30 backdrop-blur-sm rounded-md px-1 sm:px-1.5 py-1 sm:py-1.5 border border-blue-300/40 flex-1">
+                    <div className="flex items-center justify-center gap-0.5 text-xs text-white">
+                      <Shield className="w-3 sm:w-4 h-3 sm:h-4 text-yellow-400 flex-shrink-0" />
+                      <span className="text-center font-semibold text-xs">180-Day</span>
+                    </div>
+                  </div>
+                  <div className="bg-gradient-to-r from-blue-500/30 to-cyan-500/30 backdrop-blur-sm rounded-md px-1 sm:px-1.5 py-1 sm:py-1.5 border border-blue-300/40 flex-1">
+                    <div className="flex items-center justify-center gap-0.5 text-xs text-white">
+                      <Truck className="w-3 sm:w-4 h-3 sm:h-4 text-yellow-400 flex-shrink-0" />
+                      <span className="text-center font-semibold text-xs">Free Ship</span>
+                    </div>
+                  </div>
+                  <div className="bg-gradient-to-r from-blue-500/30 to-cyan-500/30 backdrop-blur-sm rounded-md px-1 sm:px-1.5 py-1 sm:py-1.5 border border-blue-300/40 flex-1">
+                    <div className="flex items-center justify-center gap-0.5 text-xs text-white">
+                      <Clock className="w-3 sm:w-4 h-3 sm:h-4 text-red-400 flex-shrink-0" />
+                      <span className="text-center font-semibold text-xs">Final</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Box branco com imagem - Same as main page */}
+                <div>
+                  <div className="bg-white rounded-md p-1 shadow-sm">
+                    <img 
+                      src="https://i.imgur.com/1in1oo5.png" 
+                      alt="Product Benefits"
+                      className="w-full h-auto object-contain max-h-12 sm:max-h-14"
+                    />
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Right Side - Action */}
-          <div className="space-y-6">
-            
-            {/* Benefits Grid */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-green-500/20 backdrop-blur-sm rounded-xl p-4 border border-green-400/30 text-center">
-                <div className="text-3xl font-black text-green-300 mb-2">
-                  {content.pricing.freeBottles}
-                </div>
-                <div className="text-white font-bold">BOTTLES FREE</div>
-              </div>
-              <div className="bg-blue-500/20 backdrop-blur-sm rounded-xl p-4 border border-blue-400/30 text-center">
-                <div className="text-3xl font-black text-blue-300 mb-2">
-                  {content.pricing.paidBottles}
-                </div>
-                <div className="text-white font-bold">BOTTLES PAID</div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="space-y-4">
-              
-              {/* Accept Button */}
-              <div className="relative">
-                <div className="absolute -inset-1 bg-gradient-to-r from-green-400 via-emerald-500 to-green-600 rounded-2xl blur opacity-75 animate-pulse"></div>
-                <button
-                  onClick={handleAccept}
-                  className="relative w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-black py-6 px-8 rounded-2xl text-xl transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-2xl border-2 border-white/20"
-                >
-                  <div className="flex items-center justify-center gap-3">
-                    <CheckCircle className="w-6 h-6" />
-                    <span>{content.acceptButtonText}</span>
-                    <CheckCircle className="w-6 h-6" />
-                  </div>
-                </button>
-              </div>
-              
-              {/* Reject Button */}
-              <button
-                onClick={handleReject}
-                className="w-full bg-gray-600/30 hover:bg-gray-600/50 text-gray-300 hover:text-white font-medium py-4 px-6 rounded-xl transition-all duration-300 border border-gray-500/30 text-lg backdrop-blur-sm"
-              >
-                ❌ {content.rejectButtonText}
-              </button>
-            </div>
-
-            {/* Guarantee Badges */}
-            <div className="flex justify-center items-center gap-6 flex-wrap pt-4">
-              <div className="flex flex-col items-center gap-2 text-center">
-                <div className="bg-green-500/20 p-3 rounded-full border border-green-400/30">
-                  <Shield className="w-6 h-6 text-green-300" />
-                </div>
-                <span className="text-xs font-bold text-green-300">180-Day<br />Guarantee</span>
-              </div>
-              <div className="flex flex-col items-center gap-2 text-center">
-                <div className="bg-blue-500/20 p-3 rounded-full border border-blue-400/30">
-                  <Truck className="w-6 h-6 text-blue-300" />
-                </div>
-                <span className="text-xs font-bold text-blue-300">Free<br />Shipping</span>
-              </div>
-              <div className="flex flex-col items-center gap-2 text-center">
-                <div className="bg-red-500/20 p-3 rounded-full border border-red-400/30">
-                  <Clock className="w-6 h-6 text-red-300" />
-                </div>
-                <span className="text-xs font-bold text-red-300">Final<br />Chance</span>
-              </div>
-            </div>
+          {/* Reject Button - Same style as secondary products */}
+          <div className="w-full mb-6 animate-fadeInUp animation-delay-1600">
+            <button 
+              onClick={handleReject}
+              className="w-full bg-gradient-to-br from-gray-400/80 to-gray-600/80 backdrop-blur-xl rounded-2xl p-4 border border-white/20 shadow-xl text-white hover:bg-gray-500/80 transition-all duration-300"
+            >
+              <span className="text-sm font-medium">❌ {content.rejectButtonText}</span>
+            </button>
           </div>
         </div>
-      </div>
 
-      {/* Bottom Urgency Bar */}
-      <div className="bg-gradient-to-r from-red-600 to-red-700 text-white text-center py-4 px-4 shadow-2xl">
-        <div className="flex items-center justify-center gap-3">
-          <AlertTriangle className="w-5 h-5 animate-bounce" />
-          <span className="font-bold text-lg">
-            🔴 Once this page closes, this offer disappears forever.
-          </span>
-          <AlertTriangle className="w-5 h-5 animate-bounce" />
-        </div>
+        {/* Footer - Same as main page */}
+        <footer className="mt-8 sm:mt-12 text-center text-blue-700 w-full px-4 animate-fadeInUp animation-delay-2000">
+          <div className="bg-white/30 backdrop-blur-sm rounded-2xl p-4 max-w-xl mx-auto border border-blue-200">
+            <div className="bg-red-500 text-white px-4 py-2 rounded-lg inline-block mb-2">
+              <span className="font-bold text-sm">🔴 FINAL WARNING</span>
+            </div>
+            <p className="text-sm font-bold text-red-600 mb-2">
+              Once this page closes, this offer disappears forever.
+            </p>
+            <p className="text-xs opacity-70">
+              This is your last chance to complete the 9-month protocol at this special price.
+            </p>
+          </div>
+        </footer>
       </div>
     </div>
   );
