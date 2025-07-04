@@ -22,9 +22,9 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
   // ✅ UPDATED: ALL testimonials now have real VTurb videos
   const hasRealVideo = testimonial.videoId === "68677fbfd890d9c12c549f94" || // Michael R.
                        testimonial.videoId === "6867816a78c1d68a675981f1" ||   // Robert S.
-                       testimonial.videoId === "68678320c5ab1e6abe6e5b6f";     // ✅ NEW: John O.
+                       testimonial.videoId === "68678320c5ab1e6abe6e5b6f";     // John O.
 
-  // ✅ FIXED: Inject VTurb script only when card is active and has real video
+  // ✅ FIXED: Inject VTurb script only when card is active and has real video with v4 API
   useEffect(() => {
     if (isActive && hasRealVideo) {
       // Remove any existing script first
@@ -33,26 +33,35 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
         existingScript.remove();
       }
 
-      // Inject VTurb script specifically for this testimonial
+      // Inject VTurb script specifically for this testimonial with v4 API
       const script = document.createElement('script');
       script.type = 'text/javascript';
       script.id = `scr_testimonial_${testimonial.videoId}`;
       script.async = true;
       script.innerHTML = `
-        var s=document.createElement("script");
-        s.src="https://scripts.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${testimonial.videoId}/v4/player.js";
-        s.async=true;
-        s.onload = function() {
-          console.log('VTurb testimonial video loaded: ${testimonial.videoId}');
-          // Hide placeholder when video loads
-          setTimeout(function() {
-            var placeholder = document.getElementById('placeholder_${testimonial.videoId}');
-            if (placeholder) {
-              placeholder.style.display = 'none';
-            }
-          }, 1000);
-        };
-        document.head.appendChild(s);
+        (function() {
+          try {
+            var s = document.createElement("script");
+            s.src = "https://scripts.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${testimonial.videoId}/v4/player.js";
+            s.async = true;
+            s.onload = function() {
+              console.log('✅ VTurb testimonial video loaded: ${testimonial.videoId}');
+              // Hide placeholder when video loads
+              setTimeout(function() {
+                var placeholder = document.getElementById('placeholder_${testimonial.videoId}');
+                if (placeholder) {
+                  placeholder.style.display = 'none';
+                }
+              }, 1500);
+            };
+            s.onerror = function() {
+              console.error('❌ Failed to load VTurb testimonial video: ${testimonial.videoId}');
+            };
+            document.head.appendChild(s);
+          } catch (error) {
+            console.error('Error injecting testimonial video script:', error);
+          }
+        })();
       `;
       
       document.head.appendChild(script);
@@ -106,13 +115,13 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
         </p>
       </div>
 
-      {/* ✅ FIXED: Video container with proper z-index layering */}
+      {/* ✅ FIXED: Video container with proper z-index layering and v4 API */}
       {isActive && (
         <div className="mb-4">
           <div className="aspect-video rounded-xl overflow-hidden shadow-lg bg-gray-900 relative">
             {hasRealVideo ? (
               <>
-                {/* ✅ VTurb Video Container - HIGHEST z-index */}
+                {/* ✅ VTurb Video Container - HIGHEST z-index with v4 API */}
                 <vturb-smartplayer 
                   id={`vid-${testimonial.videoId}`}
                   style={{
@@ -123,7 +132,7 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
                     position: 'absolute',
                     top: 0,
                     left: 0,
-                    zIndex: 20 // ✅ HIGHEST z-index for video
+                    zIndex: 20 // HIGHEST z-index for video
                   }}
                 />
                 
@@ -131,7 +140,7 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
                 <div 
                   id={`placeholder_${testimonial.videoId}`}
                   className="absolute inset-0 bg-gradient-to-br from-blue-800 to-blue-900 flex items-center justify-center"
-                  style={{ zIndex: 10 }} // ✅ LOWER z-index than video
+                  style={{ zIndex: 10 }} // LOWER z-index than video
                 >
                   <div className="text-center">
                     <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-3 mx-auto">

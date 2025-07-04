@@ -32,24 +32,24 @@ export const TestimonialsSection: React.FC = () => {
       id: 1,
       name: "Michael R.",
       location: "Texas",
-      profileImage: "https://i.imgur.com/IYyJR1B.png", // ✅ Real profile image
-      videoId: "68677fbfd890d9c12c549f94", // ✅ REAL VTurb video ID
+      profileImage: "https://i.imgur.com/IYyJR1B.png", // Real profile image
+      videoId: "68677fbfd890d9c12c549f94", // REAL VTurb video ID
       caption: "BlueDrops completely changed my life. I felt the difference in just 2 weeks!"
     },
     {
       id: 2,
       name: "Robert S.",
       location: "California",
-      profileImage: "https://i.imgur.com/d1raEIm.png", // ✅ Real profile image
-      videoId: "6867816a78c1d68a675981f1", // ✅ REAL VTurb video ID
+      profileImage: "https://i.imgur.com/d1raEIm.png", // Real profile image
+      videoId: "6867816a78c1d68a675981f1", // REAL VTurb video ID
       caption: "After 50, I thought there was no hope. BlueDrops proved me wrong!"
     },
     {
       id: 3,
       name: "John O.",
       location: "Florida",
-      profileImage: "https://i.imgur.com/UJ0L2tZ.png", // ✅ NEW: Real profile image
-      videoId: "68678320c5ab1e6abe6e5b6f", // ✅ NEW: REAL VTurb video ID
+      profileImage: "https://i.imgur.com/UJ0L2tZ.png", // Real profile image
+      videoId: "68678320c5ab1e6abe6e5b6f", // REAL VTurb video ID
       caption: "My wife noticed the difference before I even told her about BlueDrops!"
     }
   ];
@@ -73,7 +73,7 @@ export const TestimonialsSection: React.FC = () => {
     return () => observer.disconnect();
   }, []);
 
-  // FIXED: Better animation for mobile
+  // Better animation for mobile
   const animateDragOffset = (targetOffset: number, duration: number = 150) => {
     const startOffset = dragOffset;
     const startTime = performance.now();
@@ -102,7 +102,7 @@ export const TestimonialsSection: React.FC = () => {
     animationRef.current = requestAnimationFrame(animate);
   };
 
-  // FIXED: Better velocity calculation
+  // Better velocity calculation
   const calculateVelocity = (clientX: number) => {
     const now = performance.now();
     if (lastMoveTime > 0) {
@@ -116,7 +116,7 @@ export const TestimonialsSection: React.FC = () => {
     setLastMoveX(clientX);
   };
 
-  // FIXED: Improved drag handlers for mobile
+  // Improved drag handlers for mobile
   const handleDragStart = (clientX: number) => {
     if (isTransitioning) return;
     
@@ -181,13 +181,13 @@ export const TestimonialsSection: React.FC = () => {
     setLastMoveX(0);
   };
 
-  // FIXED: Better mouse events
+  // Better mouse events
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     handleDragStart(e.clientX);
   };
 
-  // FIXED: Improved touch events for mobile
+  // Improved touch events for mobile
   const handleTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length === 1) {
       e.preventDefault();
@@ -207,7 +207,7 @@ export const TestimonialsSection: React.FC = () => {
     handleDragEnd();
   };
 
-  // FIXED: Better global mouse events
+  // Better global mouse events
   useEffect(() => {
     const handleGlobalMouseMove = (e: MouseEvent) => {
       if (isDragging) {
@@ -248,7 +248,7 @@ export const TestimonialsSection: React.FC = () => {
     setTimeout(() => setIsTransitioning(false), 200);
   };
 
-  // FIXED: Better card styling for mobile
+  // Better card styling for mobile
   const getCardStyle = (index: number) => {
     const position = index - currentTestimonial;
     const dragInfluence = dragOffset * 0.2; // Reduced influence for mobile
@@ -326,7 +326,7 @@ export const TestimonialsSection: React.FC = () => {
         </p>
       </div>
 
-      {/* FIXED: Slideshow Container - Better mobile support */}
+      {/* Slideshow Container - Better mobile support */}
       <div 
         className="relative h-[500px] mb-3"
         style={{ 

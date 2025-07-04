@@ -21,7 +21,7 @@ function App() {
   const [showUpsellPopup, setShowUpsellPopup] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState('');
   const [contentDelay, setContentDelay] = useState(0); // Delay in seconds
-  const [isAdmin, setIsAdmin] = useState(false); // ✅ NEW: Admin state
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -30,7 +30,7 @@ function App() {
   // Check if we're on the main page (show popup only on main page)
   const isMainPage = location.pathname === '/' || location.pathname === '/home';
 
-  // ✅ NEW: Check admin authentication on mount
+  // ✅ FIXED: Check admin authentication on mount
   useEffect(() => {
     const checkAdminAuth = () => {
       const isLoggedIn = sessionStorage.getItem('admin_authenticated') === 'true';
@@ -63,23 +63,59 @@ function App() {
     return () => clearInterval(interval);
   }, []);
 
-  // Handle content delay - FIXED: Get delay from localStorage
+  // ✅ FIXED: Handle content delay - Get from localStorage and listen for changes
   useEffect(() => {
-    // Get delay from localStorage (set by admin dashboard)
-    const storedDelay = localStorage.getItem('content_delay');
-    const delay = storedDelay ? parseInt(storedDelay) : 0;
-    setContentDelay(delay);
+    // Function to update delay from localStorage
+    const updateDelayFromStorage = () => {
+      const storedDelay = localStorage.getItem('content_delay');
+      const delay = storedDelay ? parseInt(storedDelay) : 0;
+      setContentDelay(delay);
+      console.log('🕐 Content delay updated:', delay, 'seconds');
+    };
 
-    if (delay > 0) {
+    // Initial load
+    updateDelayFromStorage();
+
+    // ✅ NEW: Listen for localStorage changes (when admin changes delay)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'content_delay') {
+        updateDelayFromStorage();
+      }
+    };
+
+    // ✅ NEW: Listen for custom event (for same-tab changes)
+    const handleDelayChange = () => {
+      updateDelayFromStorage();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('delayChanged', handleDelayChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('delayChanged', handleDelayChange);
+    };
+  }, []);
+
+  // ✅ FIXED: Apply delay when contentDelay changes
+  useEffect(() => {
+    if (contentDelay > 0) {
+      console.log('⏰ Starting delay timer:', contentDelay, 'seconds');
+      setShowPurchaseButton(false); // Hide immediately
+      
       const timer = setTimeout(() => {
+        console.log('✅ Delay completed, showing purchase buttons');
         setShowPurchaseButton(true);
-      }, delay * 1000);
+      }, contentDelay * 1000);
 
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+      };
     } else {
+      console.log('🚀 No delay, showing purchase buttons immediately');
       setShowPurchaseButton(true);
     }
-  }, []);
+  }, [contentDelay]);
 
   useEffect(() => {
     // Initialize URL tracking parameters
@@ -369,14 +405,14 @@ function App() {
     closeUpsellPopup();
   };
 
-  // ✅ NEW: Function to open admin dashboard
+  // Function to open admin dashboard
   const openAdminDashboard = () => {
     window.open('/admin', '_blank');
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 via-white to-gray-50 overflow-x-hidden">
-      {/* ✅ NEW: Admin DTC Button - Only visible for authenticated admins */}
+      {/* Admin DTC Button - Only visible for authenticated admins */}
       {isAdmin && (
         <div className="fixed top-4 left-4 z-50">
           <button
@@ -393,7 +429,7 @@ function App() {
       {/* Main container - Always visible */}
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-6 sm:py-8 max-w-full">
         
-        {/* Header - Removed logo click handler */}
+        {/* Header */}
         <Header />
 
         {/* Main Content */}
@@ -427,7 +463,7 @@ function App() {
         {/* Guarantee Section - Only show after delay */}
         {showPurchaseButton && <GuaranteeSection />}
 
-        {/* ✅ FIXED: Better organized final section with proper spacing and alignment */}
+        {/* Better organized final section with proper spacing and alignment */}
         {showPurchaseButton && (
           <section className="mt-16 sm:mt-20 w-full max-w-5xl mx-auto px-4 animate-fadeInUp animation-delay-2200">
             {/* Section Header - Centered and well-spaced */}

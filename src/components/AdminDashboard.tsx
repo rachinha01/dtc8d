@@ -101,7 +101,7 @@ export const AdminDashboard: React.FC = () => {
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [liveSessions, setLiveSessions] = useState<LiveSession[]>([]);
   const [activeTab, setActiveTab] = useState<'analytics' | 'tracking' | 'settings'>('analytics');
-  const [contentDelay, setContentDelay] = useState(2155); // ✅ SET TO 35min55s = 2155 seconds
+  const [contentDelay, setContentDelay] = useState(2155); // Default to 35min55s
 
   const navigate = useNavigate();
 
@@ -135,7 +135,7 @@ export const AdminDashboard: React.FC = () => {
     checkAuth();
   }, []);
 
-  // ✅ FIXED: Set default delay to 35min55s on first load
+  // Set default delay to 35min55s on first load
   useEffect(() => {
     if (isAuthenticated) {
       const storedDelay = localStorage.getItem('content_delay');
@@ -212,7 +212,7 @@ export const AdminDashboard: React.FC = () => {
   const fetchAnalytics = async () => {
     setLoading(true);
     try {
-      // ✅ FIXED: Always use current date for analytics - HOJE APENAS
+      // Always use current date for analytics - TODAY ONLY
       const today = new Date().toISOString().split('T')[0];
       
       // Get all analytics data with new geolocation fields for TODAY ONLY
@@ -230,7 +230,7 @@ export const AdminDashboard: React.FC = () => {
         return;
       }
 
-      // ✅ FIXED: Filter out Brazilian IPs for traffic and purchases
+      // Filter out Brazilian IPs for traffic and purchases
       const filteredEvents = allEvents.filter(event => 
         event.country_code !== 'BR' && event.country_name !== 'Brazil'
       );
@@ -370,7 +370,7 @@ export const AdminDashboard: React.FC = () => {
       ).length;
       const leadReachRate = totalSessions > 0 ? (sessionsWithLeadReached / totalSessions) * 100 : 0;
 
-      // ✅ FIXED: Calculate offer click rates and upsell stats (only non-Brazilian)
+      // Calculate offer click rates and upsell stats (only non-Brazilian)
       const offerClicks = filteredEvents.filter(event => event.event_type === 'offer_click');
       const totalOfferClicks = offerClicks.length;
       
@@ -562,7 +562,7 @@ export const AdminDashboard: React.FC = () => {
       .join(' • ');
   };
 
-  // Delay Controller Component
+  // ✅ FIXED: Delay Controller Component with proper event dispatch
   const DelayController = () => {
     const [tempDelay, setTempDelay] = useState(contentDelay);
 
@@ -570,9 +570,14 @@ export const AdminDashboard: React.FC = () => {
       setContentDelay(tempDelay);
       // Save to localStorage so it persists and affects the main site
       localStorage.setItem('content_delay', tempDelay.toString());
+      
+      // ✅ FIXED: Dispatch custom event to notify main app of delay change
+      window.dispatchEvent(new CustomEvent('delayChanged'));
+      
+      console.log('🕐 Delay updated to:', tempDelay, 'seconds');
     };
 
-    // ✅ UPDATED: Added 35min55s preset
+    // Updated presets with 35min55s
     const presetDelays = [
       { label: 'Sem delay', value: 0 },
       { label: '30 segundos', value: 30 },
@@ -580,7 +585,7 @@ export const AdminDashboard: React.FC = () => {
       { label: '2 minutos', value: 120 },
       { label: '5 minutos', value: 300 },
       { label: '10 minutos', value: 600 },
-      { label: '35min55s (Pitch)', value: 2155 } // ✅ NEW: 35min55s preset
+      { label: '35min55s (Pitch)', value: 2155 } // 35min55s preset
     ];
 
     return (
@@ -887,7 +892,7 @@ export const AdminDashboard: React.FC = () => {
                 <SalesChart />
               </div>
 
-              {/* ✅ NEW: Manel Chart - Only shows if 5+ sales */}
+              {/* Manel Chart - Only shows if 5+ sales */}
               <div className="mb-4 sm:mb-8">
                 <ManelChart />
               </div>

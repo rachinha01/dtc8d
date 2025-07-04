@@ -32,7 +32,7 @@ export const DoctorsSection: React.FC = () => {
       affiliation: "Columbia University",
       testimonial: "BlueDrops represents a breakthrough in natural men's health. Simple ingredients, impressive results.",
       profileImage: "https://i.imgur.com/oM0Uyij.jpeg",
-      videoId: "686778a578c1d68a67597d8c" // ✅ REAL VTurb video ID
+      videoId: "686778a578c1d68a67597d8c" // REAL VTurb video ID
     },
     {
       id: 2,
@@ -41,7 +41,7 @@ export const DoctorsSection: React.FC = () => {
       affiliation: "Center for Restorative Medicine",
       testimonial: "Natural compounds like those in BlueDrops restore balance from within — exactly my philosophy.",
       profileImage: "https://i.imgur.com/z8WR0yL.jpeg",
-      videoId: "68677941d890d9c12c549bbc" // ✅ REAL VTurb video ID - Dr. Gundry
+      videoId: "68677941d890d9c12c549bbc" // REAL VTurb video ID - Dr. Gundry
     },
     {
       id: 3,
@@ -50,39 +50,48 @@ export const DoctorsSection: React.FC = () => {
       affiliation: "University of Maryland",
       testimonial: "BlueDrops offers men a promising natural alternative that supports both confidence and wellness.",
       profileImage: "https://i.imgur.com/iNaQpa5.jpeg",
-      videoId: "68677d0e96c6c01dd66478a3" // ✅ REAL VTurb video ID - Dr. Rena Malik
+      videoId: "68677d0e96c6c01dd66478a3" // REAL VTurb video ID - Dr. Rena Malik
     }
   ];
 
-  // Function to inject VTurb doctor testimonial videos
+  // ✅ FIXED: Function to inject VTurb doctor testimonial videos with proper v4 API
   const injectDoctorVideo = (videoId: string) => {
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.id = `scr_${videoId}`;
-    script.async = true;
-    script.innerHTML = `
-      var s=document.createElement("script");
-      s.src="https://scripts.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${videoId}/v4/player.js";
-      s.async=true;
-      s.onload = function() {
-        console.log('VTurb doctor video loaded: ${videoId}');
-        // Hide placeholder when video loads
-        setTimeout(function() {
-          var placeholder = document.getElementById('doctor_placeholder_${videoId}');
-          if (placeholder) {
-            placeholder.style.display = 'none';
-          }
-        }, 1000);
-        window.doctorVideoLoaded_${videoId} = true;
-      };
-      document.head.appendChild(s);
-    `;
-    
     // Remove existing script if any
     const existingScript = document.getElementById(`scr_${videoId}`);
     if (existingScript) {
       existingScript.remove();
     }
+
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.id = `scr_${videoId}`;
+    script.async = true;
+    script.innerHTML = `
+      (function() {
+        try {
+          var s = document.createElement("script");
+          s.src = "https://scripts.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${videoId}/v4/player.js";
+          s.async = true;
+          s.onload = function() {
+            console.log('✅ VTurb doctor video loaded: ${videoId}');
+            // Hide placeholder when video loads
+            setTimeout(function() {
+              var placeholder = document.getElementById('doctor_placeholder_${videoId}');
+              if (placeholder) {
+                placeholder.style.display = 'none';
+              }
+            }, 1500);
+            window.doctorVideoLoaded_${videoId} = true;
+          };
+          s.onerror = function() {
+            console.error('❌ Failed to load VTurb doctor video: ${videoId}');
+          };
+          document.head.appendChild(s);
+        } catch (error) {
+          console.error('Error injecting doctor video script:', error);
+        }
+      })();
+    `;
     
     document.head.appendChild(script);
 
@@ -91,7 +100,7 @@ export const DoctorsSection: React.FC = () => {
       if ((window as any)[`doctorVideoLoaded_${videoId}`]) {
         setVideoLoaded(prev => ({ ...prev, [videoId]: true }));
       }
-    }, 2000);
+    }, 3000);
   };
 
   // Inject current doctor video when doctor changes
@@ -100,7 +109,7 @@ export const DoctorsSection: React.FC = () => {
     if (currentDoctorData.videoId) {
       setTimeout(() => {
         injectDoctorVideo(currentDoctorData.videoId);
-      }, 300);
+      }, 500);
     }
 
     // Cleanup function
@@ -114,7 +123,7 @@ export const DoctorsSection: React.FC = () => {
     };
   }, [currentDoctor]);
 
-  // FIXED: Improved mobile drag mechanics
+  // Improved mobile drag mechanics
   const animateDragOffset = (targetOffset: number, duration: number = 200) => {
     const startOffset = dragOffset;
     const startTime = performance.now();
@@ -143,7 +152,7 @@ export const DoctorsSection: React.FC = () => {
     animationRef.current = requestAnimationFrame(animate);
   };
 
-  // FIXED: Better velocity calculation for mobile
+  // Better velocity calculation for mobile
   const calculateVelocity = (clientX: number) => {
     const now = performance.now();
     if (lastMoveTime > 0) {
@@ -157,7 +166,7 @@ export const DoctorsSection: React.FC = () => {
     setLastMoveX(clientX);
   };
 
-  // FIXED: Improved drag handlers for mobile
+  // Improved drag handlers for mobile
   const handleDragStart = (clientX: number) => {
     if (isTransitioning) return;
     
@@ -222,13 +231,13 @@ export const DoctorsSection: React.FC = () => {
     setLastMoveX(0);
   };
 
-  // FIXED: Better mouse events
+  // Better mouse events
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     handleDragStart(e.clientX);
   };
 
-  // FIXED: Improved touch events for mobile
+  // Improved touch events for mobile
   const handleTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length === 1) {
       e.preventDefault();
@@ -248,7 +257,7 @@ export const DoctorsSection: React.FC = () => {
     handleDragEnd();
   };
 
-  // FIXED: Better global mouse events
+  // Better global mouse events
   useEffect(() => {
     const handleGlobalMouseMove = (e: MouseEvent) => {
       if (isDragging) {
@@ -289,7 +298,7 @@ export const DoctorsSection: React.FC = () => {
     setTimeout(() => setIsTransitioning(false), 300);
   };
 
-  // FIXED: Better card styling for mobile
+  // Better card styling for mobile
   const getCardStyle = (index: number) => {
     const position = index - currentDoctor;
     const dragInfluence = dragOffset * 0.25;
@@ -361,7 +370,7 @@ export const DoctorsSection: React.FC = () => {
         </p>
       </div>
 
-      {/* FIXED: Slideshow Container - Better mobile support */}
+      {/* Slideshow Container - Better mobile support */}
       <div 
         ref={containerRef}
         className="relative h-[500px] mb-3"
@@ -426,7 +435,7 @@ export const DoctorsSection: React.FC = () => {
   );
 };
 
-// FIXED: Doctor Card Component - Proper z-index layering
+// Doctor Card Component - Proper z-index layering
 const DoctorCard: React.FC<{ 
   doctor: any; 
   isActive: boolean; 
@@ -438,7 +447,7 @@ const DoctorCard: React.FC<{
   isDragging,
   videoLoaded
 }) => {
-  // ✅ ALL doctors now have real VTurb video IDs
+  // ALL doctors now have real VTurb video IDs
   const hasRealVideo = doctor.videoId === "686778a578c1d68a67597d8c" || 
                        doctor.videoId === "68677941d890d9c12c549bbc" || 
                        doctor.videoId === "68677d0e96c6c01dd66478a3";
@@ -482,11 +491,11 @@ const DoctorCard: React.FC<{
         </p>
       </div>
 
-      {/* ✅ FIXED: Video container with proper z-index layering */}
+      {/* ✅ FIXED: Video container with proper z-index layering and v4 API */}
       {isActive && (
         <div className="mb-4">
           <div className="aspect-video rounded-xl overflow-hidden shadow-lg bg-gray-900 relative">
-            {/* ✅ VTurb Video Container - HIGHEST z-index */}
+            {/* ✅ VTurb Video Container - HIGHEST z-index with v4 API */}
             <vturb-smartplayer 
               id={`vid-${doctor.videoId}`}
               style={{
@@ -497,7 +506,7 @@ const DoctorCard: React.FC<{
                 position: 'absolute',
                 top: 0,
                 left: 0,
-                zIndex: 20 // ✅ HIGHEST z-index for video
+                zIndex: 20 // HIGHEST z-index for video
               }}
             />
             
@@ -505,7 +514,7 @@ const DoctorCard: React.FC<{
             <div 
               id={`doctor_placeholder_${doctor.videoId}`}
               className="absolute inset-0 bg-gradient-to-br from-blue-800 to-blue-900 flex items-center justify-center"
-              style={{ zIndex: 10 }} // ✅ LOWER z-index than video
+              style={{ zIndex: 10 }} // LOWER z-index than video
             >
               <div className="text-center">
                 <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-3 mx-auto">
