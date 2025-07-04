@@ -374,27 +374,48 @@ function App() {
         {/* Guarantee Section - Only show after delay */}
         {showPurchaseButton && <GuaranteeSection />}
 
-        {/* ✅ NEW: Repeat Purchase Buttons at the End */}
+        {/* ✅ FIXED: Better organized final section with proper spacing and alignment */}
         {showPurchaseButton && (
-          <section className="mt-16 sm:mt-20 w-full max-w-md mx-auto px-4 animate-fadeInUp animation-delay-2200">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-blue-900 mb-2">
+          <section className="mt-16 sm:mt-20 w-full max-w-5xl mx-auto px-4 animate-fadeInUp animation-delay-2200">
+            {/* Section Header - Centered and well-spaced */}
+            <div className="text-center mb-8 sm:mb-12">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-blue-900 mb-4">
                 <span className="block">Ready to Transform</span>
                 <span className="bg-gradient-to-r from-blue-600 via-cyan-500 to-indigo-600 bg-clip-text text-transparent block">
                   Your Life?
                 </span>
               </h2>
-              <p className="text-base sm:text-lg text-blue-700 font-semibold">
+              <p className="text-lg sm:text-xl text-blue-700 font-semibold mb-2">
                 Choose your BlueDrops package below
+              </p>
+              <p className="text-sm sm:text-base text-blue-600">
+                Don't miss this opportunity to transform your health and confidence
               </p>
             </div>
 
-            {/* Repeat the same product offers */}
-            <ProductOffers 
-              showPurchaseButton={true}
-              onPurchase={handlePurchase}
-              onSecondaryPackageClick={handleSecondaryPackageClick}
-            />
+            {/* Centered Product Offers Container */}
+            <div className="flex justify-center">
+              <div className="w-full max-w-md">
+                <ProductOffers 
+                  showPurchaseButton={true}
+                  onPurchase={handlePurchase}
+                  onSecondaryPackageClick={handleSecondaryPackageClick}
+                />
+              </div>
+            </div>
+
+            {/* Final Call-to-Action */}
+            <div className="text-center mt-8 sm:mt-12">
+              <div className="bg-white/30 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-blue-200 shadow-lg max-w-2xl mx-auto">
+                <h3 className="text-xl sm:text-2xl font-bold text-blue-900 mb-3">
+                  🚀 Your Transformation Starts Today
+                </h3>
+                <p className="text-blue-700 text-sm sm:text-base leading-relaxed">
+                  Join thousands of men who have already discovered the power of BlueDrops. 
+                  With our 180-day guarantee, you have nothing to lose and everything to gain.
+                </p>
+              </div>
+            </div>
           </section>
         )}
 
