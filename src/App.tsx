@@ -7,7 +7,6 @@ import { Header } from './components/Header';
 import { HeroSection } from './components/HeroSection';
 import { VideoSection } from './components/VideoSection';
 import { ProductOffers } from './components/ProductOffers';
-import { SEOContent } from './components/SEOContent';
 import { TestimonialsSection } from './components/TestimonialsSection';
 import { DoctorsSection } from './components/DoctorsSection';
 import { NewsSection } from './components/NewsSection';
@@ -362,9 +361,6 @@ function App() {
             />
           )}
         </div>
-
-        {/* ✅ SEO Content Section - Only show after delay */}
-        {showPurchaseButton && <SEOContent />}
 
         {/* Testimonials Section - Only show after delay */}
         {showPurchaseButton && <TestimonialsSection />}

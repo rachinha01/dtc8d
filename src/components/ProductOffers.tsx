@@ -53,7 +53,6 @@ export const ProductOffers: React.FC<ProductOffersProps> = ({
 
   return (
     <>
-      {/* ✅ SEO OTIMIZADO: Alt text das imagens com palavras-chave */}
       {/* PRODUTO 1: 6 BOTTLE PACKAGE - BEST VALUE */}
       <div id="six-bottle-package" className="w-full mb-6 sm:mb-8 relative animate-fadeInUp animation-delay-800">
         {/* BEST VALUE Tag */}
@@ -77,7 +76,7 @@ export const ProductOffers: React.FC<ProductOffersProps> = ({
             <div className="flex justify-center mb-3 px-2">
               <img 
                 src="https://i.imgur.com/hsfqxVP.png" 
-                alt="BlueDrops 6 bottle pack showing curcumin turmeric trick label - natural ED support formula"
+                alt="BlueDrops 6 Bottle Pack"
                 className="w-full h-auto object-contain drop-shadow-2xl max-h-48 sm:max-h-56 md:max-h-64 lg:max-h-72"
               />
             </div>
@@ -146,7 +145,7 @@ export const ProductOffers: React.FC<ProductOffersProps> = ({
               <div className="bg-white rounded-md p-1 shadow-sm">
                 <img 
                   src="https://i.imgur.com/1in1oo5.png" 
-                  alt="BlueDrops benefits showing natural ED trick ingredients"
+                  alt="Product Benefits"
                   className="w-full h-auto object-contain max-h-12 sm:max-h-14"
                 />
               </div>
@@ -166,7 +165,7 @@ export const ProductOffers: React.FC<ProductOffersProps> = ({
             <div className="flex justify-center mb-2 px-1">
               <img 
                 src="https://i.imgur.com/eXYnjhm.png" 
-                alt="BlueDrops 3 bottle pack - comparison between BlueDrops and baking soda trick"
+                alt="BlueDrops 3 Bottle Pack"
                 className="w-full h-auto object-contain drop-shadow-xl max-h-16 sm:max-h-20"
               />
             </div>
@@ -237,7 +236,7 @@ export const ProductOffers: React.FC<ProductOffersProps> = ({
             <div className="flex justify-center mb-2 px-1">
               <img 
                 src="https://i.imgur.com/iWs7wy7.png" 
-                alt="BlueDrops single bottle - BlueDrops outperforming watermelon ED trick"
+                alt="BlueDrops 1 Bottle Pack"
                 className="w-full h-auto object-contain drop-shadow-xl max-h-16 sm:max-h-20"
               />
             </div>
