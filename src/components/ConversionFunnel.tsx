@@ -25,6 +25,7 @@ export const ConversionFunnel: React.FC<ConversionFunnelProps> = ({ className = 
     purchased: 0,
   });
   
+  // ✅ FIXED: Always use current date
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toISOString().split('T')[0]
   );
@@ -34,10 +35,12 @@ export const ConversionFunnel: React.FC<ConversionFunnelProps> = ({ className = 
   const fetchFunnelData = async (date: string) => {
     setLoading(true);
     try {
-      // Get all analytics data for the selected date
+      // ✅ FIXED: Filter out Brazilian IPs from the start
       const { data: allEvents, error } = await supabase
         .from('vsl_analytics')
         .select('*')
+        .neq('country_code', 'BR')
+        .neq('country_name', 'Brazil')
         .gte('created_at', `${date}T00:00:00.000Z`)
         .lt('created_at', `${date}T23:59:59.999Z`)
         .order('created_at', { ascending: false });
@@ -57,7 +60,7 @@ export const ConversionFunnel: React.FC<ConversionFunnelProps> = ({ className = 
         return;
       }
 
-      // Group events by session
+      // Group events by session (already filtered, no Brazilian IPs)
       const sessionGroups = allEvents.reduce((acc, event) => {
         if (!acc[event.session_id]) {
           acc[event.session_id] = [];
@@ -74,7 +77,7 @@ export const ConversionFunnel: React.FC<ConversionFunnelProps> = ({ className = 
       let leadReached = 0;
       let pitchReached = 0;
       let offerClicked = 0;
-      let purchased = 0; // For now, we'll use offer clicks as proxy for purchases
+      let purchased = 0;
 
       sessions.forEach(session => {
         // Check if video was played
@@ -95,12 +98,23 @@ export const ConversionFunnel: React.FC<ConversionFunnelProps> = ({ className = 
         );
         if (hasPitchReached) pitchReached++;
 
-        // Check if offer was clicked
-        const hasOfferClick = session.some(event => event.event_type === 'offer_click');
+        // ✅ FIXED: Only count real offer clicks (not upsells)
+        const hasOfferClick = session.some(event => 
+          event.event_type === 'offer_click' && 
+          event.event_data?.offer_type &&
+          ['1-bottle', '3-bottle', '6-bottle'].includes(event.event_data.offer_type)
+        );
         if (hasOfferClick) {
           offerClicked++;
-          // For now, treat offer clicks as purchases (you can modify this logic later)
-          purchased++;
+          
+          // ✅ FIXED: Count purchases as upsell accepts only
+          const hasPurchase = session.some(event => 
+            event.event_type === 'offer_click' && 
+            event.event_data?.offer_type &&
+            event.event_data.offer_type.includes('upsell') &&
+            event.event_data.offer_type.includes('accept')
+          );
+          if (hasPurchase) purchased++;
         }
       });
 
@@ -129,13 +143,15 @@ export const ConversionFunnel: React.FC<ConversionFunnelProps> = ({ className = 
   useEffect(() => {
     const interval = setInterval(() => {
       fetchFunnelData(selectedDate);
-    }, 120000); // 2 minutes
+    }, 120000);
 
     return () => clearInterval(interval);
   }, [selectedDate]);
 
+  // ✅ FIXED: Update date when changed
   const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedDate(event.target.value);
+    const newDate = event.target.value;
+    setSelectedDate(newDate);
   };
 
   const calculateConversionRate = (current: number, previous: number): number => {

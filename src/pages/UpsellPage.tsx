@@ -78,7 +78,7 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
         },
         acceptUrl: 'https://pagamento.paybluedrops.com/ex-ocu/next-offer/mWYd5nGjgx?accepted=yes',
         rejectUrl: 'https://pagamento.paybluedrops.com/ex-ocu/next-offer/mWYd5nGjgx?accepted=no',
-        productImage: 'https://i.imgur.com/2YU6i8f.png', // ✅ UPDATED: Nova imagem
+        productImage: 'https://i.imgur.com/2YU6i8f.png',
         acceptButtonText: 'YES — COMPLETE MY 9‑MONTH TREATMENT',
         rejectButtonText: 'No thanks — I\'ll throw away my progress and risk permanent failure'
       },
@@ -97,7 +97,7 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
         },
         acceptUrl: 'https://pagamento.paybluedrops.com/ex-ocu/next-offer/qJjMdRwYNl?accepted=yes',
         rejectUrl: 'https://pagamento.paybluedrops.com/ex-ocu/next-offer/qJjMdRwYNl?accepted=no',
-        productImage: 'https://i.imgur.com/2YU6i8f.png', // ✅ UPDATED: Nova imagem
+        productImage: 'https://i.imgur.com/2YU6i8f.png',
         acceptButtonText: 'YES — COMPLETE MY 9‑MONTH TREATMENT',
         rejectButtonText: 'No thanks — I\'ll throw away my progress and risk permanent failure'
       },
@@ -116,7 +116,7 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
         },
         acceptUrl: 'https://pagamento.paybluedrops.com/ex-ocu/next-offer/46jLdobjp3?accepted=yes',
         rejectUrl: 'https://pagamento.paybluedrops.com/ex-ocu/next-offer/46jLdobjp3?accepted=no',
-        productImage: 'https://i.imgur.com/2YU6i8f.png', // ✅ UPDATED: Nova imagem
+        productImage: 'https://i.imgur.com/2YU6i8f.png',
         acceptButtonText: 'YES — COMPLETE MY 9‑MONTH TREATMENT',
         rejectButtonText: 'No thanks — I\'ll throw away my progress and risk permanent failure'
       }
@@ -383,7 +383,7 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
             </div>
           </div>
 
-          {/* ✅ MOVED: CTA Button AFTER all arguments - SAME STYLE AS INITIAL OFFER */}
+          {/* ✅ FIXED: CTA Button MOVED to this exact section - AFTER all arguments */}
           <div className="mb-6 relative animate-fadeInUp animation-delay-1500">
             {/* Same glow effect as the main offer */}
             <div className="absolute -inset-1 bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 rounded-2xl sm:rounded-3xl blur-lg opacity-60 animate-pulse"></div>

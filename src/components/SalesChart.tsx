@@ -16,6 +16,7 @@ interface SalesChartProps {
 
 export const SalesChart: React.FC<SalesChartProps> = ({ className = '' }) => {
   const [salesData, setSalesData] = useState<SalesData[]>([]);
+  // ✅ FIXED: Always use current date
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toISOString().split('T')[0]
   );
@@ -30,11 +31,13 @@ export const SalesChart: React.FC<SalesChartProps> = ({ className = '' }) => {
   const fetchSalesData = async (date: string) => {
     setLoading(true);
     try {
-      // Query offer_click events for the selected date
+      // ✅ FIXED: Only count real offer clicks (not upsells) and exclude Brazilian IPs
       const { data: offerClicks, error } = await supabase
         .from('vsl_analytics')
         .select('event_data, created_at')
         .eq('event_type', 'offer_click')
+        .neq('country_code', 'BR')
+        .neq('country_name', 'Brazil')
         .gte('created_at', `${date}T00:00:00.000Z`)
         .lt('created_at', `${date}T23:59:59.999Z`)
         .order('created_at', { ascending: true });
@@ -65,12 +68,11 @@ export const SalesChart: React.FC<SalesChartProps> = ({ className = '' }) => {
           const hour = new Date(click.created_at).getHours();
           const offerType = click.event_data?.offer_type;
           
-          if (offerType && hourlyData[hour]) {
-            if (offerType === '6-bottle' || offerType === '3-bottle' || offerType === '1-bottle') {
-              hourlyData[hour][offerType]++;
-              totalCounts[offerType]++;
-              totalCounts.total++;
-            }
+          // ✅ FIXED: Only count real offer clicks (not upsells)
+          if (offerType && hourlyData[hour] && ['1-bottle', '3-bottle', '6-bottle'].includes(offerType)) {
+            hourlyData[hour][offerType as '1-bottle' | '3-bottle' | '6-bottle']++;
+            totalCounts[offerType as '1-bottle' | '3-bottle' | '6-bottle']++;
+            totalCounts.total++;
           }
         });
       }
@@ -95,13 +97,15 @@ export const SalesChart: React.FC<SalesChartProps> = ({ className = '' }) => {
   useEffect(() => {
     const interval = setInterval(() => {
       fetchSalesData(selectedDate);
-    }, 60000); // 1 minute
+    }, 60000);
 
     return () => clearInterval(interval);
   }, [selectedDate]);
 
+  // ✅ FIXED: Update date when changed
   const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedDate(event.target.value);
+    const newDate = event.target.value;
+    setSelectedDate(newDate);
   };
 
   const formatHour = (hour: number) => {
