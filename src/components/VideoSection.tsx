@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Play } from 'lucide-react';
+import { Play, Volume2, AlertTriangle } from 'lucide-react';
 
 export const VideoSection: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -147,6 +147,35 @@ export const VideoSection: React.FC = () => {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* ✅ NEW: Sound and Video Warning Section */}
+      <div className="mt-4 space-y-3 max-w-sm mx-auto">
+        {/* Sound Warning */}
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-center">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Volume2 className="w-4 h-4 text-blue-600" />
+            <span className="text-blue-800 font-semibold text-sm">
+              Please make sure your sound is on
+            </span>
+          </div>
+          <p className="text-blue-600 text-xs">
+            This video contains important audio information
+          </p>
+        </div>
+
+        {/* Video Takedown Warning */}
+        <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-center">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <AlertTriangle className="w-4 h-4 text-red-600" />
+            <span className="text-red-800 font-semibold text-sm">
+              This video may be taken down at any time
+            </span>
+          </div>
+          <p className="text-red-600 text-xs">
+            Watch now before it's removed from the internet
+          </p>
         </div>
       </div>
     </div>

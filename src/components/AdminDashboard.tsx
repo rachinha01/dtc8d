@@ -100,7 +100,7 @@ export const AdminDashboard: React.FC = () => {
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [liveSessions, setLiveSessions] = useState<LiveSession[]>([]);
   const [activeTab, setActiveTab] = useState<'analytics' | 'tracking' | 'settings'>('analytics');
-  const [contentDelay, setContentDelay] = useState(0);
+  const [contentDelay, setContentDelay] = useState(2155); // ✅ SET TO 35min55s = 2155 seconds
 
   const navigate = useNavigate();
 
@@ -134,11 +134,17 @@ export const AdminDashboard: React.FC = () => {
     checkAuth();
   }, []);
 
-  // Load current delay setting
+  // ✅ FIXED: Set default delay to 35min55s on first load
   useEffect(() => {
     if (isAuthenticated) {
       const storedDelay = localStorage.getItem('content_delay');
-      setContentDelay(storedDelay ? parseInt(storedDelay) : 0);
+      if (!storedDelay) {
+        // Set default delay to 35min55s = 2155 seconds
+        localStorage.setItem('content_delay', '2155');
+        setContentDelay(2155);
+      } else {
+        setContentDelay(parseInt(storedDelay));
+      }
     }
   }, [isAuthenticated]);
 
@@ -565,13 +571,15 @@ export const AdminDashboard: React.FC = () => {
       localStorage.setItem('content_delay', tempDelay.toString());
     };
 
+    // ✅ UPDATED: Added 35min55s preset
     const presetDelays = [
       { label: 'Sem delay', value: 0 },
       { label: '30 segundos', value: 30 },
       { label: '1 minuto', value: 60 },
       { label: '2 minutos', value: 120 },
       { label: '5 minutos', value: 300 },
-      { label: '10 minutos', value: 600 }
+      { label: '10 minutos', value: 600 },
+      { label: '35min55s (Pitch)', value: 2155 } // ✅ NEW: 35min55s preset
     ];
 
     return (
@@ -590,7 +598,7 @@ export const AdminDashboard: React.FC = () => {
           <div className="flex items-center gap-2">
             <Eye className="w-4 h-4 text-blue-600" />
             <span className="text-sm font-medium text-blue-800">
-              Status atual: {contentDelay === 0 ? 'Sem delay' : `${contentDelay} segundos`}
+              Status atual: {contentDelay === 0 ? 'Sem delay' : contentDelay === 2155 ? '35min55s (Pitch)' : `${contentDelay} segundos`}
             </span>
           </div>
         </div>
@@ -640,7 +648,7 @@ export const AdminDashboard: React.FC = () => {
         <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
           <p className="text-xs text-yellow-700">
             <strong>Dica:</strong> Use delays para testar diferentes estratégias de conversão. 
-            O delay só afeta os botões de compra e seções abaixo do vídeo.
+            O delay só afeta os botões de compra e seções abaixo do vídeo. 35min55s é quando o pitch aparece no vídeo.
           </p>
         </div>
       </div>
