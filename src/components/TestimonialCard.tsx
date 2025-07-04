@@ -105,13 +105,14 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
           </div>
         `;
         
-        console.log(`✅ HTML structure added for testimonial: ${testimonial.videoId}`);
+        console.log(\`✅ HTML structure added for testimonial: ${testimonial.videoId}`);
       }
     }
   }, [isActive, hasRealVideo, testimonial.videoId]);
 
   return (
-    <div className={`bg-white backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-blue-200 hover:bg-white/95 transition-all duration-300 max-w-md w-full mx-4 ${
+    <div className={\`bg-white backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-blue-200 hover:bg-white/95 transition-all duration-300 max-w-md w-full mx-4 ${
+        }
       isDragging ? 'shadow-2xl' : 'shadow-lg'
     } ${isActive ? 'ring-2 ring-blue-300' : ''}`}>
       
@@ -155,7 +156,7 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
               <>
                 {/* ✅ VTurb Video Container - HIGHEST z-index */}
                 <div
-                  id={`vid-${testimonial.videoId}`}
+                  id={\`vid-${testimonial.videoId}`}
                   style={{
                     display: 'block',
                     margin: '0 auto',
@@ -170,7 +171,7 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
                 
                 {/* ✅ Placeholder - Only show while loading */}
                 <div 
-                  id={`placeholder_${testimonial.videoId}`}
+                  id={\`placeholder_${testimonial.videoId}`}
                   className="absolute inset-0 bg-gradient-to-br from-blue-800 to-blue-900 flex items-center justify-center"
                   style={{ zIndex: 10 }}
                 >
@@ -222,3 +223,6 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
 };
 
 export default TestimonialCard;
+  }
+  )
+}
