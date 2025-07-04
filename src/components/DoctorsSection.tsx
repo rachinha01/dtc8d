@@ -41,7 +41,7 @@ export const DoctorsSection: React.FC = () => {
       affiliation: "Center for Restorative Medicine",
       testimonial: "Natural compounds like those in BlueDrops restore balance from within — exactly my philosophy.",
       profileImage: "https://i.imgur.com/z8WR0yL.jpeg",
-      videoId: "dr_gundry_testimonial_id" // Replace with actual VTurb video ID
+      videoId: "68677941d890d9c12c549bbc" // ✅ REAL VTurb video ID - Dr. Gundry
     },
     {
       id: 3,
@@ -432,6 +432,9 @@ const DoctorCard: React.FC<{
   isDragging,
   videoLoaded
 }) => {
+  // Check if this doctor has a real VTurb video ID
+  const hasRealVideo = doctor.videoId === "686778a578c1d68a67597d8c" || doctor.videoId === "68677941d890d9c12c549bbc";
+
   return (
     <div className={`bg-white backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-blue-200 hover:bg-white/95 transition-all duration-300 max-w-md w-full mx-4 ${
       isDragging ? 'shadow-2xl' : 'shadow-lg'
@@ -488,8 +491,8 @@ const DoctorCard: React.FC<{
               }}
             />
             
-            {/* ✅ ONLY show fallback if video hasn't loaded yet */}
-            {!videoLoaded && doctor.videoId !== "686778a578c1d68a67597d8c" && (
+            {/* ✅ ONLY show fallback if video hasn't loaded yet AND it's not a real video */}
+            {!hasRealVideo && (
               <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-blue-800 to-blue-900 flex items-center justify-center z-5">
                 <div className="text-center">
                   <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-3 mx-auto">
@@ -502,7 +505,7 @@ const DoctorCard: React.FC<{
                     Video Testimonial
                   </p>
                   <p className="text-white/50 text-xs mt-2">
-                    Loading video...
+                    Coming soon...
                   </p>
                 </div>
               </div>
