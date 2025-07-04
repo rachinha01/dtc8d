@@ -81,117 +81,12 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
             window.smartplayer = window.smartplayer || { instances: {} };
             
             // ✅ Ensure we don't override main video instance
-            var mainVideoInstance = window.smartplayer.instances['683ba3d1b87ae17c6e07e7db'];
-            
-            // ✅ Clear only this specific video instance if it exists
-            if (window.smartplayer.instances['${testimonial.videoId}']) {
-              delete window.smartplayer.instances['${testimonial.videoId}'];
-            }
-            
-            var s = document.createElement("script");
-            s.src = "https://scripts.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${testimonial.videoId}/v4/player.js";
-            s.async = true;
-            
-            // ✅ CRITICAL: Handle custom element registration errors gracefully
-            s.onerror = function(error) {
-              console.error('❌ Failed to load VTurb testimonial video: ${testimonial.videoId}', error);
-              // Try to continue anyway if it's just a custom element error
-              if (error && error.toString().includes('vturb-bezel')) {
-                console.log('🔄 Custom element error detected, video may still work');
-              }
-            };
-            
-            s.onload = function() {
-              console.log('✅ VTurb testimonial video loaded: ${testimonial.videoId}');
-              
-              // ✅ CRITICAL: Restore main video instance if it was affected
-              if (mainVideoInstance && !window.smartplayer.instances['683ba3d1b87ae17c6e07e7db']) {
-                window.smartplayer.instances['683ba3d1b87ae17c6e07e7db'] = mainVideoInstance;
-              }
-              
-              // Hide placeholder when video loads
-              setTimeout(function() {
-                // ✅ CRITICAL: Ensure video stays in correct container
-                var targetContainer = document.getElementById('vid-${testimonial.videoId}');
-                if (targetContainer) {
-                  var allVideos = document.querySelectorAll('video');
-                  var allIframes = document.querySelectorAll('iframe');
-                  
-                  allVideos.forEach(function(video) {
-                    // ✅ CRITICAL: Don't touch main video elements
-                    var mainVideoContainer = document.getElementById('vid_683ba3d1b87ae17c6e07e7db');
-                    if (mainVideoContainer && mainVideoContainer.contains(video)) {
-                      return; // Skip main video elements
-                    }
-                    
-                    if (!targetContainer.contains(video) && video.src && video.src.includes('${testimonial.videoId}')) {
-                      targetContainer.appendChild(video);
-                    }
-                  });
-                  
-                  allIframes.forEach(function(iframe) {
-                    // ✅ CRITICAL: Don't touch main video iframes
-                    var mainVideoContainer = document.getElementById('vid_683ba3d1b87ae17c6e07e7db');
-                    if (mainVideoContainer && mainVideoContainer.contains(iframe)) {
-                      return; // Skip main video iframes
-                    }
-                    
-                    if (!targetContainer.contains(iframe) && iframe.src && iframe.src.includes('${testimonial.videoId}')) {
-                      targetContainer.appendChild(iframe);
-                    }
-                  });
-                }
-                
-                // ✅ CRITICAL: Ensure video elements stay in correct container
-                setTimeout(function() {
-                  // ✅ CRITICAL: Prevent video from appearing in main video container
-                  var mainVideoContainer = document.getElementById('vid_683ba3d1b87ae17c6e07e7db');
-                  var doctorContainer = document.getElementById('vid-${testimonial.videoId}');
-                  
-                  if (mainVideoContainer && doctorContainer) {
-                    // ✅ Move any testimonial video elements that ended up in main container
-                    var orphanedElements = mainVideoContainer.querySelectorAll('[src*="${testimonial.videoId}"], [data-video-id="${testimonial.videoId}"]');
-                    orphanedElements.forEach(function(element) {
-                      if (element.parentNode === mainVideoContainer) {
-                        doctorContainer.appendChild(element);
-                        console.log('🔄 Moved testimonial video element back to correct container');
-                      }
-                    });
-                  }
-                  
-                  // Hide placeholder
-                  var placeholder = document.getElementById('placeholder_${testimonial.videoId}');
-                  if (placeholder) {
-                    placeholder.style.display = 'none';
-                  }
-                }, 2000); // ✅ Increased delay for better stability
-              }, 2000); // ✅ Increased delay for better stability
-            };
-            s.onerror = function() {
-              console.error('❌ Failed to load VTurb testimonial video: ${testimonial.videoId}');
-              // ✅ Don't fail completely on custom element errors
-              console.log('🔄 Attempting to continue despite error');
-            };
-            document.head.appendChild(s);
-          } catch (error) {
-            console.error('Error injecting testimonial video script:', error);
-          }
-        })();
-      `;
-      
-      document.head.appendChild(script);
-    }
+                    window.testimonialVideoLoaded_${testimonial.videoId} = true;
 
     // Cleanup when card becomes inactive
     return () => {
-      if (hasRealVideo) {
-        const scriptToRemove = document.getElementById(`scr_testimonial_${testimonial.videoId}`);
         if (scriptToRemove) {
           scriptToRemove.remove();
-        }
-        // ✅ Also clean up the video instance
-        if (window.smartplayer && window.smartplayer.instances && window.smartplayer.instances[testimonial.videoId]) {
-          delete window.smartplayer.instances[testimonial.videoId];
         }
       }
     };
@@ -202,15 +97,12 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
     if (isActive && hasRealVideo) {
       const targetContainer = document.getElementById(`vid-${testimonial.videoId}`);
       if (targetContainer) {
-        // ✅ Add the specific HTML structure for each testimonial
+        // ✅ FIXED: Add the same HTML structure that works for doctors
         targetContainer.innerHTML = `
           <div id="vid_${testimonial.videoId}" style="position:relative;width:100%;padding: 56.25% 0 0 0;">
             <img id="thumb_${testimonial.videoId}" src="https://images.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${testimonial.videoId}/thumbnail.jpg" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;">
             <div id="backdrop_${testimonial.videoId}" style="position:absolute;top:0;width:100%;height:100%;-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);"></div>
           </div>
-          <style>
-            .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border-width:0;}
-          </style>
         `;
         
         console.log(`✅ HTML structure added for testimonial: ${testimonial.videoId}`);
@@ -272,15 +164,15 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
                     position: 'absolute',
                     top: 0,
                     left: 0,
-                    zIndex: 20 // HIGHEST z-index for video
+                    zIndex: 20
                   }}
                 ></div>
                 
-                {/* ✅ Placeholder - LOWER z-index, hidden when video loads */}
+                {/* ✅ Placeholder - Only show while loading */}
                 <div 
                   id={`placeholder_${testimonial.videoId}`}
                   className="absolute inset-0 bg-gradient-to-br from-blue-800 to-blue-900 flex items-center justify-center"
-                  style={{ zIndex: 10 }} // LOWER z-index than video
+                  style={{ zIndex: 10 }}
                 >
                   <div className="text-center">
                     <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-3 mx-auto">
@@ -290,7 +182,7 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
                       {testimonial.name}
                     </p>
                     <p className="text-white/70 text-sm">
-                      Loading video...
+                      Customer Story
                     </p>
                   </div>
                 </div>
