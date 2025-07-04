@@ -36,6 +36,12 @@ export const TrackingTestPanel: React.FC = () => {
       details: 'Testando utm_source, utm_medium, utm_campaign, etc.'
     },
     {
+      name: 'Video Tracking',
+      status: 'loading',
+      message: 'Verificando tracking de vídeo...',
+      details: 'Testando eventos de video_play'
+    },
+    {
       name: 'Supabase Analytics',
       status: 'loading',
       message: 'Verificando conexão com banco...',
@@ -233,6 +239,68 @@ export const TrackingTestPanel: React.FC = () => {
     }
   };
 
+  const testVideoTracking = async (index: number) => {
+    updateStatus(index, { status: 'loading', message: 'Testando tracking de vídeo...' });
+    
+    try {
+      // Check if video container exists
+      const videoContainer = document.getElementById('vid_683ba3d1b87ae17c6e07e7db');
+      if (!videoContainer) {
+        updateStatus(index, { 
+          status: 'error', 
+          message: 'Container de vídeo não encontrado',
+          details: 'Elemento vid_683ba3d1b87ae17c6e07e7db não existe'
+        });
+        return;
+      }
+
+      // Check if VTurb script is loaded
+      if (!window.vslVideoLoaded) {
+        updateStatus(index, { 
+          status: 'warning', 
+          message: 'VTurb script ainda carregando...',
+          details: 'Aguarde o script do vídeo carregar completamente'
+        });
+        return;
+      }
+
+      // Check for video elements
+      const videos = videoContainer.querySelectorAll('video');
+      const iframes = videoContainer.querySelectorAll('iframe');
+      
+      if (videos.length > 0 || iframes.length > 0) {
+        updateStatus(index, { 
+          status: 'success', 
+          message: 'Elementos de vídeo encontrados',
+          details: `${videos.length} vídeos, ${iframes.length} iframes detectados`
+        });
+      } else {
+        updateStatus(index, { 
+          status: 'warning', 
+          message: 'Nenhum elemento de vídeo detectado',
+          details: 'Container existe mas não há vídeos ou iframes'
+        });
+      }
+
+      // Test manual video play tracking
+      if (typeof window !== 'undefined' && (window as any).trackVideoPlay) {
+        (window as any).trackVideoPlay();
+        updateStatus(index, { 
+          status: 'success', 
+          message: 'Tracking de vídeo funcionando',
+          details: 'Evento de video_play enviado com sucesso'
+        });
+      }
+      
+    } catch (error) {
+      updateStatus(index, { 
+        status: 'error', 
+        message: 'Erro ao testar tracking de vídeo',
+        details: `Erro: ${error}`
+      });
+    }
+  };
+
   const testAll = async () => {
     setIsTestingAll(true);
     
@@ -249,7 +317,8 @@ export const TrackingTestPanel: React.FC = () => {
       testMetaPixel(1),
       testUtmify(2),
       testUTMParams(3),
-      testSupabase(4)
+      testVideoTracking(4),
+      testSupabase(5)
     ]);
     
     setIsTestingAll(false);
@@ -357,7 +426,8 @@ export const TrackingTestPanel: React.FC = () => {
                     case 1: testMetaPixel(index); break;
                     case 2: testUtmify(index); break;
                     case 3: testUTMParams(index); break;
-                    case 4: testSupabase(index); break;
+                    case 4: testVideoTracking(index); break;
+                    case 5: testSupabase(index); break;
                   }
                 }}
                 disabled={tracking.status === 'loading'}
@@ -390,6 +460,21 @@ export const TrackingTestPanel: React.FC = () => {
                   Events
                 </a>
               )}
+              
+              {tracking.name === 'Video Tracking' && (
+                <button
+                  onClick={() => {
+                    // Force trigger video play event for testing
+                    console.log('🧪 Teste manual: Disparando evento de video_play');
+                    if (typeof window !== 'undefined' && (window as any).trackVideoPlay) {
+                      (window as any).trackVideoPlay();
+                    }
+                  }}
+                  className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm transition-colors"
+                >
+                  🧪 Testar
+                </button>
+              )}
             </div>
           </div>
         ))}
@@ -399,7 +484,7 @@ export const TrackingTestPanel: React.FC = () => {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <Eye className="w-5 h-5" />
-          URLs de Teste
+          URLs de Teste + Debugging de Vídeo
         </h3>
         <p className="text-gray-600 mb-4">
           Use estas URLs para testar se os parâmetros UTM estão sendo preservados corretamente:
@@ -425,6 +510,16 @@ export const TrackingTestPanel: React.FC = () => {
             <code className="text-sm text-blue-600 break-all">
               {window.location.origin}/?utm_source=google&utm_medium=cpc&gclid=test789012
             </code>
+          </div>
+          
+          <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+            <p className="text-sm font-medium text-blue-700 mb-2">🎬 Debug de Tracking de Vídeo:</p>
+            <div className="space-y-2 text-xs text-blue-600">
+              <p>• Abra o Console do navegador (F12)</p>
+              <p>• Procure por mensagens que começam com 🎬, 📊, ✅ ou ❌</p>
+              <p>• Clique no vídeo e veja se aparece "Video play tracked"</p>
+              <p>• Use o botão "🧪 Testar" acima para forçar um evento</p>
+            </div>
           </div>
         </div>
       </div>

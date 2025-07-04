@@ -295,24 +295,36 @@ function App() {
     // Setup tracking for VTurb player with improved detection
     let hasTrackedPlay = false;
     let trackingInterval: NodeJS.Timeout;
+    let trackingAttempts = 0;
+    const maxAttempts = 30; // 30 tentativas = 60 segundos
 
     const checkForPlayer = () => {
       try {
+        trackingAttempts++;
+        console.log(`🔍 Tentativa ${trackingAttempts}/${maxAttempts} - Procurando player de vídeo...`);
+        
         // Multiple ways to detect VTurb player
         const playerContainer = document.getElementById('vid_683ba3d1b87ae17c6e07e7db');
+        
+        if (!playerContainer) {
+          console.log('❌ Container do vídeo não encontrado');
+          return;
+        }
+        
+        console.log('✅ Container do vídeo encontrado:', playerContainer);
         
         // Method 1: Check for smartplayer instances
         if (window.smartplayer && window.smartplayer.instances) {
           const playerInstance = window.smartplayer.instances['683ba3d1b87ae17c6e07e7db'];
           if (playerInstance) {
-            console.log('VTurb player instance found');
+            console.log('✅ VTurb player instance encontrada');
             
             // Track video play
             playerInstance.on('play', () => {
               if (!hasTrackedPlay) {
                 hasTrackedPlay = true;
                 trackVideoPlay();
-                console.log('Video play tracked');
+                console.log('🎬 Video play tracked via smartplayer instance');
               }
             });
 
@@ -327,6 +339,7 @@ function App() {
             });
 
             clearInterval(trackingInterval);
+            console.log('🎯 Tracking configurado via smartplayer instance');
             return;
           }
         }
@@ -335,7 +348,7 @@ function App() {
         if (playerContainer) {
           const videos = playerContainer.querySelectorAll('video');
           if (videos.length > 0) {
-            console.log('Video elements found in container');
+            console.log(`✅ ${videos.length} elemento(s) de vídeo encontrado(s) no container`);
             
             videos.forEach(video => {
               // Remove existing listeners to avoid duplicates
@@ -345,9 +358,12 @@ function App() {
               // Add new listeners
               video.addEventListener('play', handleVideoPlay);
               video.addEventListener('timeupdate', handleTimeUpdate);
+              
+              console.log('🎯 Event listeners adicionados ao elemento de vídeo');
             });
 
             clearInterval(trackingInterval);
+            console.log('🎯 Tracking configurado via elementos de vídeo');
             return;
           }
 
@@ -355,19 +371,63 @@ function App() {
           if (!hasTrackedPlay) {
             playerContainer.removeEventListener('click', handleContainerClick);
             playerContainer.addEventListener('click', handleContainerClick);
+            console.log('🎯 Click listener adicionado ao container como fallback');
           }
         }
 
         // Method 4: Check for iframe (some VTurb implementations use iframe)
         const iframe = document.querySelector('iframe[src*="converteai.net"]');
         if (iframe) {
-          console.log('VTurb iframe found');
+          console.log('✅ VTurb iframe encontrado');
           iframe.removeEventListener('load', handleIframeLoad);
           iframe.addEventListener('load', handleIframeLoad);
+        }
+        
+        // ✅ NEW: Method 5 - Force tracking on any video interaction
+        const allVideos = document.querySelectorAll('video');
+        if (allVideos.length > 0) {
+          console.log(`🎬 Encontrados ${allVideos.length} vídeos na página - configurando tracking global`);
+          allVideos.forEach((video, index) => {
+            video.addEventListener('play', () => {
+              if (!hasTrackedPlay) {
+                hasTrackedPlay = true;
+                trackVideoPlay();
+                console.log(`🎬 Video play tracked via vídeo global ${index + 1}`);
+              }
+            });
+            
+            video.addEventListener('timeupdate', (event) => {
+              const video = event.target as HTMLVideoElement;
+              if (video.duration && video.currentTime) {
+                trackVideoProgress(video.currentTime, video.duration);
+              }
+            });
+          });
+        }
+        
+        // ✅ NEW: Method 6 - Track any user interaction with video area
+        if (playerContainer && !hasTrackedPlay) {
+          const trackInteraction = () => {
+            if (!hasTrackedPlay) {
+              hasTrackedPlay = true;
+              trackVideoPlay();
+              console.log('🎬 Video play tracked via user interaction');
+            }
+          };
+          
+          playerContainer.addEventListener('click', trackInteraction);
+          playerContainer.addEventListener('touchstart', trackInteraction);
+          console.log('🎯 Interaction listeners adicionados');
         }
 
       } catch (error) {
         console.error('Error in checkForPlayer:', error);
+      }
+      
+      // ✅ Stop after max attempts
+      if (trackingAttempts >= maxAttempts) {
+        console.log(`⏰ Máximo de tentativas atingido (${maxAttempts}). Parando busca por player.`);
+        clearInterval(trackingInterval);
       }
     };
 
@@ -375,7 +435,7 @@ function App() {
       if (!hasTrackedPlay) {
         hasTrackedPlay = true;
         trackVideoPlay();
-        console.log('Video play tracked via video element');
+        console.log('🎬 Video play tracked via video element');
       }
     };
 
@@ -390,12 +450,12 @@ function App() {
       if (!hasTrackedPlay) {
         hasTrackedPlay = true;
         trackVideoPlay();
-        console.log('Video play tracked via container click');
+        console.log('🎬 Video play tracked via container click');
       }
     };
 
     const handleIframeLoad = () => {
-      console.log('VTurb iframe loaded');
+      console.log('✅ VTurb iframe carregado');
       // Try to access iframe content if same-origin
       try {
         const iframe = document.querySelector('iframe[src*="converteai.net"]') as HTMLIFrameElement;
@@ -406,7 +466,7 @@ function App() {
               if (event.data.type === 'video_play' && !hasTrackedPlay) {
                 hasTrackedPlay = true;
                 trackVideoPlay();
-                console.log('Video play tracked via iframe message');
+                console.log('🎬 Video play tracked via iframe message');
               }
               if (event.data.type === 'video_progress') {
                 trackVideoProgress(event.data.currentTime, event.data.duration);
@@ -415,20 +475,22 @@ function App() {
           });
         }
       } catch (error) {
-        console.log('Cross-origin iframe, using fallback tracking');
+        console.log('⚠️ Cross-origin iframe, usando fallback tracking');
       }
     };
 
     // Start checking for player immediately and then periodically
+    console.log('🚀 Iniciando setup de tracking de vídeo...');
     checkForPlayer();
     trackingInterval = setInterval(checkForPlayer, 2000);
     
-    // Stop checking after 30 seconds to avoid infinite loops
+    // Stop checking after max attempts to avoid infinite loops
     setTimeout(() => {
       if (trackingInterval) {
         clearInterval(trackingInterval);
+        console.log('⏰ Timeout de tracking atingido - parando verificações');
       }
-    }, 30000);
+    }, maxAttempts * 2000); // 60 segundos total
   };
 
   const closePopup = () => {

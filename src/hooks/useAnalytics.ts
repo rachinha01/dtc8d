@@ -262,6 +262,8 @@ export const useAnalytics = () => {
     eventData?: any
   ) => {
     try {
+      console.log(`📊 TRACKING EVENT: ${eventType}`, eventData);
+      
       // Wait for geolocation data if not loaded yet
       if (!isGeolocationLoaded.current) {
         geolocationData.current = await getGeolocationData();
@@ -279,6 +281,13 @@ export const useAnalytics = () => {
         ...eventData,
         country: geolocationData.current?.country_name || 'Unknown'
       };
+
+      console.log(`📤 Enviando para Supabase:`, {
+        session_id: sessionId.current,
+        event_type: eventType,
+        event_data: enrichedEventData,
+        country: geolocationData.current?.country_name || 'Unknown'
+      });
 
       const { data, error } = await supabase.from('vsl_analytics').insert({
         session_id: sessionId.current,
@@ -304,9 +313,9 @@ export const useAnalytics = () => {
 
       if (error) throw error;
       
-      console.log(`✅ Tracked event: ${eventType}`, enrichedEventData);
+      console.log(`✅ SUCESSO - Event tracked: ${eventType}`, enrichedEventData);
     } catch (error) {
-      console.error('Error tracking event:', error);
+      console.error(`❌ ERRO ao tracking event ${eventType}:`, error);
       // Don't throw error - analytics should never break the app
     }
   };
@@ -399,9 +408,12 @@ export const useAnalytics = () => {
     
     if (!hasTrackedVideoPlay.current) {
       hasTrackedVideoPlay.current = true;
+      console.log('🎬 TRACKING VIDEO PLAY - Enviando evento para Supabase');
       trackEvent('video_play', { 
         country: geolocationData.current?.country_name || 'Unknown'
       });
+    } else {
+      console.log('⚠️ Video play já foi tracked para esta sessão');
     }
   };
 
