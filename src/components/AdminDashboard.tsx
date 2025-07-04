@@ -12,7 +12,7 @@ import {
   Play, 
   Target, 
   ShoppingCart, 
-  Clock, 
+  Clock,
   TrendingUp,
   RefreshCw,
   Calendar,
@@ -172,7 +172,7 @@ export const AdminDashboard: React.FC = () => {
     // Dispatch custom event to notify main app
     window.dispatchEvent(new CustomEvent('delayChanged'));
     
-    console.log('🕐 Admin changed delay to:', newDelay, 'seconds');
+    console.log('🕐 Admin changed delay to:', newDelay, 'seconds (', Math.floor(newDelay/60), 'min', newDelay%60, 'sec)');
   };
 
   const resetToDefault = () => {
@@ -532,7 +532,11 @@ export const AdminDashboard: React.FC = () => {
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    if (minutes > 0) {
+      return `${minutes}min${remainingSeconds > 0 ? ` ${remainingSeconds}s` : ''}`;
+    } else {
+      return `${remainingSeconds}s`;
+    }
   };
 
   const formatDate = (dateString: string) => {

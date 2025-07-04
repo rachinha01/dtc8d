@@ -27,6 +27,8 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
   // ✅ FIXED: Inject VTurb script only when card is active and has real video with v4 API
   useEffect(() => {
     if (isActive && hasRealVideo) {
+      console.log('🎬 Injecting testimonial video:', testimonial.videoId);
+      
       // Remove any existing script first
       const existingScript = document.getElementById(`scr_testimonial_${testimonial.videoId}`);
       if (existingScript) {
@@ -41,6 +43,12 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
       script.innerHTML = `
         (function() {
           try {
+            // Remove any existing video container content first
+            var existingContainer = document.getElementById('vid-${testimonial.videoId}');
+            if (existingContainer) {
+              existingContainer.innerHTML = '';
+            }
+            
             var s = document.createElement("script");
             s.src = "https://scripts.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${testimonial.videoId}/v4/player.js";
             s.async = true;
@@ -122,7 +130,7 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
             {hasRealVideo ? (
               <>
                 {/* ✅ VTurb Video Container - HIGHEST z-index with v4 API */}
-                <vturb-smartplayer 
+                <div
                   id={`vid-${testimonial.videoId}`}
                   style={{
                     display: 'block',
@@ -134,7 +142,7 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
                     left: 0,
                     zIndex: 20 // HIGHEST z-index for video
                   }}
-                />
+                ></div>
                 
                 {/* ✅ Placeholder - LOWER z-index, hidden when video loads */}
                 <div 

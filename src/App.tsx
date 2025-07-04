@@ -111,11 +111,11 @@ function App() {
   // ✅ FIXED: Apply delay when contentDelay changes
   useEffect(() => {
     if (contentDelay > 0) {
-      console.log('⏰ Starting delay timer:', contentDelay, 'seconds');
+      console.log('⏰ Starting delay timer:', contentDelay, 'seconds (', Math.floor(contentDelay/60), 'min', contentDelay%60, 'sec)');
       setShowPurchaseButton(false); // Hide immediately
       
       const timer = setTimeout(() => {
-        console.log('✅ Delay completed, showing purchase buttons');
+        console.log('✅ Delay completed after', contentDelay, 'seconds - showing purchase buttons');
         setShowPurchaseButton(true);
       }, contentDelay * 1000);
 

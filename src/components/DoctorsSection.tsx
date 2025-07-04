@@ -56,6 +56,8 @@ export const DoctorsSection: React.FC = () => {
 
   // ✅ FIXED: Function to inject VTurb doctor testimonial videos with proper v4 API
   const injectDoctorVideo = (videoId: string) => {
+    console.log('🎬 Injecting doctor video:', videoId);
+    
     // Remove existing script if any
     const existingScript = document.getElementById(`scr_${videoId}`);
     if (existingScript) {
@@ -69,6 +71,12 @@ export const DoctorsSection: React.FC = () => {
     script.innerHTML = `
       (function() {
         try {
+          // Remove any existing video container content first
+          var existingContainer = document.getElementById('vid-${videoId}');
+          if (existingContainer) {
+            existingContainer.innerHTML = '';
+          }
+          
           var s = document.createElement("script");
           s.src = "https://scripts.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${videoId}/v4/player.js";
           s.async = true;
@@ -76,7 +84,7 @@ export const DoctorsSection: React.FC = () => {
             console.log('✅ VTurb doctor video loaded: ${videoId}');
             // Hide placeholder when video loads
             setTimeout(function() {
-              var placeholder = document.getElementById('doctor_placeholder_${videoId}');
+              var placeholder = document.getElementById('placeholder_${videoId}');
               if (placeholder) {
                 placeholder.style.display = 'none';
               }
@@ -496,7 +504,7 @@ const DoctorCard: React.FC<{
         <div className="mb-4">
           <div className="aspect-video rounded-xl overflow-hidden shadow-lg bg-gray-900 relative">
             {/* ✅ VTurb Video Container - HIGHEST z-index with v4 API */}
-            <vturb-smartplayer 
+            <div
               id={`vid-${doctor.videoId}`}
               style={{
                 display: 'block',
@@ -508,11 +516,11 @@ const DoctorCard: React.FC<{
                 left: 0,
                 zIndex: 20 // HIGHEST z-index for video
               }}
-            />
+            ></div>
             
             {/* ✅ Placeholder - LOWER z-index, hidden when video loads */}
             <div 
-              id={`doctor_placeholder_${doctor.videoId}`}
+              id={`placeholder_${videoId}`}
               className="absolute inset-0 bg-gradient-to-br from-blue-800 to-blue-900 flex items-center justify-center"
               style={{ zIndex: 10 }} // LOWER z-index than video
             >

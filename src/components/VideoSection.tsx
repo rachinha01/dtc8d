@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Play, Volume2, AlertTriangle } from 'lucide-react';
+import { Play, Volume2, AlertTriangle, Clock } from 'lucide-react';
 
 export const VideoSection: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -84,7 +84,7 @@ export const VideoSection: React.FC = () => {
           {/* VTurb Video Container - FIXED */}
           <div
             id="vid_683ba3d1b87ae17c6e07e7db"
-            className="absolute inset-0 w-full h-full"
+            className="absolute inset-0 w-full h-full z-10"
             style={{
               position: 'absolute',
               top: 0,
@@ -114,7 +114,7 @@ export const VideoSection: React.FC = () => {
 
             {/* Loading Overlay */}
             {isLoading && !hasError && (
-              <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-20">
                 <div className="text-center text-white">
                   <div className="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin mb-4 mx-auto"></div>
                   <p className="text-sm font-medium">Carregando vídeo...</p>
@@ -124,7 +124,7 @@ export const VideoSection: React.FC = () => {
 
             {/* Error Overlay */}
             {hasError && (
-              <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-10">
+              <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-20">
                 <div className="text-center text-white p-6">
                   <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mb-4 mx-auto">
                     <Play className="w-8 h-8 text-red-400" />
@@ -141,7 +141,7 @@ export const VideoSection: React.FC = () => {
             )}
 
             {/* Play Button Overlay - Always visible for better UX */}
-            <div className="absolute inset-0 flex items-center justify-center z-5 pointer-events-none">
+            <div className="absolute inset-0 flex items-center justify-center z-15 pointer-events-none">
               <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white/30">
                 <Play className="w-10 h-10 text-white ml-1" />
               </div>
