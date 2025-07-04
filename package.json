@@ -3,11 +3,20 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "homepage": "https://github.com/rachinha01/dtc8d",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rachinha01/dtc8d.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rachinha01/dtc8d/issues"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "sync": "git pull origin main && npm install"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",

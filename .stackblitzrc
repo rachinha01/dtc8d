@@ -1,0 +1,15 @@
+{
+  "installDependencies": true,
+  "startCommand": "npm run dev",
+  "template": "node",
+  "env": {
+    "NODE_ENV": "development",
+    "VITE_APP_NAME": "BlueDrops VSL"
+  },
+  "git": {
+    "enabled": true,
+    "autoCommit": true,
+    "autoPush": true,
+    "repository": "https://github.com/rachinha01/dtc8d.git"
+  }
+}
