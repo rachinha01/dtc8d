@@ -5,6 +5,7 @@ import { SalesChart } from './SalesChart';
 import { ConversionFunnel } from './ConversionFunnel';
 import { ConversionHeatmap } from './ConversionHeatmap';
 import { TrackingTestPanel } from './TrackingTestPanel';
+import { ManelChart } from './ManelChart'; // ✅ NEW: Import do gráfico do Manel
 import { 
   BarChart3, 
   Users, 
@@ -884,6 +885,11 @@ export const AdminDashboard: React.FC = () => {
               {/* Sales Chart - Mobile optimized */}
               <div className="mb-4 sm:mb-8">
                 <SalesChart />
+              </div>
+
+              {/* ✅ NEW: Manel Chart - Only shows if 5+ sales */}
+              <div className="mb-4 sm:mb-8">
+                <ManelChart />
               </div>
 
               {/* Stats Grid - Mobile optimized */}
