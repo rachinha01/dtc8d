@@ -150,7 +150,7 @@ export const TestimonialsSection: React.FC = () => {
     setTimeout(() => setIsTransitioning(false), 300);
   };
 
-  // Optimized card styling
+  // Optimized card styling - FIXED: Better overflow handling
   const getCardStyle = (index: number) => {
     const position = index - currentTestimonial;
     let translateX = 0;
@@ -226,12 +226,13 @@ export const TestimonialsSection: React.FC = () => {
         </p>
       </div>
 
-      {/* Slideshow Container */}
+      {/* Slideshow Container - FIXED: Better overflow and background */}
       <div 
-        className="relative h-[500px] overflow-hidden mb-3"
+        className="relative h-[500px] mb-3 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl"
         style={{ 
           perspective: '1000px',
-          touchAction: 'pan-y pinch-zoom'
+          touchAction: 'pan-y pinch-zoom',
+          overflow: 'hidden' // FIXED: Prevent cards from showing outside
         }}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}

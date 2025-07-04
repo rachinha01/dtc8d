@@ -29,18 +29,23 @@ function App() {
   // Check if we're on the main page (show popup only on main page)
   const isMainPage = location.pathname === '/' || location.pathname === '/home';
 
-  // Handle content delay
+  // Handle content delay - FIXED: Get delay from localStorage
   useEffect(() => {
-    if (contentDelay > 0) {
+    // Get delay from localStorage (set by admin dashboard)
+    const storedDelay = localStorage.getItem('content_delay');
+    const delay = storedDelay ? parseInt(storedDelay) : 0;
+    setContentDelay(delay);
+
+    if (delay > 0) {
       const timer = setTimeout(() => {
         setShowPurchaseButton(true);
-      }, contentDelay * 1000);
+      }, delay * 1000);
 
       return () => clearTimeout(timer);
     } else {
       setShowPurchaseButton(true);
     }
-  }, [contentDelay]);
+  }, []);
 
   useEffect(() => {
     // Initialize URL tracking parameters

@@ -20,7 +20,7 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
   isDragging 
 }) => {
   return (
-    <div className={`bg-white/30 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-blue-200 hover:bg-white/40 transition-all duration-300 max-w-md w-full mx-4 ${
+    <div className={`bg-white/90 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-blue-200 hover:bg-white/95 transition-all duration-300 max-w-md w-full mx-4 ${
       isDragging ? 'shadow-2xl' : 'shadow-lg'
     } ${isActive ? 'ring-2 ring-blue-300' : ''}`}>
       

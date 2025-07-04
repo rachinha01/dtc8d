@@ -284,7 +284,7 @@ export const DoctorsSection: React.FC = () => {
     setTimeout(() => setIsTransitioning(false), 500);
   };
 
-  // Get position and styling for each doctor card
+  // Get position and styling for each doctor card - FIXED: Better overflow handling
   const getCardStyle = (index: number) => {
     const position = index - currentDoctor;
     const dragInfluence = dragOffset * 0.3; // Reduced influence for subtlety
@@ -360,13 +360,14 @@ export const DoctorsSection: React.FC = () => {
         </p>
       </div>
 
-      {/* Slideshow Container */}
+      {/* Slideshow Container - FIXED: Better overflow and background */}
       <div 
         ref={containerRef}
-        className="relative h-[500px] overflow-hidden mb-3"
+        className="relative h-[500px] mb-3 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl"
         style={{ 
           perspective: '1200px',
-          touchAction: 'pan-y pinch-zoom'
+          touchAction: 'pan-y pinch-zoom',
+          overflow: 'hidden' // FIXED: Prevent cards from showing outside
         }}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
@@ -424,14 +425,14 @@ export const DoctorsSection: React.FC = () => {
   );
 };
 
-// Separate Doctor Card Component for cleaner code
+// Separate Doctor Card Component for cleaner code - FIXED: Better opacity
 const DoctorCard: React.FC<{ doctor: any; isActive: boolean; isDragging: boolean }> = ({ 
   doctor, 
   isActive, 
   isDragging 
 }) => {
   return (
-    <div className={`bg-white/30 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-blue-200 hover:bg-white/40 transition-all duration-300 max-w-md w-full mx-4 ${
+    <div className={`bg-white/90 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-blue-200 hover:bg-white/95 transition-all duration-300 max-w-md w-full mx-4 ${
       isDragging ? 'shadow-2xl' : 'shadow-lg'
     } ${isActive ? 'ring-2 ring-blue-300' : ''}`}>
       

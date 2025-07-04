@@ -236,7 +236,7 @@ export const NewsSection: React.FC = () => {
     setTimeout(() => setIsTransitioning(false), 300);
   };
 
-  // Optimized card styling with better mobile performance
+  // Optimized card styling with better mobile performance - FIXED: Better overflow handling
   const getCardStyle = (index: number) => {
     const position = index - currentNews;
     const dragInfluence = dragOffset * 0.25; // Reduced for smoother mobile performance
@@ -315,13 +315,14 @@ export const NewsSection: React.FC = () => {
           </p>
         </div>
 
-        {/* News Slideshow Container - Optimized for mobile */}
+        {/* News Slideshow Container - FIXED: Better overflow and background */}
         <div 
           ref={containerRef}
-          className="relative h-[400px] overflow-hidden mb-3"
+          className="relative h-[400px] mb-3 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl"
           style={{ 
             perspective: '1000px',
-            touchAction: 'pan-y pinch-zoom'
+            touchAction: 'pan-y pinch-zoom',
+            overflow: 'hidden' // FIXED: Prevent cards from showing outside
           }}
           onMouseDown={handleMouseDown}
           onTouchStart={handleTouchStart}
@@ -380,7 +381,7 @@ export const NewsSection: React.FC = () => {
   );
 };
 
-// Optimized News Card Component with softer mobile borders
+// Optimized News Card Component with softer mobile borders - FIXED: Better opacity
 const NewsCard: React.FC<{ 
   article: any; 
   isActive: boolean; 
@@ -388,7 +389,7 @@ const NewsCard: React.FC<{
   onRead: () => void;
 }> = ({ article, isActive, isDragging, onRead }) => {
   return (
-    <div className={`bg-white rounded-3xl p-6 border-2 ${article.color} hover:shadow-lg transition-all duration-300 max-w-md w-full mx-4 ${
+    <div className={`bg-white/90 rounded-3xl p-6 border-2 ${article.color} hover:shadow-lg transition-all duration-300 max-w-md w-full mx-4 ${
       isDragging ? 'shadow-2xl' : 'shadow-lg'
     } ${isActive ? 'ring-2 ring-blue-300' : ''}`}>
       

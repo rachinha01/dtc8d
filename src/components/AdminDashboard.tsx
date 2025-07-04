@@ -134,6 +134,14 @@ export const AdminDashboard: React.FC = () => {
     checkAuth();
   }, []);
 
+  // Load current delay setting
+  useEffect(() => {
+    if (isAuthenticated) {
+      const storedDelay = localStorage.getItem('content_delay');
+      setContentDelay(storedDelay ? parseInt(storedDelay) : 0);
+    }
+  }, [isAuthenticated]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoggingIn(true);
@@ -548,6 +556,8 @@ export const AdminDashboard: React.FC = () => {
 
     const handleApplyDelay = () => {
       setContentDelay(tempDelay);
+      // Save to localStorage so it persists and affects the main site
+      localStorage.setItem('content_delay', tempDelay.toString());
     };
 
     const presetDelays = [
