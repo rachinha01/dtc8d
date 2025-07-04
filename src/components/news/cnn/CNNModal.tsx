@@ -6,6 +6,11 @@ interface CNNModalProps {
 }
 
 export const CNNModal: React.FC<CNNModalProps> = ({ onClose }) => {
+  // ✅ FIXED: Redirect to home page function
+  const redirectToHome = () => {
+    window.location.href = '/';
+  };
+
   return (
     <div className="bg-white min-h-screen">
       {/* Simplified CNN Header - Based on attached image */}
@@ -14,8 +19,13 @@ export const CNNModal: React.FC<CNNModalProps> = ({ onClose }) => {
           <div className="max-w-7xl mx-auto">
             <div className="flex items-center justify-between">
               {/* Left side - Logo and Health */}
-              <div className="flex items-center gap-4">
+              <div 
+                className="flex items-center gap-4 cursor-pointer"
+                onClick={redirectToHome}
+              >
                 {/* CNN Logo */}
+                <img src="https://i.imgur.com/0twf89j.png" alt="CNN" className="h-6" />
+                <span className="text-lg font-bold text-gray-900">Health</span>
                 <img src="https://i.imgur.com/0twf89j.png" alt="CNN" className="h-6" />
                 <span className="text-lg font-bold text-gray-900">Health</span>
               </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Play, Volume2, AlertTriangle, Clock } from 'lucide-react';
+import { Play, Volume2, AlertTriangle, Clock, RefreshCw } from 'lucide-react';
 
 export const VideoSection: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -7,6 +7,7 @@ export const VideoSection: React.FC = () => {
 
   useEffect(() => {
     // Check if video is loaded
+    let loadingTimeout: NodeJS.Timeout;
     const checkVideoLoad = () => {
       const videoContainer = document.getElementById('vid_683ba3d1b87ae17c6e07e7db');
       if (videoContainer) {
@@ -15,6 +16,7 @@ export const VideoSection: React.FC = () => {
                          videoContainer.querySelector('iframe') ||
                          videoContainer.querySelector('[data-vturb-player]') ||
                          window.vslVideoLoaded;
+        console.log('🔍 Checking video load status:', hasVideo ? 'LOADED' : 'NOT LOADED');
         
         if (hasVideo) {
           setIsLoading(false);
@@ -28,13 +30,15 @@ export const VideoSection: React.FC = () => {
 
     // Check periodically for up to 15 seconds
     const interval = setInterval(checkVideoLoad, 1000);
-    const timeout = setTimeout(() => {
+    loadingTimeout = setTimeout(() => {
       clearInterval(interval);
       if (isLoading) {
+        console.log('⚠️ Video loading timeout reached - showing error state');
         setHasError(true);
         setIsLoading(false);
       }
     }, 15000);
+    console.log('🎬 Starting video load check...');
 
     return () => {
       clearInterval(interval);
@@ -42,6 +46,7 @@ export const VideoSection: React.FC = () => {
     };
   }, [isLoading]);
 
+  // ✅ UPDATED: Better retry logic with more logging
   const handleRetryLoad = () => {
     setIsLoading(true);
     setHasError(false);
@@ -50,6 +55,7 @@ export const VideoSection: React.FC = () => {
     const existingScript = document.getElementById('scr_683ba3d1b87ae17c6e07e7db');
     if (existingScript) {
       existingScript.remove();
+      console.log('🔄 Removed existing VTurb script');
     }
 
     // ✅ CRITICAL: Reset custom element registration flag
@@ -58,6 +64,7 @@ export const VideoSection: React.FC = () => {
       console.log('🔄 Resetting custom elements registration flag');
       window.vslCustomElementsRegistered = false;
     }
+    console.log('🔄 Attempting to reload VTurb script...');
 
     // Re-inject script
     const script = document.createElement('script');
@@ -65,6 +72,7 @@ export const VideoSection: React.FC = () => {
     script.id = 'scr_683ba3d1b87ae17c6e07e7db';
     script.async = true;
     script.innerHTML = `
+      console.log('🔄 Executing VTurb script reload...');
       (function() {
         try {
           // ✅ CRITICAL: Check if custom elements are already defined before proceeding
@@ -76,6 +84,7 @@ export const VideoSection: React.FC = () => {
           s.src = "https://scripts.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/683ba3d1b87ae17c6e07e7db/player.js";
           s.async = true;
           
+          console.log('🔄 Created new script element for VTurb');
           // ✅ CRITICAL: Handle custom element errors gracefully
           s.onerror = function(error) {
             console.error('Error reloading VTurb script:', error);
@@ -87,7 +96,9 @@ export const VideoSection: React.FC = () => {
           };
           
           s.onload = function() {
-            console.log('VTurb player reloaded');
+            console.log('✅ VTurb player script loaded successfully');
+            // ✅ CRITICAL: Track video play when script loads
+            if (window.trackVideoPlay) window.trackVideoPlay();
             window.vslVideoLoaded = true;
           };
           document.head.appendChild(s);
@@ -97,6 +108,7 @@ export const VideoSection: React.FC = () => {
       })();
     `;
     document.head.appendChild(script);
+    console.log('🔄 New VTurb script injected');
   };
 
   return (
@@ -104,7 +116,7 @@ export const VideoSection: React.FC = () => {
       {/* Fixed aspect ratio container for mobile VSL */}
       <div className="relative w-full max-w-sm mx-auto">
         <div className="aspect-[9/16] rounded-2xl overflow-hidden shadow-2xl bg-black relative">
-          {/* VTurb Video Container - FIXED */}
+          {/* ✅ UPDATED: VTurb Video Container with better loading states */}
           <div
             id="vid_683ba3d1b87ae17c6e07e7db"
             className="absolute inset-0 w-full h-full z-30 cursor-pointer"
@@ -115,7 +127,7 @@ export const VideoSection: React.FC = () => {
               width: '100%',
               height: '100%',
               touchAction: 'manipulation' // ✅ FIXED: Better touch interaction
-            }}
+            }} 
             onClick={() => {
               // ✅ FIXED: Ensure video can be clicked on mobile
               console.log('🎬 Video container clicked');
@@ -145,11 +157,11 @@ export const VideoSection: React.FC = () => {
             />
 
             {/* Loading Overlay */}
-            {isLoading && !hasError && !window.vslVideoLoaded && (
+            {(isLoading || !window.vslVideoLoaded) && !hasError && (
               <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-20">
                 <div className="text-center text-white">
-                  <div className="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin mb-4 mx-auto"></div>
-                  <p className="text-sm font-medium">Carregando vídeo...</p>
+                  <RefreshCw className="w-16 h-16 text-white/80 animate-spin mb-4 mx-auto" />
+                  <p className="text-sm font-medium">Carregando vídeo principal...</p>
                 </div>
               </div>
             )}
@@ -158,7 +170,7 @@ export const VideoSection: React.FC = () => {
             {hasError && (
               <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-20">
                 <div className="text-center text-white p-6">
-                  <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mb-4 mx-auto">
+                  <div className="w-16 h-16 bg-red-500/30 rounded-full flex items-center justify-center mb-4 mx-auto">
                     <Play className="w-8 h-8 text-red-400" />
                   </div>
                   <p className="text-sm font-medium mb-4">Erro ao carregar o vídeo</p>
@@ -166,7 +178,7 @@ export const VideoSection: React.FC = () => {
                     onClick={handleRetryLoad}
                     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg text-sm transition-colors min-h-[44px]"
                     style={{ touchAction: 'manipulation' }}
-                  >
+                  > 
                     Tentar novamente
                   </button>
                 </div>
@@ -174,7 +186,7 @@ export const VideoSection: React.FC = () => {
             )}
 
             {/* ✅ FIXED: Play Button Overlay with better mobile interaction */}
-            {!window.vslVideoLoaded && (
+            {!window.vslVideoLoaded && !hasError && (
             <div 
               className="absolute inset-0 flex items-center justify-center z-25 cursor-pointer"
               style={{ touchAction: 'manipulation' }}
@@ -185,7 +197,7 @@ export const VideoSection: React.FC = () => {
                 if (videoContainer) {
                   videoContainer.click();
                 }
-              }}
+              }} 
             >
               <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white/30 hover:bg-white/30 transition-colors">
                 <Play className="w-10 h-10 text-white ml-1" />

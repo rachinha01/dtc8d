@@ -21,6 +21,7 @@ export const useAnalytics = () => {
   const sessionRecordId = useRef<string | null>(null);
   const isInitialized = useRef<boolean>(false);
   const isBrazilianIP = useRef<boolean>(false); // ✅ NEW: Track if IP is Brazilian
+  const pageStartTime = useRef<number>(Date.now()); // ✅ NEW: Track when user entered page
 
   function generateSessionId(): string {
     return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -325,6 +326,7 @@ export const useAnalytics = () => {
     // Prevent multiple initializations
     if (isInitialized.current) return;
     isInitialized.current = true;
+    pageStartTime.current = Date.now(); // ✅ Record page start time
 
     const initializeAnalytics = async () => {
       try {
@@ -336,6 +338,7 @@ export const useAnalytics = () => {
         if (!isBrazilianIP.current) {
           // Track page enter with geolocation data
           await trackEvent('page_enter', { 
+            page_start_time: pageStartTime.current,
             country: geolocationData.current?.country_name || 'Unknown',
             city: geolocationData.current?.city || 'Unknown',
             region: geolocationData.current?.region || 'Unknown'
@@ -358,8 +361,10 @@ export const useAnalytics = () => {
       // ✅ NEW: Only track page exit if not Brazilian IP
       if (!isBrazilianIP.current) {
         const timeOnPage = Date.now() - pageEnterTime.current;
+        const totalTimeOnPage = Date.now() - pageStartTime.current;
         trackEvent('page_exit', { 
           time_on_page_ms: timeOnPage,
+          total_time_on_page_ms: totalTimeOnPage,
           country: geolocationData.current?.country_name || 'Unknown'
         });
       }
@@ -376,8 +381,10 @@ export const useAnalytics = () => {
         stopPingInterval();
         
         const timeOnPage = Date.now() - pageEnterTime.current;
+        const totalTimeOnPage = Date.now() - pageStartTime.current;
         trackEvent('page_exit', { 
           time_on_page_ms: timeOnPage,
+          total_time_on_page_ms: totalTimeOnPage,
           country: geolocationData.current?.country_name || 'Unknown'
         });
       } else {
@@ -406,11 +413,15 @@ export const useAnalytics = () => {
   const trackVideoPlay = () => {
     if (isBrazilianIP.current) return; // ✅ SKIP if Brazilian
     
+    // ✅ NEW: Track video play as VTurb loading successfully
     if (!hasTrackedVideoPlay.current) {
       hasTrackedVideoPlay.current = true;
-      console.log('🎬 TRACKING VIDEO PLAY - Enviando evento para Supabase');
+      console.log('🎬 TRACKING VIDEO PLAY (VTurb loaded successfully) - Enviando evento para Supabase');
       trackEvent('video_play', { 
-        country: geolocationData.current?.country_name || 'Unknown'
+        country: geolocationData.current?.country_name || 'Unknown',
+        vturb_loaded: true,
+        video_container_id: '683ba3d1b87ae17c6e07e7db',
+        timestamp: Date.now()
       });
     } else {
       console.log('⚠️ Video play já foi tracked para esta sessão');
@@ -421,15 +432,20 @@ export const useAnalytics = () => {
     if (isBrazilianIP.current) return; // ✅ SKIP if Brazilian
     
     // ✅ NEW: Track when user reaches the pitch moment (35:55 = 2155 seconds) AND scroll to purchase
-    if (currentTime >= 2155 && !hasTrackedPitchReached.current) {
+    // ✅ UPDATED: Now "video progress" means total time on page, not video time
+    const totalTimeOnPage = Math.floor((Date.now() - pageStartTime.current) / 1000);
+    
+    // Check if user has been on page for 35min55s (2155 seconds)
+    if (totalTimeOnPage >= 2155 && !hasTrackedPitchReached.current) {
       hasTrackedPitchReached.current = true;
       trackEvent('pitch_reached', { 
         milestone: 'pitch_reached_35_55',
-        time_reached: currentTime,
-        current_time: currentTime,
+        time_reached: totalTimeOnPage,
+        total_time_on_page: totalTimeOnPage,
+        actual_video_time: currentTime, // Keep original video time for reference
         country: geolocationData.current?.country_name || 'Unknown'
       });
-      console.log('🎯 User reached pitch moment at 35:55 (2155 seconds)');
+      console.log('🎯 User has been on page for 35:55 (2155 seconds) - pitch moment reached');
       
       // ✅ NEW: Auto scroll to purchase button when pitch is reached
       setTimeout(() => {
@@ -438,29 +454,15 @@ export const useAnalytics = () => {
     }
     
     const progressPercent = (currentTime / duration) * 100;
+    const totalTimeOnPage = Math.floor((Date.now() - pageStartTime.current) / 1000);
     
-    // Track lead reached at 7:45 (465 seconds)
-    if (currentTime >= 465 && !hasTrackedLeadReached.current) {
+    // ✅ UPDATED: Track lead reached when user has been on page for 7:45 (465 seconds)
+    if (totalTimeOnPage >= 465 && !hasTrackedLeadReached.current) {
       hasTrackedLeadReached.current = true;
       trackEvent('video_progress', { 
         milestone: 'lead_reached',
-        time_reached: currentTime,
-        current_time: currentTime,
-        country: geolocationData.current?.country_name || 'Unknown'
-      });
-    }
-    
-    // Track pitch reached at 35:55 (2155 seconds)
-    if (currentTime >= 2155 && !hasTrackedPitchReached.current) {
-      hasTrackedPitchReached.current = true;
-      trackEvent('video_progress', { 
-        milestone: 'pitch_reached',
-        time_reached: currentTime,
-        current_time: currentTime,
-        country: geolocationData.current?.country_name || 'Unknown'
-      });
-    }
-
+        time_reached: totalTimeOnPage,
+        total_time_on_page: totalTimeOnPage,
     // Track progress milestones every 25%
     const milestone25 = Math.floor(duration * 0.25);
     const milestone50 = Math.floor(duration * 0.50);
@@ -469,19 +471,22 @@ export const useAnalytics = () => {
     if (currentTime >= milestone25 && currentTime < milestone50) {
       trackEvent('video_progress', { 
         progress: 25, 
-        current_time: currentTime,
+        actual_video_time: currentTime,
+        total_time_on_page: totalTimeOnPage,
         country: geolocationData.current?.country_name || 'Unknown'
       });
     } else if (currentTime >= milestone50 && currentTime < milestone75) {
       trackEvent('video_progress', { 
         progress: 50, 
-        current_time: currentTime,
+        actual_video_time: currentTime,
+        total_time_on_page: totalTimeOnPage,
         country: geolocationData.current?.country_name || 'Unknown'
       });
     } else if (currentTime >= milestone75) {
       trackEvent('video_progress', { 
         progress: 75, 
-        current_time: currentTime,
+        actual_video_time: currentTime,
+        total_time_on_page: totalTimeOnPage,
         country: geolocationData.current?.country_name || 'Unknown'
       });
     }

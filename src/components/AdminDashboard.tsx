@@ -342,26 +342,30 @@ export const AdminDashboard: React.FC = () => {
         .sort((a, b) => b.count - a.count)
         .slice(0, 5);
 
-      // Calculate video play rate
+      // ✅ UPDATED: Calculate video play rate (VTurb loaded successfully)
       const sessionsWithVideoPlay = sessions.filter(session =>
-        session.some(event => event.event_type === 'video_play')
+        session.some(event => 
+          event.event_type === 'video_play' && 
+          event.event_data?.vturb_loaded === true
+        )
       ).length;
       const videoPlayRate = totalSessions > 0 ? (sessionsWithVideoPlay / totalSessions) * 100 : 0;
 
-      // Calculate pitch reach rate (35:55 = 2155 seconds)
+      // ✅ UPDATED: Calculate pitch reach rate (user on page for 35:55 = 2155 seconds)
       const sessionsWithPitchReached = sessions.filter(session =>
         session.some(event => 
-          event.event_type === 'video_progress' && 
-          (event.event_data?.current_time >= 2155 || event.event_data?.milestone === 'pitch_reached')
+          event.event_type === 'pitch_reached' || 
+          (event.event_type === 'video_progress' && 
+           (event.event_data?.total_time_on_page >= 2155 || event.event_data?.milestone === 'pitch_reached'))
         )
       ).length;
       const pitchReachRate = totalSessions > 0 ? (sessionsWithPitchReached / totalSessions) * 100 : 0;
 
-      // Calculate lead reach rate (7:45 = 465 seconds)
+      // ✅ UPDATED: Calculate lead reach rate (user on page for 7:45 = 465 seconds)
       const sessionsWithLeadReached = sessions.filter(session =>
         session.some(event => 
           event.event_type === 'video_progress' && 
-          (event.event_data?.current_time >= 465 || event.event_data?.milestone === 'lead_reached')
+          (event.event_data?.total_time_on_page >= 465 || event.event_data?.milestone === 'lead_reached')
         )
       ).length;
       const leadReachRate = totalSessions > 0 ? (sessionsWithLeadReached / totalSessions) * 100 : 0;
@@ -415,40 +419,45 @@ export const AdminDashboard: React.FC = () => {
         '6-bottle': totalSessions > 0 ? ((offerClicksByType['6-bottle'] || 0) / totalSessions) * 100 : 0,
       };
 
-      // Calculate average time on page
+      // ✅ UPDATED: Calculate average time on page using total_time_on_page_ms
       const pageExitEvents = filteredEvents.filter(event => 
-        event.event_type === 'page_exit' && event.event_data?.time_on_page_ms
+        event.event_type === 'page_exit' && 
+        (event.event_data?.total_time_on_page_ms || event.event_data?.time_on_page_ms)
       );
       const totalTimeOnPage = pageExitEvents.reduce((sum, event) => 
-        sum + (event.event_data.time_on_page_ms || 0), 0
+        sum + (event.event_data.total_time_on_page_ms || event.event_data.time_on_page_ms || 0), 0
       );
       const averageTimeOnPage = pageExitEvents.length > 0 ? 
         totalTimeOnPage / pageExitEvents.length / 1000 : 0; // Convert to seconds
 
-      // Get recent sessions for the table with enhanced data
+      // ✅ UPDATED: Get recent sessions with total time on page
       const recentSessions = sessions.slice(0, 10).map(session => {
         const pageEnter = session.find(e => e.event_type === 'page_enter');
         const videoPlay = session.find(e => e.event_type === 'video_play');
         const leadReached = session.find(e => 
           e.event_type === 'video_progress' && 
-          (e.event_data?.current_time >= 465 || e.event_data?.milestone === 'lead_reached')
+          (e.event_data?.total_time_on_page >= 465 || e.event_data?.milestone === 'lead_reached')
         );
         const pitchReached = session.find(e => 
-          e.event_type === 'video_progress' && 
-          (e.event_data?.current_time >= 2155 || e.event_data?.milestone === 'pitch_reached')
+          e.event_type === 'pitch_reached' ||
+          (e.event_type === 'video_progress' && 
+           (e.event_data?.total_time_on_page >= 2155 || e.event_data?.milestone === 'pitch_reached'))
         );
         const offerClick = session.find(e => e.event_type === 'offer_click');
         const pageExit = session.find(e => e.event_type === 'page_exit');
         
-        // ✅ NEW: Encontrar o maior tempo de vídeo assistido
-        const videoProgressEvents = session.filter(e => 
-          e.event_type === 'video_progress' && 
-          e.event_data?.current_time
-        );
-        
-        const maxVideoTime = videoProgressEvents.length > 0 
-          ? Math.max(...videoProgressEvents.map(e => e.event_data.current_time || 0))
-          : 0;
+        // ✅ NEW: Calculate total time on page from page_exit event or current time
+        let totalTimeOnPage = 0;
+        if (pageExit?.event_data?.total_time_on_page_ms) {
+          totalTimeOnPage = Math.round(pageExit.event_data.total_time_on_page_ms / 1000);
+        } else if (pageExit?.event_data?.time_on_page_ms) {
+          totalTimeOnPage = Math.round(pageExit.event_data.time_on_page_ms / 1000);
+        } else if (pageEnter) {
+          // Calculate from page enter to now for active sessions
+          const enterTime = new Date(pageEnter.created_at).getTime();
+          const now = Date.now();
+          totalTimeOnPage = Math.round((now - enterTime) / 1000);
+        }
 
         const sessionEvent = session[0];
 
@@ -459,13 +468,13 @@ export const AdminDashboard: React.FC = () => {
           countryCode: sessionEvent.country_code || 'XX',
           city: sessionEvent.city || 'Unknown',
           ip: sessionEvent.ip || 'Unknown',
-          playedVideo: !!videoPlay,
+          playedVideo: !!videoPlay, // ✅ UPDATED: VTurb loaded successfully
           reachedLead: !!leadReached,
           reachedPitch: !!pitchReached,
           clickedOffer: offerClick?.event_data?.offer_type || null,
           timeOnPage: pageExit?.event_data?.time_on_page_ms ? 
             Math.round(pageExit.event_data.time_on_page_ms / 1000) : null,
-          maxVideoTime: maxVideoTime, // ✅ NEW: Tempo máximo de vídeo assistido
+          totalTimeOnPage: totalTimeOnPage, // ✅ NEW: Total time on page
           isLive: liveSessionsData.some(liveSession => 
             liveSession.sessionId === session[0].session_id
           ),
@@ -550,18 +559,18 @@ export const AdminDashboard: React.FC = () => {
     }
   };
   
-  // ✅ NEW: Função para formatar tempo de vídeo
-  const formatVideoTime = (seconds: number) => {
+  // ✅ NEW: Função para formatar tempo de página (não vídeo)
+  const formatPageTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.floor(seconds % 60);
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
   
-  // ✅ NEW: Função para mostrar progresso do vídeo
-  const getVideoProgress = (seconds: number) => {
+  // ✅ NEW: Função para mostrar progresso baseado no tempo na página
+  const getPageProgress = (seconds: number) => {
     if (seconds >= 2155) return '🎯 Pitch'; // 35:55
     if (seconds >= 465) return '📈 Lead'; // 7:45
-    if (seconds >= 60) return '▶️ Assistindo';
+    if (seconds >= 60) return '▶️ Navegando';
     if (seconds > 0) return '👀 Início';
     return '';
   };
@@ -858,13 +867,13 @@ export const AdminDashboard: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Video Play Rate */}
+                {/* ✅ UPDATED: Video Play Rate (VTurb loaded) */}
                 <div className="bg-white rounded-lg sm:rounded-xl shadow-sm p-3 sm:p-6 border border-gray-200">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                     <div className="mb-2 sm:mb-0">
-                      <p className="text-xs sm:text-sm font-medium text-gray-600">Play</p>
+                      <p className="text-xs sm:text-sm font-medium text-gray-600">VTurb</p>
                       <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">{analytics.videoPlayRate.toFixed(1)}%</p>
-                      <p className="text-xs text-gray-500">Vídeo</p>
+                      <p className="text-xs text-gray-500">Carregou</p>
                     </div>
                     <div className="bg-green-100 p-2 sm:p-3 rounded-lg self-end sm:self-auto">
                       <Play className="w-4 sm:w-6 h-4 sm:h-6 text-green-600" />
@@ -926,7 +935,7 @@ export const AdminDashboard: React.FC = () => {
                 </div>
               </div>
 
-              {/* Recent Sessions Table - Mobile optimized */}
+              {/* ✅ UPDATED: Recent Sessions Table with new column */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-200">
                 <div className="p-4 sm:p-6 border-b border-gray-200">
                   <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
@@ -948,10 +957,10 @@ export const AdminDashboard: React.FC = () => {
                           IP
                         </th>
                         <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Vídeo
+                          VTurb
                         </th>
                         <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Tempo Vídeo
+                          Tempo Página
                         </th>
                         <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Oferta
@@ -988,13 +997,13 @@ export const AdminDashboard: React.FC = () => {
                             </span>
                           </td>
                           <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">
-                            {session.maxVideoTime > 0 ? (
+                            {session.totalTimeOnPage > 0 ? (
                               <div className="flex flex-col">
                                 <span className="font-medium">
-                                  {formatVideoTime(session.maxVideoTime)}
+                                  {formatPageTime(session.totalTimeOnPage)}
                                 </span>
                                 <span className="text-xs text-gray-500">
-                                  {getVideoProgress(session.maxVideoTime)}
+                                  {getPageProgress(session.totalTimeOnPage)}
                                 </span>
                               </div>
                             ) : (
