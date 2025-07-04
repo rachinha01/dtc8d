@@ -439,6 +439,16 @@ export const AdminDashboard: React.FC = () => {
         );
         const offerClick = session.find(e => e.event_type === 'offer_click');
         const pageExit = session.find(e => e.event_type === 'page_exit');
+        
+        // ✅ NEW: Encontrar o maior tempo de vídeo assistido
+        const videoProgressEvents = session.filter(e => 
+          e.event_type === 'video_progress' && 
+          e.event_data?.current_time
+        );
+        
+        const maxVideoTime = videoProgressEvents.length > 0 
+          ? Math.max(...videoProgressEvents.map(e => e.event_data.current_time || 0))
+          : 0;
 
         const sessionEvent = session[0];
 
@@ -455,6 +465,7 @@ export const AdminDashboard: React.FC = () => {
           clickedOffer: offerClick?.event_data?.offer_type || null,
           timeOnPage: pageExit?.event_data?.time_on_page_ms ? 
             Math.round(pageExit.event_data.time_on_page_ms / 1000) : null,
+          maxVideoTime: maxVideoTime, // ✅ NEW: Tempo máximo de vídeo assistido
           isLive: liveSessionsData.some(liveSession => 
             liveSession.sessionId === session[0].session_id
           ),
@@ -537,6 +548,22 @@ export const AdminDashboard: React.FC = () => {
     } else {
       return `${remainingSeconds}s`;
     }
+  };
+  
+  // ✅ NEW: Função para formatar tempo de vídeo
+  const formatVideoTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+  
+  // ✅ NEW: Função para mostrar progresso do vídeo
+  const getVideoProgress = (seconds: number) => {
+    if (seconds >= 2155) return '🎯 Pitch'; // 35:55
+    if (seconds >= 465) return '📈 Lead'; // 7:45
+    if (seconds >= 60) return '▶️ Assistindo';
+    if (seconds > 0) return '👀 Início';
+    return '';
   };
 
   const formatDate = (dateString: string) => {
@@ -924,6 +951,9 @@ export const AdminDashboard: React.FC = () => {
                           Vídeo
                         </th>
                         <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Tempo Vídeo
+                        </th>
+                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Oferta
                         </th>
                       </tr>
@@ -956,6 +986,20 @@ export const AdminDashboard: React.FC = () => {
                             }`}>
                               {session.playedVideo ? 'Sim' : 'Não'}
                             </span>
+                          </td>
+                          <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">
+                            {session.maxVideoTime > 0 ? (
+                              <div className="flex flex-col">
+                                <span className="font-medium">
+                                  {formatVideoTime(session.maxVideoTime)}
+                                </span>
+                                <span className="text-xs text-gray-500">
+                                  {getVideoProgress(session.maxVideoTime)}
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="text-gray-400">-</span>
+                            )}
                           </td>
                           <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">
                             {session.clickedOffer ? (
