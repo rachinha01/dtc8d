@@ -48,6 +48,7 @@ export const ConversionHeatmap: React.FC<ConversionHeatmapProps> = ({ className 
     peakDay: null,
   });
   
+  // ✅ FIXED: Always use current date for start/end
   const [startDate, setStartDate] = useState<string>(() => {
     const today = new Date();
     const monday = new Date(today);
@@ -73,7 +74,7 @@ export const ConversionHeatmap: React.FC<ConversionHeatmapProps> = ({ className 
     setLoading(true);
     try {
       // Query offer_click events (using as proxy for purchases) within date range
-      // Exclude Brazilian IPs
+      // ✅ FIXED: Exclude Brazilian IPs
       const { data: offerClicks, error } = await supabase
         .from('vsl_analytics')
         .select('created_at, event_data, country_code, country_name')

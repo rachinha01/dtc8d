@@ -5,7 +5,7 @@ import { SalesChart } from './SalesChart';
 import { ConversionFunnel } from './ConversionFunnel';
 import { ConversionHeatmap } from './ConversionHeatmap';
 import { TrackingTestPanel } from './TrackingTestPanel';
-import { ManelChart } from './ManelChart'; // ✅ NEW: Import do gráfico do Manel
+import { ManelChart } from './ManelChart';
 import { 
   BarChart3, 
   Users, 
@@ -212,7 +212,7 @@ export const AdminDashboard: React.FC = () => {
   const fetchAnalytics = async () => {
     setLoading(true);
     try {
-      // ✅ FIXED: Always use current date for analytics
+      // ✅ FIXED: Always use current date for analytics - HOJE APENAS
       const today = new Date().toISOString().split('T')[0];
       
       // Get all analytics data with new geolocation fields for TODAY ONLY
