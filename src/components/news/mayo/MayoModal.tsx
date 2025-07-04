@@ -17,8 +17,8 @@ export const MayoModal: React.FC<MayoModalProps> = ({ onClose, article }) => {
           <div className="max-w-6xl mx-auto">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-8">
-                {/* Mayo Clinic Logo - CORRECTED */}
-                <img src="https://i.imgur.com/RegcEoX.png" alt="Mayo Clinic" className="h-12" />
+                {/* Mayo Clinic Logo - UPDATED */}
+                <img src="https://i.imgur.com/AYQHh2i.png" alt="Mayo Clinic" className="h-12" />
                 
                 {/* Navigation */}
                 <div className="hidden md:flex items-center gap-6 text-sm text-blue-900">

@@ -41,7 +41,7 @@ export const NewsSection: React.FC = () => {
     {
       id: 'mayo',
       source: '🏥 Mayo Clinic',
-      logo: 'https://i.imgur.com/RegcEoX.png',
+      logo: 'https://i.imgur.com/AYQHh2i.png', // ✅ TROCADO: Agora usa a imagem do WebMD
       title: 'The Science Behind Herbal Support for Men\'s Vitality',
       summary: 'Mayo Clinic explores the benefits and limitations of natural approaches, suggesting products like BlueDrops may complement traditional treatment.',
       buttonText: 'Read Full Article',
@@ -51,7 +51,7 @@ export const NewsSection: React.FC = () => {
     {
       id: 'webmd',
       source: '🌐 WebMD',
-      logo: 'https://i.imgur.com/AYQHh2i.png',
+      logo: 'https://i.imgur.com/RegcEoX.png', // ✅ TROCADO: Agora usa a imagem da Mayo Clinic
       title: 'Natural Male Enhancers Gaining Ground in 2025',
       summary: 'WebMD highlights studies on the use of simple ingredients to improve male sexual health and performance naturally.',
       buttonText: 'Read Full Article',

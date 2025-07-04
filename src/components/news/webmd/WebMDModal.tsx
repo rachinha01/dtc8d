@@ -17,8 +17,8 @@ export const WebMDModal: React.FC<WebMDModalProps> = ({ onClose, article }) => {
           <div className="max-w-6xl mx-auto">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-8">
-                {/* WebMD Logo - CORRECTED */}
-                <img src="https://i.imgur.com/AYQHh2i.png" alt="WebMD" className="h-8" />
+                {/* WebMD Logo - UPDATED */}
+                <img src="https://i.imgur.com/RegcEoX.png" alt="WebMD" className="h-8" />
                 
                 {/* Navigation */}
                 <div className="hidden md:flex items-center gap-6 text-sm">
