@@ -27,10 +27,11 @@ export const NewsSection: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number>();
 
+  // ✅ UPDATED: Logos trocadas e nomes removidos dos boxes
   const newsArticles: NewsArticle[] = [
     {
       id: 'cnn',
-      source: '🔴 CNN Health',
+      source: '', // ✅ REMOVED: Nome removido
       logo: 'https://i.imgur.com/0twf89j.png',
       title: 'A Surprising Natural Solution to Men\'s Performance Issues',
       summary: 'CNN reveals the growing demand for natural solutions among men over 40. Products like BlueDrops are gaining ground as alternatives to traditional treatments.',
@@ -40,8 +41,8 @@ export const NewsSection: React.FC = () => {
     },
     {
       id: 'mayo',
-      source: '🏥 Mayo Clinic',
-      logo: 'https://i.imgur.com/AYQHh2i.png', // ✅ TROCADO: Agora usa a imagem do WebMD
+      source: '', // ✅ REMOVED: Nome removido
+      logo: 'https://i.imgur.com/RegcEoX.png', // ✅ UPDATED: Agora usa a logo da Mayo Clinic
       title: 'The Science Behind Herbal Support for Men\'s Vitality',
       summary: 'Mayo Clinic explores the benefits and limitations of natural approaches, suggesting products like BlueDrops may complement traditional treatment.',
       buttonText: 'Read Full Article',
@@ -50,8 +51,8 @@ export const NewsSection: React.FC = () => {
     },
     {
       id: 'webmd',
-      source: '🌐 WebMD',
-      logo: 'https://i.imgur.com/RegcEoX.png', // ✅ TROCADO: Agora usa a imagem da Mayo Clinic
+      source: '', // ✅ REMOVED: Nome removido
+      logo: 'https://i.imgur.com/hEggmdK.png', // ✅ UPDATED: Nova logo do WebMD
       title: 'Natural Male Enhancers Gaining Ground in 2025',
       summary: 'WebMD highlights studies on the use of simple ingredients to improve male sexual health and performance naturally.',
       buttonText: 'Read Full Article',
@@ -60,7 +61,7 @@ export const NewsSection: React.FC = () => {
     }
   ];
 
-  // FIXED: Better animation for mobile
+  // Better animation for mobile
   const animateDragOffset = (targetOffset: number, duration: number = 150) => {
     const startOffset = dragOffset;
     const startTime = performance.now();
@@ -89,7 +90,7 @@ export const NewsSection: React.FC = () => {
     animationRef.current = requestAnimationFrame(animate);
   };
 
-  // FIXED: Better velocity calculation
+  // Better velocity calculation
   const calculateVelocity = (clientX: number) => {
     const now = performance.now();
     if (lastMoveTime > 0) {
@@ -103,7 +104,7 @@ export const NewsSection: React.FC = () => {
     setLastMoveX(clientX);
   };
 
-  // FIXED: Improved drag handlers for mobile
+  // Improved drag handlers for mobile
   const handleDragStart = (clientX: number) => {
     if (isTransitioning) return;
     
@@ -123,7 +124,7 @@ export const NewsSection: React.FC = () => {
     if (!isDragging || isTransitioning) return;
     
     const diff = clientX - startX;
-    const maxDrag = 80; // Reduced for better mobile feel
+    const maxDrag = 80;
     
     let clampedDiff = Math.max(-maxDrag * 1.2, Math.min(maxDrag * 1.2, diff));
     
@@ -137,7 +138,7 @@ export const NewsSection: React.FC = () => {
     setIsDragging(false);
     setIsTransitioning(true);
     
-    const threshold = 25; // Lower threshold for mobile
+    const threshold = 25;
     const velocityThreshold = 0.3;
     
     let shouldChange = false;
@@ -168,13 +169,11 @@ export const NewsSection: React.FC = () => {
     setLastMoveX(0);
   };
 
-  // FIXED: Better mouse events
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     handleDragStart(e.clientX);
   };
 
-  // FIXED: Improved touch events for mobile
   const handleTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length === 1) {
       e.preventDefault();
@@ -194,7 +193,7 @@ export const NewsSection: React.FC = () => {
     handleDragEnd();
   };
 
-  // FIXED: Better global mouse events
+  // Global mouse events
   useEffect(() => {
     const handleGlobalMouseMove = (e: MouseEvent) => {
       if (isDragging) {
@@ -235,10 +234,10 @@ export const NewsSection: React.FC = () => {
     setTimeout(() => setIsTransitioning(false), 200);
   };
 
-  // FIXED: Better card styling for mobile
+  // Better card styling for mobile
   const getCardStyle = (index: number) => {
     const position = index - currentNews;
-    const dragInfluence = dragOffset * 0.2; // Reduced influence for mobile
+    const dragInfluence = dragOffset * 0.2;
     
     let translateX = 0;
     let scale = 1;
@@ -251,25 +250,25 @@ export const NewsSection: React.FC = () => {
       opacity = 1 - Math.abs(dragOffset) * 0.001;
       zIndex = 10;
     } else if (position === 1 || (position === -2 && newsArticles.length === 3)) {
-      translateX = 220 + dragInfluence; // Reduced distance for mobile
-      scale = 0.95; // Larger scale for mobile
-      opacity = 0.8; // Higher opacity
+      translateX = 220 + dragInfluence;
+      scale = 0.95;
+      opacity = 0.8;
       zIndex = 5;
     } else if (position === -1 || (position === 2 && newsArticles.length === 3)) {
-      translateX = -220 + dragInfluence; // Reduced distance for mobile
-      scale = 0.95; // Larger scale for mobile
-      opacity = 0.8; // Higher opacity
+      translateX = -220 + dragInfluence;
+      scale = 0.95;
+      opacity = 0.8;
       zIndex = 5;
     } else {
-      translateX = position > 0 ? 300 : -300; // Reduced distance
+      translateX = position > 0 ? 300 : -300;
       scale = 0.9;
-      opacity = 0.6; // Higher opacity for visibility
+      opacity = 0.6;
       zIndex = 1;
     }
     
     return {
       transform: `translateX(${translateX}px) scale(${scale})`,
-      opacity: Math.max(0.3, opacity), // Higher minimum opacity
+      opacity: Math.max(0.3, opacity),
       zIndex,
       transition: isDragging ? 'none' : 'all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
     };
@@ -308,12 +307,12 @@ export const NewsSection: React.FC = () => {
           </p>
         </div>
 
-        {/* FIXED: News Slideshow Container - Better mobile support */}
+        {/* News Slideshow Container */}
         <div 
           ref={containerRef}
           className="relative h-[400px] mb-3"
           style={{ 
-            perspective: '800px', // Reduced perspective for mobile
+            perspective: '800px',
             touchAction: 'pan-y pinch-zoom'
           }}
           onMouseDown={handleMouseDown}
@@ -373,7 +372,7 @@ export const NewsSection: React.FC = () => {
   );
 };
 
-// FIXED: News Card Component with better mobile styling
+// ✅ UPDATED: News Card Component - Sem nomes dos sites, só logos
 const NewsCard: React.FC<{ 
   article: any; 
   isActive: boolean; 
@@ -385,15 +384,14 @@ const NewsCard: React.FC<{
       isDragging ? 'shadow-2xl' : 'shadow-lg'
     } ${isActive ? 'ring-2 ring-blue-300' : ''}`}>
       
-      {/* Source Header */}
-      <div className="flex items-center gap-3 mb-4">
+      {/* ✅ UPDATED: Source Header - Só logo, sem nome */}
+      <div className="flex items-center justify-center mb-4">
         <img 
           src={article.logo} 
-          alt={article.source}
-          className="h-6 sm:h-8 w-auto object-contain"
+          alt="News Source"
+          className="h-8 sm:h-10 w-auto object-contain"
           draggable={false}
         />
-        <span className="text-sm font-bold text-gray-700">{article.source}</span>
       </div>
 
       {/* Article Title */}
