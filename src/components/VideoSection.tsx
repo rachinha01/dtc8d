@@ -4,10 +4,13 @@ import { Play, Volume2, AlertTriangle, Clock, RefreshCw } from 'lucide-react';
 export const VideoSection: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     // Check if video is loaded
-    let loadingTimeout: NodeJS.Timeout;
+    let loadingTimeout: number;
+    let checkInterval: number;
+    
     const checkVideoLoad = () => {
       const videoContainer = document.getElementById('vid_683ba3d1b87ae17c6e07e7db');
       if (videoContainer) {
@@ -28,26 +31,36 @@ export const VideoSection: React.FC = () => {
     // Check immediately
     checkVideoLoad();
 
-    // Check periodically for up to 15 seconds
-    const interval = setInterval(checkVideoLoad, 1000);
-    loadingTimeout = setTimeout(() => {
-      clearInterval(interval);
-      if (isLoading) {
-        console.log('⚠️ Video loading timeout reached - showing error state');
-        setHasError(true);
-        setIsLoading(false);
-      }
-    }, 15000);
-    console.log('🎬 Starting video load check...');
+    try {
+      // Check periodically for up to 15 seconds
+      checkInterval = window.setInterval(checkVideoLoad, 1000);
+      loadingTimeout = window.setTimeout(() => {
+        window.clearInterval(checkInterval);
+        if (isLoading) {
+          console.log('⚠️ Video loading timeout reached - showing error state');
+          setHasError(true);
+          setIsLoading(false);
+        }
+      }, 15000);
+      console.log('🎬 Starting video load check...');
+    } catch (error) {
+      console.error('Error setting up video load check:', error);
+    }
 
     return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
+      try {
+        window.clearInterval(checkInterval);
+        window.clearTimeout(loadingTimeout);
+      } catch (error) {
+        console.error('Error cleaning up video load check:', error);
+      }
     };
   }, [isLoading]);
 
   // ✅ UPDATED: Better retry logic with more logging
   const handleRetryLoad = () => {
+    // Increment retry count
+    setRetryCount(prev => prev + 1);
     setIsLoading(true);
     setHasError(false);
     
@@ -61,10 +74,10 @@ export const VideoSection: React.FC = () => {
     // ✅ CRITICAL: Reset custom element registration flag
     window.vslVideoLoaded = false;
     if (window.vslCustomElementsRegistered) {
-      console.log('🔄 Resetting custom elements registration flag');
+      console.log('🔄 Retry #' + (retryCount + 1) + ': Resetting custom elements registration flag');
       window.vslCustomElementsRegistered = false;
     }
-    console.log('🔄 Attempting to reload VTurb script...');
+    console.log('🔄 Retry #' + (retryCount + 1) + ': Attempting to reload VTurb script...');
 
     // Re-inject script
     const script = document.createElement('script');
@@ -72,7 +85,7 @@ export const VideoSection: React.FC = () => {
     script.id = 'scr_683ba3d1b87ae17c6e07e7db';
     script.async = true;
     script.innerHTML = `
-      console.log('🔄 Executing VTurb script reload...');
+      console.log('🔄 Retry #${retryCount + 1}: Executing VTurb script reload...');
       (function() {
         try {
           // ✅ CRITICAL: Check if custom elements are already defined before proceeding
@@ -82,9 +95,10 @@ export const VideoSection: React.FC = () => {
           
           var s = document.createElement("script");
           s.src = "https://scripts.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/683ba3d1b87ae17c6e07e7db/player.js";
-          s.async = true;
+          s.async = true; 
+          s.defer = true;
           
-          console.log('🔄 Created new script element for VTurb');
+          console.log('🔄 Retry #${retryCount + 1}: Created new script element for VTurb');
           // ✅ CRITICAL: Handle custom element errors gracefully
           s.onerror = function(error) {
             console.error('Error reloading VTurb script:', error);
@@ -96,7 +110,7 @@ export const VideoSection: React.FC = () => {
           };
           
           s.onload = function() {
-            console.log('✅ VTurb player script loaded successfully');
+            console.log('✅ Retry #${retryCount + 1}: VTurb player script loaded successfully');
             // ✅ CRITICAL: Track video play when script loads
             if (window.trackVideoPlay) window.trackVideoPlay();
             window.vslVideoLoaded = true;
@@ -108,8 +122,33 @@ export const VideoSection: React.FC = () => {
       })();
     `;
     document.head.appendChild(script);
-    console.log('🔄 New VTurb script injected');
+    console.log('🔄 Retry #' + (retryCount + 1) + ': New VTurb script injected');
+    
+    // ✅ FIXED: Force reload after 3 retries
+    if (retryCount >= 3) {
+      console.log('🔄 Maximum retries reached, forcing page refresh');
+      // Save current scroll position
+      const scrollPos = window.scrollY;
+      localStorage.setItem('scrollPosition', scrollPos.toString());
+      
+      // Reload page after a short delay
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    }
   };
+  
+  // ✅ FIXED: Restore scroll position after reload
+  useEffect(() => {
+    const savedScrollPos = localStorage.getItem('scrollPosition');
+    if (savedScrollPos) {
+      const scrollPos = parseInt(savedScrollPos);
+      setTimeout(() => {
+        window.scrollTo(0, scrollPos);
+        localStorage.removeItem('scrollPosition');
+      }, 500);
+    }
+  }, []);
 
   return (
     <div className="w-full mb-6 sm:mb-8 animate-fadeInUp animation-delay-600">
@@ -159,9 +198,20 @@ export const VideoSection: React.FC = () => {
             {/* Loading Overlay */}
             {(isLoading || !window.vslVideoLoaded) && !hasError && (
               <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-20">
-                <div className="text-center text-white">
-                  <RefreshCw className="w-16 h-16 text-white/80 animate-spin mb-4 mx-auto" />
-                  <p className="text-sm font-medium">Carregando vídeo principal...</p>
+                <div className="text-center text-white p-4">
+                  <RefreshCw className="w-12 h-12 text-white/80 animate-spin mb-3 mx-auto" />
+                  <p className="text-sm font-medium mb-1">Carregando vídeo principal...</p>
+                  <p className="text-xs text-white/70">Aguarde um momento</p>
+                  
+                  {/* ✅ FIXED: Add manual retry button after 5 seconds */}
+                  {isLoading && (
+                    <button
+                      onClick={handleRetryLoad}
+                      className="mt-3 bg-blue-600/80 hover:bg-blue-700/80 text-white px-3 py-1.5 rounded text-xs transition-colors"
+                    >
+                      Tentar novamente
+                    </button>
+                  )}
                 </div>
               </div>
             )}
@@ -170,17 +220,29 @@ export const VideoSection: React.FC = () => {
             {hasError && (
               <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-20">
                 <div className="text-center text-white p-6">
-                  <div className="w-16 h-16 bg-red-500/30 rounded-full flex items-center justify-center mb-4 mx-auto">
-                    <Play className="w-8 h-8 text-red-400" />
+                  <div className="w-12 h-12 bg-red-500/30 rounded-full flex items-center justify-center mb-3 mx-auto">
+                    <AlertTriangle className="w-6 h-6 text-red-400" />
                   </div>
-                  <p className="text-sm font-medium mb-4">Erro ao carregar o vídeo</p>
+                  <p className="text-sm font-medium mb-3">Erro ao carregar o vídeo</p>
+                  <p className="text-xs text-white/70 mb-4">Tentativa {retryCount + 1} de 4</p>
                   <button
                     onClick={handleRetryLoad}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg text-sm transition-colors min-h-[44px]"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors min-h-[44px]"
                     style={{ touchAction: 'manipulation' }}
                   > 
                     Tentar novamente
                   </button>
+                  
+                  {/* ✅ FIXED: Add force reload button after 2 retries */}
+                  {retryCount >= 2 && (
+                    <button
+                      onClick={() => window.location.reload()}
+                      className="mt-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm transition-colors min-h-[44px] w-full"
+                      style={{ touchAction: 'manipulation' }}
+                    >
+                      Recarregar página
+                    </button>
+                  )}
                 </div>
               </div>
             )}

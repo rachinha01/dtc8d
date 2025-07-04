@@ -192,15 +192,29 @@ export const DoctorsSection: React.FC = () => {
   // Inject current doctor video when doctor changes
   useEffect(() => {
     const currentDoctorData = doctors[currentDoctor];
-    if (currentDoctorData.videoId) {
+    if (currentDoctorData.videoId && window.vslVideoLoaded) {
       setTimeout(() => {
-        // ✅ Only inject if main video is loaded
-        if (window.vslVideoLoaded) {
-          injectDoctorVideo(currentDoctorData.videoId);
-        } else {
-          console.log('⏳ Main video not ready, delaying doctor video injection');
-        }
+        injectDoctorVideo(currentDoctorData.videoId);
       }, 500);
+    } else if (currentDoctorData.videoId) {
+      console.log('⏳ Main video not ready, delaying doctor video injection');
+      
+      // ✅ FIXED: Set up a retry mechanism
+      const checkInterval = setInterval(() => {
+        if (window.vslVideoLoaded) {
+          clearInterval(checkInterval);
+          injectDoctorVideo(currentDoctorData.videoId);
+        }
+      }, 2000);
+      
+      // Clear interval after 30 seconds to prevent memory leaks
+      setTimeout(() => {
+        clearInterval(checkInterval);
+      }, 30000);
+      
+      return () => {
+        clearInterval(checkInterval);
+      };
     }
 
     // Cleanup function
@@ -210,6 +224,10 @@ export const DoctorsSection: React.FC = () => {
         const scriptToRemove = document.getElementById(`scr_${doctor.videoId}`);
         if (scriptToRemove) {
           scriptToRemove.remove();
+        try {
+          scriptToRemove.remove();
+        } catch (error) {
+          console.error('Error removing doctor video script:', error);
         }
       });
     };

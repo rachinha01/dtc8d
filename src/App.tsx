@@ -24,6 +24,67 @@ function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminDelayOverride, setAdminDelayOverride] = useState(false);
 
+  // ✅ NEW: Prevent white page after errors
+  useEffect(() => {
+    // Global error handler to prevent white page
+    const handleGlobalError = (event: ErrorEvent) => {
+      console.error('🚨 Global error caught:', event.error || event.message);
+      
+      // Prevent the error from causing a white screen
+      event.preventDefault();
+      
+      // Log to console for debugging
+      console.log('🛠️ Error details:', {
+        message: event.message,
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno,
+        error: event.error
+      });
+      
+      // Optional: Show a small error notification to the user
+      const errorDiv = document.createElement('div');
+      errorDiv.style.position = 'fixed';
+      errorDiv.style.bottom = '10px';
+      errorDiv.style.right = '10px';
+      errorDiv.style.backgroundColor = 'rgba(239, 68, 68, 0.9)';
+      errorDiv.style.color = 'white';
+      errorDiv.style.padding = '8px 12px';
+      errorDiv.style.borderRadius = '4px';
+      errorDiv.style.fontSize = '12px';
+      errorDiv.style.zIndex = '9999';
+      errorDiv.style.maxWidth = '300px';
+      errorDiv.textContent = 'Ocorreu um erro, mas estamos trabalhando para corrigir.';
+      
+      // Auto-remove after 5 seconds
+      setTimeout(() => {
+        if (document.body.contains(errorDiv)) {
+          document.body.removeChild(errorDiv);
+        }
+      }, 5000);
+      
+      document.body.appendChild(errorDiv);
+      
+      return true; // Prevents the error from bubbling up
+    };
+    
+    // Add global error handler
+    window.addEventListener('error', handleGlobalError);
+    
+    // Add unhandled rejection handler
+    window.addEventListener('unhandledrejection', (event) => {
+      console.error('🚨 Unhandled promise rejection:', event.reason);
+      event.preventDefault();
+    });
+    
+    return () => {
+      window.removeEventListener('error', handleGlobalError);
+      window.removeEventListener('unhandledrejection', (event) => {
+        event.preventDefault();
+      });
+    };
+  }, []);
+
   // ✅ NEW: Set default delay to 35min55s (2155 seconds)
   useEffect(() => {
     // Check if there's a stored delay, if not set to 35min55s
@@ -177,7 +238,7 @@ function App() {
     // Inject VTurb script with proper error handling and optimization
     const injectVTurbScript = () => {
       // ✅ CRITICAL: Prevent multiple VTurb custom element registrations
-      if (window.vslVideoLoaded) {
+      if (window.vslVideoLoaded && document.getElementById('vid_683ba3d1b87ae17c6e07e7db')?.querySelector('video')) {
         console.log('🛡️ VTurb script already loaded, skipping injection');
         return;
       }
@@ -192,7 +253,7 @@ function App() {
       script.type = 'text/javascript';
       script.id = 'scr_683ba3d1b87ae17c6e07e7db';
       script.async = true;
-      script.defer = true; // Add defer for better performance
+      script.defer = true;
       
       // Optimized VTurb injection
       script.innerHTML = `
@@ -205,6 +266,13 @@ function App() {
             window.mainVideoId = '683ba3d1b87ae17c6e07e7db';
             window.smartplayer = window.smartplayer || { instances: {} };
             console.log('🎬 Initializing MAIN video player: 683ba3d1b87ae17c6e07e7db');
+
+            // ✅ FIXED: Prevent multiple script injections
+            if (document.querySelector('script[src*="683ba3d1b87ae17c6e07e7db/player.js"]')) {
+              console.log('🛡️ VTurb script already in DOM, skipping duplicate injection');
+              window.vslVideoLoaded = true;
+              return;
+            }
             
             var s = document.createElement("script");
             s.src = "https://scripts.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/683ba3d1b87ae17c6e07e7db/player.js";
@@ -274,12 +342,36 @@ function App() {
     // Delay script injection to improve initial page load
     const scriptTimeout = setTimeout(() => {
       injectVTurbScript();
-      setIsVideoLoaded(true);
+      
+      // ✅ FIXED: Check if video actually loaded
+      const checkVideoLoaded = () => {
+        const videoContainer = document.getElementById('vid_683ba3d1b87ae17c6e07e7db');
+        if (videoContainer && (videoContainer.querySelector('video') || window.vslVideoLoaded)) {
+          setIsVideoLoaded(true);
+          console.log('✅ Video container has video element, marking as loaded');
+        } else {
+          console.log('⏳ Waiting for video to load...');
+        }
+      };
+      
+      // Check immediately and then periodically
+      checkVideoLoaded();
+      const videoCheckInterval = setInterval(checkVideoLoaded, 1000);
+      
+      // Stop checking after 15 seconds
+      setTimeout(() => {
+        clearInterval(videoCheckInterval);
+        setIsVideoLoaded(true); // Force to true even if not detected
+      }, 15000);
       
       // Setup video tracking after script loads
       setTimeout(() => {
         setupVideoTracking();
-      }, 5000); // ✅ Increased delay to ensure video loads first
+      }, 3000);
+      
+      return () => {
+        clearInterval(videoCheckInterval);
+      };
     }, 500); // ✅ Faster injection for immediate video load
 
     return () => {
@@ -315,8 +407,8 @@ function App() {
     // Setup tracking for VTurb player with improved detection
     let hasTrackedPlay = false;
     let trackingInterval: NodeJS.Timeout;
-    let trackingAttempts = 0;
-    const maxAttempts = 30; // 30 tentativas = 60 segundos
+    let trackingAttempts = 0; 
+    const maxAttempts = 15; // ✅ FIXED: Reduzido para 15 tentativas = 30 segundos
 
     const checkForPlayer = () => {
       try {
@@ -332,6 +424,15 @@ function App() {
         }
         
         console.log('✅ Container do vídeo encontrado:', playerContainer);
+
+        // ✅ FIXED: Force tracking if video is loaded
+        if (window.vslVideoLoaded && !hasTrackedPlay) {
+          hasTrackedPlay = true;
+          trackVideoPlay();
+          console.log('🎬 Video play tracked via vslVideoLoaded flag');
+          clearInterval(trackingInterval);
+          return;
+        }
         
         // Method 1: Check for smartplayer instances
         if (window.smartplayer && window.smartplayer.instances) {
@@ -502,15 +603,31 @@ function App() {
     // Start checking for player immediately and then periodically
     console.log('🚀 Iniciando setup de tracking de vídeo...');
     checkForPlayer();
-    trackingInterval = setInterval(checkForPlayer, 2000);
+    
+    // ✅ FIXED: Use safer setInterval with try/catch
+    try {
+      trackingInterval = setInterval(() => {
+        try {
+          checkForPlayer();
+        } catch (error) {
+          console.error('Error in tracking interval:', error);
+        }
+      }, 2000);
+    } catch (error) {
+      console.error('Error setting up tracking interval:', error);
+    }
     
     // Stop checking after max attempts to avoid infinite loops
     setTimeout(() => {
-      if (trackingInterval) {
-        clearInterval(trackingInterval);
-        console.log('⏰ Timeout de tracking atingido - parando verificações');
+      try {
+        if (trackingInterval) {
+          clearInterval(trackingInterval);
+          console.log('⏰ Timeout de tracking atingido - parando verificações');
+        }
+      } catch (error) {
+        console.error('Error clearing tracking interval:', error);
       }
-    }, maxAttempts * 2000); // 60 segundos total
+    }, maxAttempts * 2000);
   };
 
   const closePopup = () => {

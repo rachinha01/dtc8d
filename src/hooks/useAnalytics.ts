@@ -20,6 +20,7 @@ export const useAnalytics = () => {
   const pingInterval = useRef<NodeJS.Timeout | null>(null);
   const sessionRecordId = useRef<string | null>(null);
   const isInitialized = useRef<boolean>(false);
+  const pageExitTracked = useRef<boolean>(false);
   const isBrazilianIP = useRef<boolean>(false); // ✅ NEW: Track if IP is Brazilian
   const pageStartTime = useRef<number>(Date.now()); // ✅ NEW: Track when user entered page
 
@@ -221,7 +222,7 @@ export const useAnalytics = () => {
   // Function to update last_ping for live user tracking
   const updatePing = async () => {
     if (!sessionRecordId.current || isBrazilianIP.current) return; // ✅ SKIP if Brazilian
-    
+
     try {
       await supabase
         .from('vsl_analytics')
@@ -252,7 +253,11 @@ export const useAnalytics = () => {
   // Stop ping interval
   const stopPingInterval = () => {
     if (pingInterval.current) {
-      clearInterval(pingInterval.current);
+      try {
+        clearInterval(pingInterval.current);
+      } catch (error) {
+        console.error('Error clearing ping interval:', error);
+      }
       pingInterval.current = null;
       console.log('Stopped ping interval');
     }
@@ -262,6 +267,17 @@ export const useAnalytics = () => {
     eventType: 'page_enter' | 'video_play' | 'video_progress' | 'pitch_reached' | 'offer_click' | 'page_exit',
     eventData?: any
   ) => {
+    // ✅ FIXED: Prevent multiple page_exit events
+    if (eventType === 'page_exit' && pageExitTracked.current) {
+      console.log('🛑 Page exit already tracked, skipping duplicate');
+      return;
+    }
+    
+    // Mark page_exit as tracked
+    if (eventType === 'page_exit') {
+      pageExitTracked.current = true;
+    }
+    
     try {
       console.log(`📊 TRACKING EVENT: ${eventType}`, eventData);
       
@@ -324,7 +340,10 @@ export const useAnalytics = () => {
   // Track page enter on mount - FIXED: Remove recursive call
   useEffect(() => {
     // Prevent multiple initializations
-    if (isInitialized.current) return;
+    if (isInitialized.current) {
+      console.log('🔄 Analytics already initialized, skipping');
+      return;
+    }
     isInitialized.current = true;
     pageStartTime.current = Date.now(); // ✅ Record page start time
 
@@ -357,16 +376,20 @@ export const useAnalytics = () => {
     // Track page exit on unmount and stop ping
     return () => {
       stopPingInterval();
-      
-      // ✅ NEW: Only track page exit if not Brazilian IP
-      if (!isBrazilianIP.current) {
-        const timeOnPage = Date.now() - pageEnterTime.current;
-        const totalTimeOnPage = Date.now() - pageStartTime.current;
-        trackEvent('page_exit', { 
-          time_on_page_ms: timeOnPage,
-          total_time_on_page_ms: totalTimeOnPage,
-          country: geolocationData.current?.country_name || 'Unknown'
-        });
+
+      try {
+        // ✅ NEW: Only track page exit if not Brazilian IP and not already tracked
+        if (!isBrazilianIP.current && !pageExitTracked.current) {
+          const timeOnPage = Date.now() - pageEnterTime.current;
+          const totalTimeOnPage = Date.now() - pageStartTime.current;
+          trackEvent('page_exit', { 
+            time_on_page_ms: timeOnPage,
+            total_time_on_page_ms: totalTimeOnPage,
+            country: geolocationData.current?.country_name || 'Unknown'
+          });
+        }
+      } catch (error) {
+        console.error('Error tracking page exit:', error);
       }
     };
   }, []); // Empty dependency array to run only once
@@ -374,25 +397,24 @@ export const useAnalytics = () => {
   // Track page visibility changes
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (isBrazilianIP.current) return; // ✅ SKIP if Brazilian
-      
-      if (document.hidden) {
-        // Stop ping when page is hidden
-        stopPingInterval();
+      try {
+        if (isBrazilianIP.current) return; // ✅ SKIP if Brazilian
         
-        const timeOnPage = Date.now() - pageEnterTime.current;
-        const totalTimeOnPage = Date.now() - pageStartTime.current;
-        trackEvent('page_exit', { 
-          time_on_page_ms: timeOnPage,
-          total_time_on_page_ms: totalTimeOnPage,
-          country: geolocationData.current?.country_name || 'Unknown'
-        });
-      } else {
-        // Resume ping when page becomes visible again
-        if (sessionRecordId.current) {
-          startPingInterval();
-          updatePing(); // Immediate ping on visibility change
+        if (document.hidden) {
+          // Stop ping when page is hidden
+          stopPingInterval();
+          
+          // ✅ FIXED: Don't track page_exit on visibility change, only on actual page unload
+          // This prevents the "timeout is not defined" error
+        } else {
+          // Resume ping when page becomes visible again
+          if (sessionRecordId.current) {
+            startPingInterval();
+            updatePing(); // Immediate ping on visibility change
+          }
         }
+      } catch (error) {
+        console.error('Error in visibility change handler:', error);
       }
     };
 
@@ -403,7 +425,61 @@ export const useAnalytics = () => {
   // Handle beforeunload to stop ping
   useEffect(() => {
     const handleBeforeUnload = () => {
-      stopPingInterval();
+      try {
+        stopPingInterval();
+        
+        // ✅ FIXED: Track page_exit on actual page unload
+        if (!isBrazilianIP.current && !pageExitTracked.current) {
+          const timeOnPage = Date.now() - pageEnterTime.current;
+          const totalTimeOnPage = Date.now() - pageStartTime.current;
+          
+          // Use synchronous approach for beforeunload
+          const data = { 
+            time_on_page_ms: timeOnPage,
+            total_time_on_page_ms: totalTimeOnPage,
+            country: geolocationData.current?.country_name || 'Unknown'
+          };
+          
+          // Mark as tracked to prevent duplicates
+          pageExitTracked.current = true;
+          
+          // Use navigator.sendBeacon if available for more reliable tracking on page exit
+          if (navigator.sendBeacon) {
+            const endpoint = `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/vsl_analytics`;
+            const payload = {
+              session_id: sessionId.current,
+              event_type: 'page_exit',
+              event_data: data,
+              timestamp: new Date().toISOString(),
+              ip: geolocationData.current?.ip || null,
+              country_code: geolocationData.current?.country_code || null,
+              country_name: geolocationData.current?.country_name || null,
+              city: geolocationData.current?.city || null,
+              region: geolocationData.current?.region || null,
+              last_ping: new Date().toISOString(),
+            };
+            
+            const headers = {
+              'Content-Type': 'application/json',
+              'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+              'Prefer': 'return=minimal'
+            };
+            
+            navigator.sendBeacon(
+              endpoint,
+              new Blob([JSON.stringify(payload)], { type: 'application/json' })
+            );
+            
+            console.log('📤 Page exit tracked via sendBeacon');
+          } else {
+            // Fallback to regular tracking
+            trackEvent('page_exit', data);
+          }
+        }
+      } catch (error) {
+        console.error('Error in beforeunload handler:', error);
+      }
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
