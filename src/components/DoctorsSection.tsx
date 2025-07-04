@@ -278,7 +278,7 @@ export const DoctorsSection: React.FC = () => {
     if (!isDragging || isTransitioning) return;
     
     const diff = clientX - startX;
-    const maxDrag = 100; // Reduced for better mobile feel
+    const maxDrag = 120; // Increased for better detection
     
     let clampedDiff = Math.max(-maxDrag * 1.2, Math.min(maxDrag * 1.2, diff));
     
@@ -292,7 +292,7 @@ export const DoctorsSection: React.FC = () => {
     setIsDragging(false);
     setIsTransitioning(true);
     
-    const threshold = 30; // Lower threshold for mobile
+    const threshold = 40; // Increased threshold
     const velocityThreshold = 0.3;
     
     let shouldChange = false;
@@ -323,29 +323,30 @@ export const DoctorsSection: React.FC = () => {
     setLastMoveX(0);
   };
 
-  // Better mouse events
+  // ✅ FIXED: Don't prevent default immediately
   const handleMouseDown = (e: React.MouseEvent) => {
-    e.preventDefault();
     handleDragStart(e.clientX);
   };
 
-  // Improved touch events for mobile
+  // ✅ FIXED: Don't prevent default on touch start
   const handleTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length === 1) {
-      e.preventDefault();
       handleDragStart(e.touches[0].clientX);
     }
   };
 
+  // ✅ FIXED: Only prevent default when actually dragging
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (e.touches.length === 1) {
+    if (e.touches.length === 1 && isDragging && Math.abs(dragOffset) > 10) {
       e.preventDefault();
+      handleDragMove(e.touches[0].clientX);
+    } else if (e.touches.length === 1) {
       handleDragMove(e.touches[0].clientX);
     }
   };
 
+  // ✅ FIXED: Don't prevent default on touch end
   const handleTouchEnd = (e: React.TouchEvent) => {
-    e.preventDefault();
     handleDragEnd();
   };
 
@@ -364,7 +365,7 @@ export const DoctorsSection: React.FC = () => {
     };
 
     if (isDragging) {
-      document.addEventListener('mousemove', handleGlobalMouseMove, { passive: false });
+      document.addEventListener('mousemove', handleGlobalMouseMove, { passive: true });
       document.addEventListener('mouseup', handleGlobalMouseUp, { passive: true });
     }
 
@@ -467,8 +468,8 @@ export const DoctorsSection: React.FC = () => {
         ref={containerRef}
         className="relative h-[500px] mb-3"
         style={{ 
-          perspective: '1000px', // Reduced perspective for mobile
-          touchAction: 'pan-y pinch-zoom'
+          perspective: '1000px',
+          touchAction: 'manipulation' // ✅ FIXED: Better touch action
         }}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
@@ -479,7 +480,7 @@ export const DoctorsSection: React.FC = () => {
         {doctors.map((doctor, index) => (
           <div
             key={doctor.id}
-            className="absolute inset-0 flex items-center justify-center cursor-grab active:cursor-grabbing select-none"
+            className="absolute inset-0 flex items-center justify-center select-none"
             style={getCardStyle(index)}
           >
             <DoctorCard 

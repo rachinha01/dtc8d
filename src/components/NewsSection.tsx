@@ -124,7 +124,7 @@ export const NewsSection: React.FC = () => {
     if (!isDragging || isTransitioning) return;
     
     const diff = clientX - startX;
-    const maxDrag = 80;
+    const maxDrag = 120; // Increased for better detection
     
     let clampedDiff = Math.max(-maxDrag * 1.2, Math.min(maxDrag * 1.2, diff));
     
@@ -138,7 +138,7 @@ export const NewsSection: React.FC = () => {
     setIsDragging(false);
     setIsTransitioning(true);
     
-    const threshold = 25;
+    const threshold = 40; // Increased threshold
     const velocityThreshold = 0.3;
     
     let shouldChange = false;
@@ -169,27 +169,31 @@ export const NewsSection: React.FC = () => {
     setLastMoveX(0);
   };
 
+  // ✅ FIXED: Only prevent default for actual drags, not clicks
   const handleMouseDown = (e: React.MouseEvent) => {
-    e.preventDefault();
+    // Don't prevent default immediately - let clicks work
     handleDragStart(e.clientX);
   };
 
+  // ✅ FIXED: Don't prevent default on touch start
   const handleTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length === 1) {
-      e.preventDefault();
       handleDragStart(e.touches[0].clientX);
     }
   };
 
+  // ✅ FIXED: Only prevent default if actually dragging
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (e.touches.length === 1) {
-      e.preventDefault();
+    if (e.touches.length === 1 && isDragging && Math.abs(dragOffset) > 10) {
+      e.preventDefault(); // Only prevent when actually dragging
+      handleDragMove(e.touches[0].clientX);
+    } else if (e.touches.length === 1) {
       handleDragMove(e.touches[0].clientX);
     }
   };
 
+  // ✅ FIXED: Don't prevent default on touch end
   const handleTouchEnd = (e: React.TouchEvent) => {
-    e.preventDefault();
     handleDragEnd();
   };
 
@@ -208,7 +212,7 @@ export const NewsSection: React.FC = () => {
     };
 
     if (isDragging) {
-      document.addEventListener('mousemove', handleGlobalMouseMove, { passive: false });
+      document.addEventListener('mousemove', handleGlobalMouseMove, { passive: true });
       document.addEventListener('mouseup', handleGlobalMouseUp, { passive: true });
     }
 
@@ -313,7 +317,7 @@ export const NewsSection: React.FC = () => {
           className="relative h-[400px] mb-3"
           style={{ 
             perspective: '800px',
-            touchAction: 'pan-y pinch-zoom'
+            touchAction: 'manipulation' // ✅ FIXED: Better touch action
           }}
           onMouseDown={handleMouseDown}
           onTouchStart={handleTouchStart}
@@ -324,7 +328,7 @@ export const NewsSection: React.FC = () => {
           {newsArticles.map((article, index) => (
             <div
               key={article.id}
-              className="absolute inset-0 flex items-center justify-center cursor-grab active:cursor-grabbing select-none"
+              className="absolute inset-0 flex items-center justify-center select-none"
               style={getCardStyle(index)}
             >
               <NewsCard 
@@ -407,11 +411,23 @@ const NewsCard: React.FC<{
       {/* Read Button */}
       <button
         onClick={(e) => {
+          // ✅ CRITICAL: Stop propagation and prevent drag interference
           e.stopPropagation();
+          e.preventDefault();
+          
+          // ✅ Only trigger if not dragging
+          if (!isDragging) {
           onRead();
+          }
         }}
-        className="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold py-3 px-4 rounded-xl transition-colors text-sm touch-manipulation"
-        style={{ WebkitTapHighlightColor: 'transparent' }}
+        className="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold py-4 px-4 rounded-xl transition-colors text-sm"
+        style={{ 
+          WebkitTapHighlightColor: 'transparent',
+          touchAction: 'manipulation',
+          minHeight: '44px', // ✅ Minimum touch target size
+          position: 'relative',
+          zIndex: 30 // ✅ Higher z-index than drag container
+        }}
       >
         {article.buttonText}
       </button>

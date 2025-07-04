@@ -107,13 +107,18 @@ export const VideoSection: React.FC = () => {
           {/* VTurb Video Container - FIXED */}
           <div
             id="vid_683ba3d1b87ae17c6e07e7db"
-            className="absolute inset-0 w-full h-full z-30"
+            className="absolute inset-0 w-full h-full z-30 cursor-pointer"
             style={{
               position: 'absolute',
               top: 0,
               left: 0,
               width: '100%',
-              height: '100%'
+              height: '100%',
+              touchAction: 'manipulation' // ✅ FIXED: Better touch interaction
+            }}
+            onClick={() => {
+              // ✅ FIXED: Ensure video can be clicked on mobile
+              console.log('🎬 Video container clicked');
             }}
           >
             {/* ✅ Main video content will be injected here by VTurb */}
@@ -121,19 +126,21 @@ export const VideoSection: React.FC = () => {
             <img 
               id="thumb_683ba3d1b87ae17c6e07e7db" 
               src="https://images.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/683ba3d1b87ae17c6e07e7db/thumbnail.jpg" 
-              className="absolute inset-0 w-full h-full object-cover"
+              className="absolute inset-0 w-full h-full object-cover cursor-pointer"
               alt="VSL Thumbnail"
               loading="eager"
+              style={{ touchAction: 'manipulation' }}
             />
             
             {/* Backdrop */}
             <div 
               id="backdrop_683ba3d1b87ae17c6e07e7db" 
-              className="absolute inset-0 w-full h-full"
+              className="absolute inset-0 w-full h-full cursor-pointer"
               style={{
                 WebkitBackdropFilter: 'blur(5px)',
                 backdropFilter: 'blur(5px)',
-                zIndex: 5
+                zIndex: 5,
+                touchAction: 'manipulation'
               }}
             />
 
@@ -157,7 +164,8 @@ export const VideoSection: React.FC = () => {
                   <p className="text-sm font-medium mb-4">Erro ao carregar o vídeo</p>
                   <button
                     onClick={handleRetryLoad}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg text-sm transition-colors min-h-[44px]"
+                    style={{ touchAction: 'manipulation' }}
                   >
                     Tentar novamente
                   </button>
@@ -165,10 +173,21 @@ export const VideoSection: React.FC = () => {
               </div>
             )}
 
-            {/* Play Button Overlay - Always visible for better UX */}
+            {/* ✅ FIXED: Play Button Overlay with better mobile interaction */}
             {!window.vslVideoLoaded && (
-            <div className="absolute inset-0 flex items-center justify-center z-25 pointer-events-none">
-              <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white/30">
+            <div 
+              className="absolute inset-0 flex items-center justify-center z-25 cursor-pointer"
+              style={{ touchAction: 'manipulation' }}
+              onClick={() => {
+                console.log('🎬 Play button clicked');
+                // Try to trigger video play
+                const videoContainer = document.getElementById('vid_683ba3d1b87ae17c6e07e7db');
+                if (videoContainer) {
+                  videoContainer.click();
+                }
+              }}
+            >
+              <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-2 border-white/30 hover:bg-white/30 transition-colors">
                 <Play className="w-10 h-10 text-white ml-1" />
               </div>
             </div>
