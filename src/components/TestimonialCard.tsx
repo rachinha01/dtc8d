@@ -56,21 +56,36 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
         </p>
       </div>
 
-      {/* Customer Video Testimonial Placeholder - Only show for active card */}
+      {/* READY: Customer Video Testimonial - VTurb integration */}
       {isActive && (
         <div className="mb-4">
           <div className="aspect-video rounded-xl overflow-hidden shadow-lg bg-gray-900 relative">
-            <div className="w-full h-full bg-gradient-to-br from-blue-800 to-blue-900 flex items-center justify-center">
-              <div className="text-center">
-                <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-3 mx-auto">
-                  <Play className="w-6 h-6 text-white ml-0.5" />
+            {/* VTurb Video Container - READY for your video IDs */}
+            <div
+              id={`testimonial_vid_${testimonial.videoId}`}
+              className="w-full h-full"
+              style={{
+                position: 'relative',
+                width: '100%',
+                height: '100%'
+              }}
+            >
+              {/* Video Placeholder while loading */}
+              <div className="w-full h-full bg-gradient-to-br from-blue-800 to-blue-900 flex items-center justify-center">
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-3 mx-auto">
+                    <Play className="w-6 h-6 text-white ml-0.5" />
+                  </div>
+                  <p className="text-white/90 text-base font-medium mb-1">
+                    {testimonial.name}
+                  </p>
+                  <p className="text-white/70 text-sm">
+                    Customer Story
+                  </p>
+                  <p className="text-white/50 text-xs mt-2">
+                    Video ID: {testimonial.videoId}
+                  </p>
                 </div>
-                <p className="text-white/90 text-base font-medium mb-1">
-                  {testimonial.name}
-                </p>
-                <p className="text-white/70 text-sm">
-                  Customer Story
-                </p>
               </div>
             </div>
           </div>

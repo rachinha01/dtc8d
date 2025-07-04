@@ -19,17 +19,21 @@ export const TestimonialsSection: React.FC = () => {
   const [dragOffset, setDragOffset] = useState(0);
   const [startX, setStartX] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [velocity, setVelocity] = useState(0);
+  const [lastMoveTime, setLastMoveTime] = useState(0);
+  const [lastMoveX, setLastMoveX] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
+  const animationRef = useRef<number>();
 
-  // Testimonials data - Simplified post style
+  // Testimonials data with VTurb video IDs
   const testimonials: Testimonial[] = [
     {
       id: 1,
       name: "Michael R.",
       location: "Texas",
       profileImage: "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop&crop=face",
-      videoId: "your_vturb_video_id_1",
+      videoId: "michael_testimonial_id", // Replace with actual VTurb video ID
       caption: "BlueDrops completely changed my life. I felt the difference in just 2 weeks!"
     },
     {
@@ -37,7 +41,7 @@ export const TestimonialsSection: React.FC = () => {
       name: "Robert S.",
       location: "California",
       profileImage: "https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop&crop=face",
-      videoId: "your_vturb_video_id_2",
+      videoId: "robert_testimonial_id", // Replace with actual VTurb video ID
       caption: "After 50, I thought there was no hope. BlueDrops proved me wrong!"
     },
     {
@@ -45,10 +49,52 @@ export const TestimonialsSection: React.FC = () => {
       name: "John O.",
       location: "Florida",
       profileImage: "https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop&crop=face",
-      videoId: "your_vturb_video_id_3",
+      videoId: "john_testimonial_id", // Replace with actual VTurb video ID
       caption: "My wife noticed the difference before I even told her about BlueDrops!"
     }
   ];
+
+  // Function to inject VTurb testimonial videos
+  const injectTestimonialVideo = (videoId: string) => {
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.id = `scr_testimonial_${videoId}`;
+    script.async = true;
+    script.innerHTML = `
+      var s=document.createElement("script");
+      s.src="https://scripts.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${videoId}/player.js";
+      s.async=true;
+      document.head.appendChild(s);
+    `;
+    
+    // Remove existing script if any
+    const existingScript = document.getElementById(`scr_testimonial_${videoId}`);
+    if (existingScript) {
+      existingScript.remove();
+    }
+    
+    document.head.appendChild(script);
+  };
+
+  // Inject current testimonial video when testimonial changes
+  useEffect(() => {
+    const currentTestimonialData = testimonials[currentTestimonial];
+    if (currentTestimonialData.videoId) {
+      setTimeout(() => {
+        injectTestimonialVideo(currentTestimonialData.videoId);
+      }, 300);
+    }
+
+    // Cleanup function
+    return () => {
+      testimonials.forEach((testimonial) => {
+        const scriptToRemove = document.getElementById(`scr_testimonial_${testimonial.videoId}`);
+        if (scriptToRemove) {
+          scriptToRemove.remove();
+        }
+      });
+    };
+  }, [currentTestimonial]);
 
   // Intersection Observer for lazy loading
   useEffect(() => {
@@ -69,67 +115,152 @@ export const TestimonialsSection: React.FC = () => {
     return () => observer.disconnect();
   }, []);
 
-  // Optimized drag handlers
+  // FIXED: Better animation for mobile
+  const animateDragOffset = (targetOffset: number, duration: number = 150) => {
+    const startOffset = dragOffset;
+    const startTime = performance.now();
+
+    const animate = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      const easeOut = 1 - Math.pow(1 - progress, 2);
+      const currentOffset = startOffset + (targetOffset - startOffset) * easeOut;
+      setDragOffset(currentOffset);
+
+      if (progress < 1) {
+        animationRef.current = requestAnimationFrame(animate);
+      } else {
+        setDragOffset(targetOffset);
+        if (targetOffset === 0) {
+          setIsTransitioning(false);
+        }
+      }
+    };
+
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+    }
+    animationRef.current = requestAnimationFrame(animate);
+  };
+
+  // FIXED: Better velocity calculation
+  const calculateVelocity = (clientX: number) => {
+    const now = performance.now();
+    if (lastMoveTime > 0) {
+      const timeDiff = now - lastMoveTime;
+      const distanceDiff = clientX - lastMoveX;
+      if (timeDiff > 0) {
+        setVelocity(distanceDiff / timeDiff);
+      }
+    }
+    setLastMoveTime(now);
+    setLastMoveX(clientX);
+  };
+
+  // FIXED: Improved drag handlers for mobile
   const handleDragStart = (clientX: number) => {
     if (isTransitioning) return;
+    
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+    }
+    
     setIsDragging(true);
     setStartX(clientX);
     setDragOffset(0);
+    setVelocity(0);
+    setLastMoveTime(performance.now());
+    setLastMoveX(clientX);
   };
 
   const handleDragMove = (clientX: number) => {
     if (!isDragging || isTransitioning) return;
+    
     const diff = clientX - startX;
-    const maxDrag = 100;
-    const clampedDiff = Math.max(-maxDrag, Math.min(maxDrag, diff));
+    const maxDrag = 80; // Reduced for better mobile feel
+    
+    let clampedDiff = Math.max(-maxDrag * 1.2, Math.min(maxDrag * 1.2, diff));
+    
     setDragOffset(clampedDiff);
+    calculateVelocity(clientX);
   };
 
   const handleDragEnd = () => {
     if (!isDragging || isTransitioning) return;
+    
     setIsDragging(false);
     setIsTransitioning(true);
     
-    const threshold = 30;
+    const threshold = 25; // Lower threshold for mobile
+    const velocityThreshold = 0.3;
     
-    if (Math.abs(dragOffset) > threshold) {
-      if (dragOffset > 0) {
-        setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length);
-      } else {
-        setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
+    let shouldChange = false;
+    let direction = 0;
+    
+    if (Math.abs(dragOffset) > threshold || Math.abs(velocity) > velocityThreshold) {
+      if (dragOffset > 0 || velocity > velocityThreshold) {
+        direction = -1;
+        shouldChange = true;
+      } else if (dragOffset < 0 || velocity < -velocityThreshold) {
+        direction = 1;
+        shouldChange = true;
       }
     }
     
-    setDragOffset(0);
-    setTimeout(() => setIsTransitioning(false), 300);
+    if (shouldChange) {
+      if (direction > 0) {
+        setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
+      } else {
+        setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+      }
+    }
+    
+    animateDragOffset(0, 100);
+    
+    setVelocity(0);
+    setLastMoveTime(0);
+    setLastMoveX(0);
   };
 
+  // FIXED: Better mouse events
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     handleDragStart(e.clientX);
   };
 
+  // FIXED: Improved touch events for mobile
   const handleTouchStart = (e: React.TouchEvent) => {
-    handleDragStart(e.touches[0].clientX);
+    if (e.touches.length === 1) {
+      e.preventDefault();
+      handleDragStart(e.touches[0].clientX);
+    }
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    e.preventDefault();
-    handleDragMove(e.touches[0].clientX);
+    if (e.touches.length === 1) {
+      e.preventDefault();
+      handleDragMove(e.touches[0].clientX);
+    }
   };
 
-  const handleTouchEnd = () => {
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    e.preventDefault();
     handleDragEnd();
   };
 
-  // Global mouse events
+  // FIXED: Better global mouse events
   useEffect(() => {
     const handleGlobalMouseMove = (e: MouseEvent) => {
-      if (isDragging) handleDragMove(e.clientX);
+      if (isDragging) {
+        handleDragMove(e.clientX);
+      }
     };
 
     const handleGlobalMouseUp = () => {
-      if (isDragging) handleDragEnd();
+      if (isDragging) {
+        handleDragEnd();
+      }
     };
 
     if (isDragging) {
@@ -141,18 +272,29 @@ export const TestimonialsSection: React.FC = () => {
       document.removeEventListener('mousemove', handleGlobalMouseMove);
       document.removeEventListener('mouseup', handleGlobalMouseUp);
     };
-  }, [isDragging, startX, dragOffset]);
+  }, [isDragging, startX, dragOffset, velocity]);
+
+  // Cleanup animation on unmount
+  useEffect(() => {
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, []);
 
   const goToTestimonial = (index: number) => {
     if (isTransitioning || isDragging || index === currentTestimonial) return;
     setIsTransitioning(true);
     setCurrentTestimonial(index);
-    setTimeout(() => setIsTransitioning(false), 300);
+    setTimeout(() => setIsTransitioning(false), 200);
   };
 
-  // Optimized card styling - REMOVED overflow limitations
+  // FIXED: Better card styling for mobile
   const getCardStyle = (index: number) => {
     const position = index - currentTestimonial;
+    const dragInfluence = dragOffset * 0.2; // Reduced influence for mobile
+    
     let translateX = 0;
     let scale = 1;
     let opacity = 1;
@@ -160,31 +302,31 @@ export const TestimonialsSection: React.FC = () => {
     
     if (position === 0) {
       translateX = dragOffset;
-      scale = 1 - Math.abs(dragOffset) * 0.001;
-      opacity = 1 - Math.abs(dragOffset) * 0.003;
+      scale = 1 - Math.abs(dragOffset) * 0.0002;
+      opacity = 1 - Math.abs(dragOffset) * 0.001;
       zIndex = 10;
     } else if (position === 1 || (position === -2 && testimonials.length === 3)) {
-      translateX = 280 + dragOffset * 0.3;
-      scale = 0.85;
-      opacity = 0.7; // Increased opacity
+      translateX = 220 + dragInfluence; // Reduced distance for mobile
+      scale = 0.95; // Larger scale for mobile
+      opacity = 0.8; // Higher opacity
       zIndex = 5;
     } else if (position === -1 || (position === 2 && testimonials.length === 3)) {
-      translateX = -280 + dragOffset * 0.3;
-      scale = 0.85;
-      opacity = 0.7; // Increased opacity
+      translateX = -220 + dragInfluence; // Reduced distance for mobile
+      scale = 0.95; // Larger scale for mobile
+      opacity = 0.8; // Higher opacity
       zIndex = 5;
     } else {
-      translateX = position > 0 ? 400 : -400;
-      scale = 0.8;
-      opacity = 0.4; // Made visible instead of 0
+      translateX = position > 0 ? 300 : -300; // Reduced distance
+      scale = 0.9;
+      opacity = 0.6; // Higher opacity for visibility
       zIndex = 1;
     }
     
     return {
       transform: `translateX(${translateX}px) scale(${scale})`,
-      opacity: Math.max(0.1, opacity), // Minimum opacity to keep cards visible
+      opacity: Math.max(0.3, opacity), // Higher minimum opacity
       zIndex,
-      transition: isDragging ? 'none' : 'all 0.3s ease-out',
+      transition: isDragging ? 'none' : 'all 0.25s ease-out',
     };
   };
 
@@ -226,11 +368,11 @@ export const TestimonialsSection: React.FC = () => {
         </p>
       </div>
 
-      {/* Slideshow Container - REMOVED overflow hidden and background */}
+      {/* FIXED: Slideshow Container - Better mobile support */}
       <div 
         className="relative h-[500px] mb-3"
         style={{ 
-          perspective: '1000px',
+          perspective: '800px', // Reduced perspective for mobile
           touchAction: 'pan-y pinch-zoom'
         }}
         onMouseDown={handleMouseDown}
@@ -246,7 +388,7 @@ export const TestimonialsSection: React.FC = () => {
             style={getCardStyle(index)}
           >
             <Suspense fallback={
-              <div className="bg-white/30 backdrop-blur-sm rounded-2xl p-6 border border-blue-200 shadow-lg max-w-md w-full mx-4 animate-pulse">
+              <div className="bg-white backdrop-blur-sm rounded-2xl p-6 border border-blue-200 shadow-lg max-w-md w-full mx-4 animate-pulse">
                 <div className="h-48 bg-gray-200 rounded"></div>
               </div>
             }>

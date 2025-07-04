@@ -95,8 +95,8 @@ export const DoctorsSection: React.FC = () => {
     };
   }, [currentDoctor]);
 
-  // Smooth animation for drag offset
-  const animateDragOffset = (targetOffset: number, duration: number = 300) => {
+  // FIXED: Improved mobile drag mechanics
+  const animateDragOffset = (targetOffset: number, duration: number = 200) => {
     const startOffset = dragOffset;
     const startTime = performance.now();
 
@@ -104,10 +104,8 @@ export const DoctorsSection: React.FC = () => {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
       
-      // Easing function for smooth animation
-      const easeOutCubic = 1 - Math.pow(1 - progress, 3);
-      
-      const currentOffset = startOffset + (targetOffset - startOffset) * easeOutCubic;
+      const easeOut = 1 - Math.pow(1 - progress, 2);
+      const currentOffset = startOffset + (targetOffset - startOffset) * easeOut;
       setDragOffset(currentOffset);
 
       if (progress < 1) {
@@ -126,19 +124,21 @@ export const DoctorsSection: React.FC = () => {
     animationRef.current = requestAnimationFrame(animate);
   };
 
-  // Calculate velocity for momentum
+  // FIXED: Better velocity calculation for mobile
   const calculateVelocity = (clientX: number) => {
     const now = performance.now();
     if (lastMoveTime > 0) {
       const timeDiff = now - lastMoveTime;
       const distanceDiff = clientX - lastMoveX;
-      setVelocity(distanceDiff / timeDiff);
+      if (timeDiff > 0) {
+        setVelocity(distanceDiff / timeDiff);
+      }
     }
     setLastMoveTime(now);
     setLastMoveX(clientX);
   };
 
-  // Drag handlers with improved mechanics
+  // FIXED: Improved drag handlers for mobile
   const handleDragStart = (clientX: number) => {
     if (isTransitioning) return;
     
@@ -158,18 +158,9 @@ export const DoctorsSection: React.FC = () => {
     if (!isDragging || isTransitioning) return;
     
     const diff = clientX - startX;
-    const maxDrag = 150; // Reduced for slideshow feel
+    const maxDrag = 100; // Reduced for better mobile feel
     
-    // Apply resistance at the edges
-    let clampedDiff;
-    if (Math.abs(diff) <= maxDrag) {
-      clampedDiff = diff;
-    } else {
-      const sign = diff > 0 ? 1 : -1;
-      const excess = Math.abs(diff) - maxDrag;
-      // Apply diminishing returns for over-drag
-      clampedDiff = sign * (maxDrag + excess * 0.2);
-    }
+    let clampedDiff = Math.max(-maxDrag * 1.2, Math.min(maxDrag * 1.2, diff));
     
     setDragOffset(clampedDiff);
     calculateVelocity(clientX);
@@ -181,20 +172,17 @@ export const DoctorsSection: React.FC = () => {
     setIsDragging(false);
     setIsTransitioning(true);
     
-    const threshold = 50; // Lower threshold for easier swiping
-    const velocityThreshold = 0.4; // Velocity threshold for momentum
+    const threshold = 30; // Lower threshold for mobile
+    const velocityThreshold = 0.3;
     
     let shouldChange = false;
     let direction = 0;
     
-    // Check if drag distance or velocity exceeds threshold
     if (Math.abs(dragOffset) > threshold || Math.abs(velocity) > velocityThreshold) {
       if (dragOffset > 0 || velocity > velocityThreshold) {
-        // Dragged right or fast right velocity - go to previous
         direction = -1;
         shouldChange = true;
       } else if (dragOffset < 0 || velocity < -velocityThreshold) {
-        // Dragged left or fast left velocity - go to next
         direction = 1;
         shouldChange = true;
       }
@@ -208,34 +196,32 @@ export const DoctorsSection: React.FC = () => {
       }
     }
     
-    // Always snap back to center
-    animateDragOffset(0, 250);
+    animateDragOffset(0, 150);
     
-    // Reset velocity tracking
     setVelocity(0);
     setLastMoveTime(0);
     setLastMoveX(0);
   };
 
-  // Mouse events
+  // FIXED: Better mouse events
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     handleDragStart(e.clientX);
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    handleDragMove(e.clientX);
-  };
-
-  // Touch events
+  // FIXED: Improved touch events for mobile
   const handleTouchStart = (e: React.TouchEvent) => {
-    e.preventDefault();
-    handleDragStart(e.touches[0].clientX);
+    if (e.touches.length === 1) {
+      e.preventDefault();
+      handleDragStart(e.touches[0].clientX);
+    }
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    e.preventDefault();
-    handleDragMove(e.touches[0].clientX);
+    if (e.touches.length === 1) {
+      e.preventDefault();
+      handleDragMove(e.touches[0].clientX);
+    }
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
@@ -243,7 +229,7 @@ export const DoctorsSection: React.FC = () => {
     handleDragEnd();
   };
 
-  // Global mouse events
+  // FIXED: Better global mouse events
   useEffect(() => {
     const handleGlobalMouseMove = (e: MouseEvent) => {
       if (isDragging) {
@@ -258,8 +244,8 @@ export const DoctorsSection: React.FC = () => {
     };
 
     if (isDragging) {
-      document.addEventListener('mousemove', handleGlobalMouseMove);
-      document.addEventListener('mouseup', handleGlobalMouseUp);
+      document.addEventListener('mousemove', handleGlobalMouseMove, { passive: false });
+      document.addEventListener('mouseup', handleGlobalMouseUp, { passive: true });
     }
 
     return () => {
@@ -281,13 +267,13 @@ export const DoctorsSection: React.FC = () => {
     if (isTransitioning || isDragging || index === currentDoctor) return;
     setIsTransitioning(true);
     setCurrentDoctor(index);
-    setTimeout(() => setIsTransitioning(false), 500);
+    setTimeout(() => setIsTransitioning(false), 300);
   };
 
-  // Get position and styling for each doctor card - REMOVED overflow limitations
+  // FIXED: Better card styling for mobile
   const getCardStyle = (index: number) => {
     const position = index - currentDoctor;
-    const dragInfluence = dragOffset * 0.3; // Reduced influence for subtlety
+    const dragInfluence = dragOffset * 0.25;
     
     let translateX = 0;
     let translateZ = 0;
@@ -297,50 +283,46 @@ export const DoctorsSection: React.FC = () => {
     let rotateY = 0;
     
     if (position === 0) {
-      // Current/center card
       translateX = dragOffset;
       translateZ = 0;
-      scale = 1 - Math.abs(dragOffset) * 0.0005;
-      opacity = 1 - Math.abs(dragOffset) * 0.002;
-      blur = Math.abs(dragOffset) * 0.01;
-      rotateY = dragOffset * 0.02;
+      scale = 1 - Math.abs(dragOffset) * 0.0003;
+      opacity = 1 - Math.abs(dragOffset) * 0.001;
+      blur = Math.abs(dragOffset) * 0.005;
+      rotateY = dragOffset * 0.01;
     } else if (position === 1 || (position === -2 && doctors.length === 3)) {
-      // Next card (right side)
-      translateX = 280 + dragInfluence;
-      translateZ = -100;
-      scale = 0.85;
-      opacity = 0.7; // Increased opacity
-      blur = 1; // Reduced blur
-      rotateY = -15;
+      translateX = 250 + dragInfluence; // Reduced distance for mobile
+      translateZ = -80;
+      scale = 0.9; // Larger scale for mobile
+      opacity = 0.8; // Higher opacity
+      blur = 0.5; // Less blur
+      rotateY = -10; // Less rotation
     } else if (position === -1 || (position === 2 && doctors.length === 3)) {
-      // Previous card (left side)
-      translateX = -280 + dragInfluence;
-      translateZ = -100;
-      scale = 0.85;
-      opacity = 0.7; // Increased opacity
-      blur = 1; // Reduced blur
-      rotateY = 15;
+      translateX = -250 + dragInfluence; // Reduced distance for mobile
+      translateZ = -80;
+      scale = 0.9; // Larger scale for mobile
+      opacity = 0.8; // Higher opacity
+      blur = 0.5; // Less blur
+      rotateY = 10; // Less rotation
     } else {
-      // Hidden cards - Still visible but further away
-      translateX = position > 0 ? 400 : -400;
-      translateZ = -200;
-      scale = 0.7;
-      opacity = 0.4; // Made visible instead of 0
-      blur = 2; // Reduced blur
+      translateX = position > 0 ? 350 : -350; // Reduced distance
+      translateZ = -150;
+      scale = 0.8;
+      opacity = 0.5; // Higher opacity for visibility
+      blur = 1;
     }
     
     return {
       transform: `translateX(${translateX}px) translateZ(${translateZ}px) scale(${scale}) rotateY(${rotateY}deg)`,
-      opacity: Math.max(0.1, opacity), // Minimum opacity to keep cards visible
+      opacity: Math.max(0.2, opacity), // Higher minimum opacity
       filter: `blur(${blur}px)`,
       zIndex: position === 0 ? 10 : 5 - Math.abs(position),
-      transition: isDragging ? 'none' : 'all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+      transition: isDragging ? 'none' : 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
     };
   };
 
   return (
     <section className="mt-16 sm:mt-20 w-full max-w-5xl mx-auto px-4 animate-fadeInUp animation-delay-1400">
-      {/* Section Header - Grouped tightly */}
+      {/* Section Header */}
       <div className="text-center mb-4">
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-blue-900 mb-2">
           <span className="block">Clinically Reviewed.</span>
@@ -360,12 +342,12 @@ export const DoctorsSection: React.FC = () => {
         </p>
       </div>
 
-      {/* Slideshow Container - REMOVED overflow hidden and background */}
+      {/* FIXED: Slideshow Container - Better mobile support */}
       <div 
         ref={containerRef}
         className="relative h-[500px] mb-3"
         style={{ 
-          perspective: '1200px',
+          perspective: '1000px', // Reduced perspective for mobile
           touchAction: 'pan-y pinch-zoom'
         }}
         onMouseDown={handleMouseDown}
@@ -389,7 +371,7 @@ export const DoctorsSection: React.FC = () => {
         ))}
       </div>
 
-      {/* Navigation Controls - Closer to box */}
+      {/* Navigation Controls */}
       <div className="flex items-center justify-center mb-4">
         <div className="flex items-center gap-3">
           {doctors.map((doctor, index) => (
@@ -424,7 +406,7 @@ export const DoctorsSection: React.FC = () => {
   );
 };
 
-// Separate Doctor Card Component for cleaner code - IMPROVED opacity
+// FIXED: Doctor Card Component with VTurb video support
 const DoctorCard: React.FC<{ doctor: any; isActive: boolean; isDragging: boolean }> = ({ 
   doctor, 
   isActive, 
@@ -469,12 +451,14 @@ const DoctorCard: React.FC<{ doctor: any; isActive: boolean; isDragging: boolean
         </p>
       </div>
 
-      {/* Doctor Video Testimonial - Only show for active card */}
+      {/* READY: Doctor Video Testimonial - VTurb integration */}
       {isActive && (
         <div className="mb-4">
           <div className="aspect-video rounded-xl overflow-hidden shadow-lg bg-gray-900 relative">
+            {/* VTurb Video Container - READY for your video IDs */}
             <div
               id={`doctor_vid_${doctor.videoId}`}
+              className="w-full h-full"
               style={{
                 position: 'relative',
                 width: '100%',
@@ -492,6 +476,9 @@ const DoctorCard: React.FC<{ doctor: any; isActive: boolean; isDragging: boolean
                   </p>
                   <p className="text-white/70 text-sm">
                     Video Testimonial
+                  </p>
+                  <p className="text-white/50 text-xs mt-2">
+                    Video ID: {doctor.videoId}
                   </p>
                 </div>
               </div>

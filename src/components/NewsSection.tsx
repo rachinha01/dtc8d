@@ -60,8 +60,8 @@ export const NewsSection: React.FC = () => {
     }
   ];
 
-  // Optimized smooth animation for drag offset with better mobile performance
-  const animateDragOffset = (targetOffset: number, duration: number = 200) => {
+  // FIXED: Better animation for mobile
+  const animateDragOffset = (targetOffset: number, duration: number = 150) => {
     const startOffset = dragOffset;
     const startTime = performance.now();
 
@@ -69,7 +69,6 @@ export const NewsSection: React.FC = () => {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
       
-      // Simpler easing for better mobile performance
       const easeOut = 1 - Math.pow(1 - progress, 2);
       const currentOffset = startOffset + (targetOffset - startOffset) * easeOut;
       setDragOffset(currentOffset);
@@ -90,7 +89,7 @@ export const NewsSection: React.FC = () => {
     animationRef.current = requestAnimationFrame(animate);
   };
 
-  // Optimized velocity calculation
+  // FIXED: Better velocity calculation
   const calculateVelocity = (clientX: number) => {
     const now = performance.now();
     if (lastMoveTime > 0) {
@@ -104,7 +103,7 @@ export const NewsSection: React.FC = () => {
     setLastMoveX(clientX);
   };
 
-  // Optimized drag handlers for better mobile performance
+  // FIXED: Improved drag handlers for mobile
   const handleDragStart = (clientX: number) => {
     if (isTransitioning) return;
     
@@ -124,9 +123,8 @@ export const NewsSection: React.FC = () => {
     if (!isDragging || isTransitioning) return;
     
     const diff = clientX - startX;
-    const maxDrag = 120; // Reduced for better mobile performance
+    const maxDrag = 80; // Reduced for better mobile feel
     
-    // Simplified resistance calculation
     let clampedDiff = Math.max(-maxDrag * 1.2, Math.min(maxDrag * 1.2, diff));
     
     setDragOffset(clampedDiff);
@@ -139,7 +137,7 @@ export const NewsSection: React.FC = () => {
     setIsDragging(false);
     setIsTransitioning(true);
     
-    const threshold = 40; // Lower threshold for easier mobile swiping
+    const threshold = 25; // Lower threshold for mobile
     const velocityThreshold = 0.3;
     
     let shouldChange = false;
@@ -163,23 +161,23 @@ export const NewsSection: React.FC = () => {
       }
     }
     
-    // Faster snap back for mobile
-    animateDragOffset(0, 150);
+    animateDragOffset(0, 100);
     
     setVelocity(0);
     setLastMoveTime(0);
     setLastMoveX(0);
   };
 
-  // Optimized mouse events
+  // FIXED: Better mouse events
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     handleDragStart(e.clientX);
   };
 
-  // Optimized touch events with passive listeners
+  // FIXED: Improved touch events for mobile
   const handleTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length === 1) {
+      e.preventDefault();
       handleDragStart(e.touches[0].clientX);
     }
   };
@@ -192,10 +190,11 @@ export const NewsSection: React.FC = () => {
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
+    e.preventDefault();
     handleDragEnd();
   };
 
-  // Optimized global mouse events
+  // FIXED: Better global mouse events
   useEffect(() => {
     const handleGlobalMouseMove = (e: MouseEvent) => {
       if (isDragging) {
@@ -233,13 +232,13 @@ export const NewsSection: React.FC = () => {
     if (isTransitioning || isDragging || index === currentNews) return;
     setIsTransitioning(true);
     setCurrentNews(index);
-    setTimeout(() => setIsTransitioning(false), 300);
+    setTimeout(() => setIsTransitioning(false), 200);
   };
 
-  // Optimized card styling with better mobile performance - REMOVED overflow limitations
+  // FIXED: Better card styling for mobile
   const getCardStyle = (index: number) => {
     const position = index - currentNews;
-    const dragInfluence = dragOffset * 0.25; // Reduced for smoother mobile performance
+    const dragInfluence = dragOffset * 0.2; // Reduced influence for mobile
     
     let translateX = 0;
     let scale = 1;
@@ -247,42 +246,36 @@ export const NewsSection: React.FC = () => {
     let zIndex = 1;
     
     if (position === 0) {
-      // Current/center card
       translateX = dragOffset;
-      scale = 1 - Math.abs(dragOffset) * 0.0003;
+      scale = 1 - Math.abs(dragOffset) * 0.0002;
       opacity = 1 - Math.abs(dragOffset) * 0.001;
       zIndex = 10;
     } else if (position === 1 || (position === -2 && newsArticles.length === 3)) {
-      // Next card (right side)
-      translateX = 300 + dragInfluence;
-      scale = 0.9;
-      opacity = 0.7; // Increased opacity
+      translateX = 220 + dragInfluence; // Reduced distance for mobile
+      scale = 0.95; // Larger scale for mobile
+      opacity = 0.8; // Higher opacity
       zIndex = 5;
     } else if (position === -1 || (position === 2 && newsArticles.length === 3)) {
-      // Previous card (left side)
-      translateX = -300 + dragInfluence;
-      scale = 0.9;
-      opacity = 0.7; // Increased opacity
+      translateX = -220 + dragInfluence; // Reduced distance for mobile
+      scale = 0.95; // Larger scale for mobile
+      opacity = 0.8; // Higher opacity
       zIndex = 5;
     } else {
-      // Hidden cards
-      translateX = position > 0 ? 400 : -400;
-      scale = 0.8;
-      opacity = 0.4; // Made visible instead of 0
+      translateX = position > 0 ? 300 : -300; // Reduced distance
+      scale = 0.9;
+      opacity = 0.6; // Higher opacity for visibility
       zIndex = 1;
     }
     
     return {
       transform: `translateX(${translateX}px) scale(${scale})`,
-      opacity: Math.max(0.1, opacity), // Minimum opacity to keep cards visible
+      opacity: Math.max(0.3, opacity), // Higher minimum opacity
       zIndex,
-      transition: isDragging ? 'none' : 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+      transition: isDragging ? 'none' : 'all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
     };
   };
 
-  // Optimized modal opening
   const openArticle = (article: NewsArticle) => {
-    // Use requestAnimationFrame for smoother modal opening
     requestAnimationFrame(() => {
       setSelectedArticle(article);
     });
@@ -315,12 +308,12 @@ export const NewsSection: React.FC = () => {
           </p>
         </div>
 
-        {/* News Slideshow Container - REMOVED overflow hidden and background */}
+        {/* FIXED: News Slideshow Container - Better mobile support */}
         <div 
           ref={containerRef}
           className="relative h-[400px] mb-3"
           style={{ 
-            perspective: '1000px',
+            perspective: '800px', // Reduced perspective for mobile
             touchAction: 'pan-y pinch-zoom'
           }}
           onMouseDown={handleMouseDown}
@@ -366,7 +359,7 @@ export const NewsSection: React.FC = () => {
         </div>
       </section>
 
-      {/* Article Modal - Optimized rendering */}
+      {/* Article Modal */}
       {selectedArticle && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 overflow-y-auto">
           <div className="min-h-screen">
@@ -380,7 +373,7 @@ export const NewsSection: React.FC = () => {
   );
 };
 
-// Optimized News Card Component with softer mobile borders - IMPROVED opacity
+// FIXED: News Card Component with better mobile styling
 const NewsCard: React.FC<{ 
   article: any; 
   isActive: boolean; 
@@ -388,7 +381,7 @@ const NewsCard: React.FC<{
   onRead: () => void;
 }> = ({ article, isActive, isDragging, onRead }) => {
   return (
-    <div className={`bg-white rounded-3xl p-6 border-2 ${article.color} hover:shadow-lg transition-all duration-300 max-w-md w-full mx-4 ${
+    <div className={`bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border-2 ${article.color} hover:shadow-lg transition-all duration-300 max-w-md w-full mx-4 ${
       isDragging ? 'shadow-2xl' : 'shadow-lg'
     } ${isActive ? 'ring-2 ring-blue-300' : ''}`}>
       
@@ -397,14 +390,14 @@ const NewsCard: React.FC<{
         <img 
           src={article.logo} 
           alt={article.source}
-          className="h-8 w-auto object-contain"
+          className="h-6 sm:h-8 w-auto object-contain"
           draggable={false}
         />
         <span className="text-sm font-bold text-gray-700">{article.source}</span>
       </div>
 
       {/* Article Title */}
-      <h3 className="text-lg font-bold text-gray-900 mb-3 leading-tight">
+      <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 leading-tight">
         {article.title}
       </h3>
 
@@ -413,7 +406,7 @@ const NewsCard: React.FC<{
         {article.summary}
       </p>
 
-      {/* Read Button - Optimized for mobile */}
+      {/* Read Button */}
       <button
         onClick={(e) => {
           e.stopPropagation();
