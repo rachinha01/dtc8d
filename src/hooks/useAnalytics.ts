@@ -20,6 +20,7 @@ export const useAnalytics = () => {
   const pingInterval = useRef<NodeJS.Timeout | null>(null);
   const sessionRecordId = useRef<string | null>(null);
   const isInitialized = useRef<boolean>(false);
+  const isBrazilianIP = useRef<boolean>(false); // ✅ NEW: Track if IP is Brazilian
 
   function generateSessionId(): string {
     return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -33,6 +34,13 @@ export const useAnalytics = () => {
       try {
         const parsed = JSON.parse(cachedData);
         console.log('Using cached geolocation data:', parsed);
+        
+        // ✅ NEW: Check if cached data is Brazilian
+        if (parsed.country_code === 'BR' || parsed.country_name === 'Brazil') {
+          isBrazilianIP.current = true;
+          console.log('🇧🇷 Brazilian IP detected - analytics tracking will be skipped');
+        }
+        
         return parsed;
       } catch (error) {
         console.error('Error parsing cached geolocation data:', error);
@@ -46,10 +54,10 @@ export const useAnalytics = () => {
         window.location.hostname.includes("127.0.0.1")) {
       const devData: GeolocationData = {
         ip: "127.0.0.1",
-        country_code: "BR",
-        country_name: "Brazil",
-        city: "São Paulo",
-        region: "São Paulo"
+        country_code: "US", // ✅ CHANGED: Use US for dev to test analytics
+        country_name: "United States",
+        city: "New York",
+        region: "New York"
       };
       sessionStorage.setItem('geolocation_data', JSON.stringify(devData));
       console.log('Using development fallback data:', devData);
@@ -129,6 +137,12 @@ export const useAnalytics = () => {
         if (geolocation.ip && geolocation.ip !== 'Unknown' && 
             geolocation.country_name && geolocation.country_name !== 'Unknown') {
           
+          // ✅ NEW: Check if IP is Brazilian and set flag
+          if (geolocation.country_code === 'BR' || geolocation.country_name === 'Brazil') {
+            isBrazilianIP.current = true;
+            console.log('🇧🇷 Brazilian IP detected - analytics tracking will be skipped');
+          }
+          
           // Cache the data in sessionStorage
           sessionStorage.setItem('geolocation_data', JSON.stringify(geolocation));
           console.log('Successfully obtained geolocation data:', geolocation);
@@ -158,6 +172,12 @@ export const useAnalytics = () => {
         city: 'Browser Location',
         region: 'Browser Region'
       };
+      
+      // ✅ NEW: Check if browser-detected country is Brazil
+      if (browserData.country_code === 'BR' || browserData.country_name === 'Brazil') {
+        isBrazilianIP.current = true;
+        console.log('🇧🇷 Brazilian IP detected via browser - analytics tracking will be skipped');
+      }
       
       sessionStorage.setItem('geolocation_data', JSON.stringify(browserData));
       console.log('Using browser-based fallback data:', browserData);
@@ -199,7 +219,7 @@ export const useAnalytics = () => {
 
   // Function to update last_ping for live user tracking
   const updatePing = async () => {
-    if (!sessionRecordId.current) return;
+    if (!sessionRecordId.current || isBrazilianIP.current) return; // ✅ SKIP if Brazilian
     
     try {
       await supabase
@@ -215,6 +235,8 @@ export const useAnalytics = () => {
 
   // Start ping interval for live user tracking
   const startPingInterval = () => {
+    if (isBrazilianIP.current) return; // ✅ SKIP if Brazilian
+    
     // Clear any existing interval
     if (pingInterval.current) {
       clearInterval(pingInterval.current);
@@ -246,10 +268,9 @@ export const useAnalytics = () => {
         isGeolocationLoaded.current = true;
       }
 
-      // ✅ FIXED: Skip tracking for Brazilian IPs
-      if (geolocationData.current?.country_code === 'BR' || 
-          geolocationData.current?.country_name === 'Brazil') {
-        console.log('Skipping analytics tracking for Brazilian IP');
+      // ✅ NEW: Skip tracking for Brazilian IPs
+      if (isBrazilianIP.current) {
+        console.log('🇧🇷 Skipping analytics tracking for Brazilian IP');
         return;
       }
 
@@ -283,7 +304,7 @@ export const useAnalytics = () => {
 
       if (error) throw error;
       
-      console.log(`Tracked event: ${eventType}`, enrichedEventData);
+      console.log(`✅ Tracked event: ${eventType}`, enrichedEventData);
     } catch (error) {
       console.error('Error tracking event:', error);
       // Don't throw error - analytics should never break the app
@@ -302,12 +323,17 @@ export const useAnalytics = () => {
         geolocationData.current = await getGeolocationData();
         isGeolocationLoaded.current = true;
         
-        // Track page enter with geolocation data
-        await trackEvent('page_enter', { 
-          country: geolocationData.current?.country_name || 'Unknown',
-          city: geolocationData.current?.city || 'Unknown',
-          region: geolocationData.current?.region || 'Unknown'
-        });
+        // ✅ NEW: Only track if not Brazilian IP
+        if (!isBrazilianIP.current) {
+          // Track page enter with geolocation data
+          await trackEvent('page_enter', { 
+            country: geolocationData.current?.country_name || 'Unknown',
+            city: geolocationData.current?.city || 'Unknown',
+            region: geolocationData.current?.region || 'Unknown'
+          });
+        } else {
+          console.log('🇧🇷 Brazilian IP detected - skipping page_enter tracking');
+        }
       } catch (error) {
         console.error('Error initializing analytics:', error);
         // Continue without breaking the app
@@ -320,17 +346,22 @@ export const useAnalytics = () => {
     return () => {
       stopPingInterval();
       
-      const timeOnPage = Date.now() - pageEnterTime.current;
-      trackEvent('page_exit', { 
-        time_on_page_ms: timeOnPage,
-        country: geolocationData.current?.country_name || 'Unknown'
-      });
+      // ✅ NEW: Only track page exit if not Brazilian IP
+      if (!isBrazilianIP.current) {
+        const timeOnPage = Date.now() - pageEnterTime.current;
+        trackEvent('page_exit', { 
+          time_on_page_ms: timeOnPage,
+          country: geolocationData.current?.country_name || 'Unknown'
+        });
+      }
     };
   }, []); // Empty dependency array to run only once
 
   // Track page visibility changes
   useEffect(() => {
     const handleVisibilityChange = () => {
+      if (isBrazilianIP.current) return; // ✅ SKIP if Brazilian
+      
       if (document.hidden) {
         // Stop ping when page is hidden
         stopPingInterval();
@@ -364,6 +395,8 @@ export const useAnalytics = () => {
   }, []);
 
   const trackVideoPlay = () => {
+    if (isBrazilianIP.current) return; // ✅ SKIP if Brazilian
+    
     if (!hasTrackedVideoPlay.current) {
       hasTrackedVideoPlay.current = true;
       trackEvent('video_play', { 
@@ -373,6 +406,8 @@ export const useAnalytics = () => {
   };
 
   const trackVideoProgress = (currentTime: number, duration: number) => {
+    if (isBrazilianIP.current) return; // ✅ SKIP if Brazilian
+    
     const progressPercent = (currentTime / duration) * 100;
     
     // Track lead reached at 7:45 (465 seconds)
@@ -424,6 +459,8 @@ export const useAnalytics = () => {
   };
 
   const trackOfferClick = (offerType: '1-bottle' | '3-bottle' | '6-bottle' | string) => {
+    if (isBrazilianIP.current) return; // ✅ SKIP if Brazilian
+    
     trackEvent('offer_click', { 
       offer_type: offerType,
       country: geolocationData.current?.country_name || 'Unknown'
