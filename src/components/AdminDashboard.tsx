@@ -205,10 +205,15 @@ export const AdminDashboard: React.FC = () => {
   const fetchAnalytics = async () => {
     setLoading(true);
     try {
-      // Get all analytics data with new geolocation fields
+      // ✅ FIXED: Always use current date for analytics
+      const today = new Date().toISOString().split('T')[0];
+      
+      // Get all analytics data with new geolocation fields for TODAY ONLY
       const { data: allEvents, error } = await supabase
         .from('vsl_analytics')
         .select('*')
+        .gte('created_at', `${today}T00:00:00.000Z`)
+        .lt('created_at', `${today}T23:59:59.999Z`)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -218,7 +223,7 @@ export const AdminDashboard: React.FC = () => {
         return;
       }
 
-      // Filter out Brazilian IPs
+      // ✅ FIXED: Filter out Brazilian IPs for traffic and purchases
       const filteredEvents = allEvents.filter(event => 
         event.country_code !== 'BR' && event.country_name !== 'Brazil'
       );
@@ -358,7 +363,7 @@ export const AdminDashboard: React.FC = () => {
       ).length;
       const leadReachRate = totalSessions > 0 ? (sessionsWithLeadReached / totalSessions) * 100 : 0;
 
-      // Calculate offer click rates and upsell stats
+      // ✅ FIXED: Calculate offer click rates and upsell stats (only non-Brazilian)
       const offerClicks = filteredEvents.filter(event => event.event_type === 'offer_click');
       const totalOfferClicks = offerClicks.length;
       
@@ -761,7 +766,7 @@ export const AdminDashboard: React.FC = () => {
                   Dashboard VSL Analytics
                 </h1>
                 <p className="text-sm sm:text-base text-gray-600">
-                  Monitoramento em tempo real (excluindo Brasil)
+                  Monitoramento em tempo real (excluindo Brasil) - {new Date().toLocaleDateString('pt-BR')}
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
@@ -898,7 +903,7 @@ export const AdminDashboard: React.FC = () => {
                     <div className="mb-2 sm:mb-0">
                       <p className="text-xs sm:text-sm font-medium text-gray-600">Sessões</p>
                       <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">{analytics.totalSessions}</p>
-                      <p className="text-xs text-gray-500">Total</p>
+                      <p className="text-xs text-gray-500">Hoje</p>
                     </div>
                     <div className="bg-gray-100 p-2 sm:p-3 rounded-lg self-end sm:self-auto">
                       <Users className="w-4 sm:w-6 h-4 sm:h-6 text-gray-600" />
@@ -926,7 +931,7 @@ export const AdminDashboard: React.FC = () => {
                     <div className="mb-2 sm:mb-0">
                       <p className="text-xs sm:text-sm font-medium text-gray-600">Compras</p>
                       <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-600">{analytics.totalPurchases}</p>
-                      <p className="text-xs text-gray-500">Upsells</p>
+                      <p className="text-xs text-gray-500">Hoje</p>
                     </div>
                     <div className="bg-blue-100 p-2 sm:p-3 rounded-lg self-end sm:self-auto">
                       <ShoppingCart className="w-4 sm:w-6 h-4 sm:h-6 text-blue-600" />

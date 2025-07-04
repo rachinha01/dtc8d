@@ -241,17 +241,6 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
                   </div>
                 </div>
 
-                {/* CTA Button */}
-                <div className="relative mb-3">
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 rounded-lg sm:rounded-xl blur opacity-75 animate-pulse"></div>
-                  <button 
-                    onClick={handleAccept}
-                    className="relative w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold py-3 sm:py-4 px-4 rounded-lg sm:rounded-xl transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg text-sm sm:text-base border-2 border-white/40 backdrop-blur-sm"
-                  >
-                    <span className="relative z-10">{content.acceptButtonText}</span>
-                  </button>
-                </div>
-
                 {/* Benefits Icons */}
                 <div className="flex justify-center items-center gap-1 mb-3">
                   <div className="bg-gradient-to-r from-blue-500/30 to-cyan-500/30 backdrop-blur-sm rounded px-2 py-1 border border-blue-300/40 flex-1">
@@ -391,6 +380,19 @@ export const UpsellPage: React.FC<UpsellPageProps> = ({ variant }) => {
                   <p className="text-red-600 text-center font-bold text-xs sm:text-sm">You might not be able to stand up again.</p>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* ✅ FIXED: CTA Button AFTER all arguments */}
+          <div className="mb-6 animate-fadeInUp animation-delay-1500">
+            <div className="relative">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 rounded-lg sm:rounded-xl blur opacity-75 animate-pulse"></div>
+              <button 
+                onClick={handleAccept}
+                className="relative w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold py-3 sm:py-4 px-4 rounded-lg sm:rounded-xl transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg text-sm sm:text-base border-2 border-white/40 backdrop-blur-sm"
+              >
+                <span className="relative z-10">{content.acceptButtonText}</span>
+              </button>
             </div>
           </div>
 

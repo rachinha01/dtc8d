@@ -374,6 +374,30 @@ function App() {
         {/* Guarantee Section - Only show after delay */}
         {showPurchaseButton && <GuaranteeSection />}
 
+        {/* ✅ NEW: Repeat Purchase Buttons at the End */}
+        {showPurchaseButton && (
+          <section className="mt-16 sm:mt-20 w-full max-w-md mx-auto px-4 animate-fadeInUp animation-delay-2200">
+            <div className="text-center mb-6">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-blue-900 mb-2">
+                <span className="block">Ready to Transform</span>
+                <span className="bg-gradient-to-r from-blue-600 via-cyan-500 to-indigo-600 bg-clip-text text-transparent block">
+                  Your Life?
+                </span>
+              </h2>
+              <p className="text-base sm:text-lg text-blue-700 font-semibold">
+                Choose your BlueDrops package below
+              </p>
+            </div>
+
+            {/* Repeat the same product offers */}
+            <ProductOffers 
+              showPurchaseButton={true}
+              onPurchase={handlePurchase}
+              onSecondaryPackageClick={handleSecondaryPackageClick}
+            />
+          </section>
+        )}
+
         {/* Footer */}
         <Footer />
       </div>

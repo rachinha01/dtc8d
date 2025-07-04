@@ -246,6 +246,13 @@ export const useAnalytics = () => {
         isGeolocationLoaded.current = true;
       }
 
+      // ✅ FIXED: Skip tracking for Brazilian IPs
+      if (geolocationData.current?.country_code === 'BR' || 
+          geolocationData.current?.country_name === 'Brazil') {
+        console.log('Skipping analytics tracking for Brazilian IP');
+        return;
+      }
+
       // Include geolocation data in event
       const enrichedEventData = {
         ...eventData,
