@@ -9,6 +9,11 @@ interface MayoModalProps {
 }
 
 export const MayoModal: React.FC<MayoModalProps> = ({ onClose, article }) => {
+  // ✅ FIXED: Redirect to home page function
+  const redirectToHome = () => {
+    window.location.href = '/';
+  };
+
   return (
     <div className="bg-white min-h-screen">
       {/* Mayo Clinic Header - Replicando exatamente a imagem */}
@@ -18,17 +23,52 @@ export const MayoModal: React.FC<MayoModalProps> = ({ onClose, article }) => {
             <div className="flex items-center justify-between">
               {/* Left side - Logo e Navigation */}
               <div className="flex items-center gap-8">
-                {/* Mayo Clinic Logo */}
-                <img src="https://i.imgur.com/AYQHh2i.png" alt="Mayo Clinic" className="h-10" />
+                {/* Mayo Clinic Logo - ✅ FIXED: Redirect to home */}
+                <img 
+                  src="https://i.imgur.com/AYQHh2i.png" 
+                  alt="Mayo Clinic" 
+                  className="h-10 cursor-pointer hover:opacity-80 transition-opacity" 
+                  onClick={redirectToHome}
+                />
                 
-                {/* Navigation Menu - Exatamente como na imagem */}
+                {/* Navigation Menu - ✅ FIXED: All redirect to home */}
                 <div className="hidden md:flex items-center gap-8 text-sm">
-                  <span className="text-gray-700 hover:text-gray-900 cursor-pointer font-medium">News Network</span>
-                  <span className="text-gray-700 hover:text-gray-900 cursor-pointer font-medium">News Releases</span>
-                  <span className="text-gray-700 hover:text-gray-900 cursor-pointer font-medium">Health Topics</span>
-                  <span className="text-gray-700 hover:text-gray-900 cursor-pointer font-medium">Medical Research</span>
-                  <span className="text-gray-700 hover:text-gray-900 cursor-pointer font-medium">Media Contacts</span>
-                  <span className="text-gray-700 hover:text-gray-900 cursor-pointer font-medium">About</span>
+                  <span 
+                    className="text-gray-700 hover:text-gray-900 cursor-pointer font-medium"
+                    onClick={redirectToHome}
+                  >
+                    News Network
+                  </span>
+                  <span 
+                    className="text-gray-700 hover:text-gray-900 cursor-pointer font-medium"
+                    onClick={redirectToHome}
+                  >
+                    News Releases
+                  </span>
+                  <span 
+                    className="text-gray-700 hover:text-gray-900 cursor-pointer font-medium"
+                    onClick={redirectToHome}
+                  >
+                    Health Topics
+                  </span>
+                  <span 
+                    className="text-gray-700 hover:text-gray-900 cursor-pointer font-medium"
+                    onClick={redirectToHome}
+                  >
+                    Medical Research
+                  </span>
+                  <span 
+                    className="text-gray-700 hover:text-gray-900 cursor-pointer font-medium"
+                    onClick={redirectToHome}
+                  >
+                    Media Contacts
+                  </span>
+                  <span 
+                    className="text-gray-700 hover:text-gray-900 cursor-pointer font-medium"
+                    onClick={redirectToHome}
+                  >
+                    About
+                  </span>
                 </div>
               </div>
               
@@ -59,30 +99,45 @@ export const MayoModal: React.FC<MayoModalProps> = ({ onClose, article }) => {
           <p className="text-gray-600 text-sm">July 3, 2025</p>
         </div>
 
-        {/* Social Share Icons */}
+        {/* ✅ FIXED: Social Share Icons - All redirect to home */}
         <div className="flex items-center gap-3 mb-8">
-          <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
+          <div 
+            className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center cursor-pointer hover:bg-blue-700 transition-colors"
+            onClick={redirectToHome}
+          >
             <span className="text-white text-sm font-bold">f</span>
           </div>
-          <div className="w-8 h-8 bg-black rounded flex items-center justify-center">
+          <div 
+            className="w-8 h-8 bg-black rounded flex items-center justify-center cursor-pointer hover:bg-gray-800 transition-colors"
+            onClick={redirectToHome}
+          >
             <span className="text-white text-sm font-bold">X</span>
           </div>
-          <div className="w-8 h-8 bg-blue-700 rounded flex items-center justify-center">
+          <div 
+            className="w-8 h-8 bg-blue-700 rounded flex items-center justify-center cursor-pointer hover:bg-blue-800 transition-colors"
+            onClick={redirectToHome}
+          >
             <span className="text-white text-sm font-bold">in</span>
           </div>
-          <div className="w-8 h-8 bg-orange-500 rounded flex items-center justify-center">
+          <div 
+            className="w-8 h-8 bg-orange-500 rounded flex items-center justify-center cursor-pointer hover:bg-orange-600 transition-colors"
+            onClick={redirectToHome}
+          >
             <span className="text-white text-sm font-bold">@</span>
           </div>
-          <div className="w-8 h-8 bg-yellow-500 rounded flex items-center justify-center">
+          <div 
+            className="w-8 h-8 bg-yellow-500 rounded flex items-center justify-center cursor-pointer hover:bg-yellow-600 transition-colors"
+            onClick={redirectToHome}
+          >
             <span className="text-white text-sm font-bold">📄</span>
           </div>
         </div>
 
-        {/* Hero Image */}
+        {/* ✅ UPDATED: Hero Image - Homem idoso fazendo esporte */}
         <div className="mb-8">
           <img 
             src="https://images.pexels.com/photos/2803158/pexels-photo-2803158.jpeg?auto=compress&cs=tinysrgb&w=1200&h=600&fit=crop" 
-            alt="Man running outdoors" 
+            alt="Homem idoso correndo ao ar livre" 
             className="w-full h-80 object-cover rounded"
           />
         </div>
@@ -132,11 +187,16 @@ export const MayoModal: React.FC<MayoModalProps> = ({ onClose, article }) => {
         </div>
       </div>
 
-      {/* Footer - Simplified Mayo style */}
+      {/* ✅ FIXED: Footer - Logo redirects to home */}
       <div className="bg-gray-50 border-t border-gray-200 py-8 mt-12">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center">
-            <img src="https://i.imgur.com/AYQHh2i.png" alt="Mayo Clinic" className="h-8 mx-auto mb-4" />
+            <img 
+              src="https://i.imgur.com/AYQHh2i.png" 
+              alt="Mayo Clinic" 
+              className="h-8 mx-auto mb-4 cursor-pointer hover:opacity-80 transition-opacity" 
+              onClick={redirectToHome}
+            />
             <p className="text-sm text-gray-600">
               © 2025 Mayo Foundation for Medical Education and Research. All rights reserved.
             </p>
