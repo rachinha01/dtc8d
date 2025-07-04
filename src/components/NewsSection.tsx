@@ -42,7 +42,7 @@ export const NewsSection: React.FC = () => {
     {
       id: 'mayo',
       source: '', // ✅ REMOVED: Nome removido
-      logo: 'https://i.imgur.com/RegcEoX.png', // ✅ UPDATED: Agora usa a logo da Mayo Clinic
+      logo: 'https://i.imgur.com/ClqsijC.png', // ✅ UPDATED: Nova logo da Mayo Clinic conforme solicitado
       title: 'The Science Behind Herbal Support for Men\'s Vitality',
       summary: 'Mayo Clinic explores the benefits and limitations of natural approaches, suggesting products like BlueDrops may complement traditional treatment.',
       buttonText: 'Read Full Article',

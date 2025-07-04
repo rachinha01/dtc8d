@@ -21,6 +21,7 @@ function App() {
   const [showUpsellPopup, setShowUpsellPopup] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState('');
   const [contentDelay, setContentDelay] = useState(0); // Delay in seconds
+  const [isAdmin, setIsAdmin] = useState(false); // ✅ NEW: Admin state
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -28,6 +29,39 @@ function App() {
 
   // Check if we're on the main page (show popup only on main page)
   const isMainPage = location.pathname === '/' || location.pathname === '/home';
+
+  // ✅ NEW: Check admin authentication on mount
+  useEffect(() => {
+    const checkAdminAuth = () => {
+      const isLoggedIn = sessionStorage.getItem('admin_authenticated') === 'true';
+      const loginTime = sessionStorage.getItem('admin_login_time');
+      
+      if (isLoggedIn && loginTime) {
+        const loginTimestamp = parseInt(loginTime);
+        const now = Date.now();
+        const twentyFourHours = 24 * 60 * 60 * 1000;
+        
+        if (now - loginTimestamp < twentyFourHours) {
+          setIsAdmin(true);
+          console.log('Admin authenticated - DTC button will be shown');
+        } else {
+          // Session expired
+          sessionStorage.removeItem('admin_authenticated');
+          sessionStorage.removeItem('admin_login_time');
+          setIsAdmin(false);
+        }
+      } else {
+        setIsAdmin(false);
+      }
+    };
+
+    checkAdminAuth();
+    
+    // Check every 30 seconds for admin status changes
+    const interval = setInterval(checkAdminAuth, 30000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   // Handle content delay - FIXED: Get delay from localStorage
   useEffect(() => {
@@ -335,8 +369,27 @@ function App() {
     closeUpsellPopup();
   };
 
+  // ✅ NEW: Function to open admin dashboard
+  const openAdminDashboard = () => {
+    window.open('/admin', '_blank');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 via-white to-gray-50 overflow-x-hidden">
+      {/* ✅ NEW: Admin DTC Button - Only visible for authenticated admins */}
+      {isAdmin && (
+        <div className="fixed top-4 left-4 z-50">
+          <button
+            onClick={openAdminDashboard}
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center gap-2 text-sm font-semibold"
+            title="Abrir Dashboard Admin"
+          >
+            <span className="text-lg">📊</span>
+            <span className="hidden sm:inline">DTC</span>
+          </button>
+        </div>
+      )}
+
       {/* Main container - Always visible */}
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-6 sm:py-8 max-w-full">
         

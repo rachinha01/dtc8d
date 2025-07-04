@@ -23,9 +23,9 @@ export const MayoModal: React.FC<MayoModalProps> = ({ onClose, article }) => {
             <div className="flex items-center justify-between">
               {/* Left side - Logo e Navigation */}
               <div className="flex items-center gap-8">
-                {/* Mayo Clinic Logo - ✅ FIXED: Redirect to home */}
+                {/* ✅ UPDATED: Mayo Clinic Logo - Nova logo conforme solicitado */}
                 <img 
-                  src="https://i.imgur.com/AYQHh2i.png" 
+                  src="https://i.imgur.com/ClqsijC.png" 
                   alt="Mayo Clinic" 
                   className="h-10 cursor-pointer hover:opacity-80 transition-opacity" 
                   onClick={redirectToHome}
@@ -192,7 +192,7 @@ export const MayoModal: React.FC<MayoModalProps> = ({ onClose, article }) => {
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center">
             <img 
-              src="https://i.imgur.com/AYQHh2i.png" 
+              src="https://i.imgur.com/ClqsijC.png" 
               alt="Mayo Clinic" 
               className="h-8 mx-auto mb-4 cursor-pointer hover:opacity-80 transition-opacity" 
               onClick={redirectToHome}
