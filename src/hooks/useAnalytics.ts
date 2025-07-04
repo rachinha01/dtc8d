@@ -454,7 +454,6 @@ export const useAnalytics = () => {
     }
     
     const progressPercent = (currentTime / duration) * 100;
-    const totalTimeOnPage = Math.floor((Date.now() - pageStartTime.current) / 1000);
     
     // ✅ UPDATED: Track lead reached when user has been on page for 7:45 (465 seconds)
     if (totalTimeOnPage >= 465 && !hasTrackedLeadReached.current) {
@@ -463,6 +462,11 @@ export const useAnalytics = () => {
         milestone: 'lead_reached',
         time_reached: totalTimeOnPage,
         total_time_on_page: totalTimeOnPage,
+        actual_video_time: currentTime,
+        country: geolocationData.current?.country_name || 'Unknown'
+      });
+    }
+    
     // Track progress milestones every 25%
     const milestone25 = Math.floor(duration * 0.25);
     const milestone50 = Math.floor(duration * 0.50);
