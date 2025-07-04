@@ -635,7 +635,11 @@ function App() {
 
         {/* Better organized final section with proper spacing and alignment */}
         {showPurchaseButton && (
-          <section className="mt-16 sm:mt-20 w-full max-w-5xl mx-auto px-4 animate-fadeInUp animation-delay-2200">
+          <section 
+            id="final-purchase-section"
+            data-purchase-section="true"
+            className="mt-16 sm:mt-20 w-full max-w-5xl mx-auto px-4 animate-fadeInUp animation-delay-2200"
+          >
             {/* Section Header - Centered and well-spaced */}
             <div className="text-center mb-8 sm:mb-12">
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-blue-900 mb-4">

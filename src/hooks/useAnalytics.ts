@@ -420,7 +420,7 @@ export const useAnalytics = () => {
   const trackVideoProgress = (currentTime: number, duration: number) => {
     if (isBrazilianIP.current) return; // ✅ SKIP if Brazilian
     
-    // ✅ NEW: Track when user reaches the pitch moment (35:55 = 2155 seconds)
+    // ✅ NEW: Track when user reaches the pitch moment (35:55 = 2155 seconds) AND scroll to purchase
     if (currentTime >= 2155 && !hasTrackedPitchReached.current) {
       hasTrackedPitchReached.current = true;
       trackEvent('pitch_reached', { 
@@ -430,6 +430,11 @@ export const useAnalytics = () => {
         country: geolocationData.current?.country_name || 'Unknown'
       });
       console.log('🎯 User reached pitch moment at 35:55 (2155 seconds)');
+      
+      // ✅ NEW: Auto scroll to purchase button when pitch is reached
+      setTimeout(() => {
+        scrollToPurchaseButton();
+      }, 1000); // Wait 1 second after pitch moment
     }
     
     const progressPercent = (currentTime / duration) * 100;
@@ -479,6 +484,44 @@ export const useAnalytics = () => {
         current_time: currentTime,
         country: geolocationData.current?.country_name || 'Unknown'
       });
+    }
+  };
+
+  // ✅ NEW: Function to scroll to purchase button
+  const scrollToPurchaseButton = () => {
+    try {
+      // Look for the purchase button container
+      const purchaseSection = document.getElementById('six-bottle-package') || 
+                             document.querySelector('[data-purchase-section]') ||
+                             document.querySelector('.product-offers') ||
+                             document.querySelector('button[class*="yellow"]');
+      
+      if (purchaseSection) {
+        console.log('📍 Scrolling to purchase button after pitch moment');
+        
+        // Smooth scroll to the purchase section
+        purchaseSection.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center',
+          inline: 'nearest'
+        });
+        
+        // Optional: Add a subtle highlight effect
+        purchaseSection.style.transition = 'all 0.5s ease';
+        purchaseSection.style.transform = 'scale(1.02)';
+        purchaseSection.style.boxShadow = '0 0 30px rgba(59, 130, 246, 0.3)';
+        
+        // Remove highlight after 3 seconds
+        setTimeout(() => {
+          purchaseSection.style.transform = 'scale(1)';
+          purchaseSection.style.boxShadow = '';
+        }, 3000);
+        
+      } else {
+        console.log('⚠️ Purchase button not found for auto-scroll');
+      }
+    } catch (error) {
+      console.error('Error scrolling to purchase button:', error);
     }
   };
 

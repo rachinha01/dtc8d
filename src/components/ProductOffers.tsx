@@ -54,7 +54,11 @@ export const ProductOffers: React.FC<ProductOffersProps> = ({
   return (
     <>
       {/* PRODUTO 1: 6 BOTTLE PACKAGE - BEST VALUE */}
-      <div id="six-bottle-package" className="w-full mb-6 sm:mb-8 relative animate-fadeInUp animation-delay-800">
+      <div 
+        id="six-bottle-package" 
+        data-purchase-section="true"
+        className="w-full mb-6 sm:mb-8 relative animate-fadeInUp animation-delay-800"
+      >
         {/* BEST VALUE Tag */}
         <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-20">
           <div className="bg-gradient-to-r from-yellow-400 via-yellow-500 to-orange-500 text-blue-600 px-6 sm:px-8 py-2 sm:py-3 rounded-full text-sm sm:text-base font-black shadow-lg border-2 border-white/40 backdrop-blur-sm">
@@ -103,7 +107,7 @@ export const ProductOffers: React.FC<ProductOffersProps> = ({
               <div className="absolute -inset-0.5 bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500 rounded-xl blur opacity-75 animate-pulse"></div>
               <button 
                 onClick={() => handlePurchaseClick('6-bottle')}
-                className="relative w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold py-4 sm:py-5 px-4 sm:px-6 rounded-xl transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg text-lg sm:text-xl border-2 border-white/40 backdrop-blur-sm overflow-hidden"
+                className="relative w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold py-4 sm:py-5 px-4 sm:px-6 rounded-xl transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg text-lg sm:text-xl border-2 border-white/40 backdrop-blur-sm overflow-hidden purchase-button-main"
               >
                 <div className="absolute inset-0 rounded-xl border border-white/30 pointer-events-none"></div>
                 <span className="relative z-10">CLAIM OFFER NOW</span>
