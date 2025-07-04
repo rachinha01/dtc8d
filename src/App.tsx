@@ -176,6 +176,12 @@ function App() {
     
     // Inject VTurb script with proper error handling and optimization
     const injectVTurbScript = () => {
+      // ✅ CRITICAL: Prevent multiple VTurb custom element registrations
+      if (window.vslVideoLoaded || document.getElementById('scr_683ba3d1b87ae17c6e07e7db')) {
+        console.log('🛡️ VTurb script already loaded, skipping injection');
+        return;
+      }
+
       // Remove any existing script first
       const existingScript = document.getElementById('scr_683ba3d1b87ae17c6e07e7db');
       if (existingScript) {
@@ -192,6 +198,13 @@ function App() {
       script.innerHTML = `
         (function() {
           try {
+            // ✅ CRITICAL: Check if custom elements are already defined
+            if (window.customElements && window.customElements.get('vturb-bezel')) {
+              console.log('🛡️ VTurb custom elements already registered, skipping');
+              window.vslVideoLoaded = true;
+              return;
+            }
+            
             // ✅ CRITICAL: Initialize main video container isolation
             window.mainVideoId = '683ba3d1b87ae17c6e07e7db';
             window.smartplayer = window.smartplayer || { instances: {} };
@@ -203,6 +216,9 @@ function App() {
             s.onload = function() {
               console.log('VTurb player script loaded successfully');
               window.vslVideoLoaded = true;
+              
+              // ✅ CRITICAL: Mark custom elements as registered
+              window.vslCustomElementsRegistered = true;
               
               // ✅ CRITICAL: Ensure main video stays in its container
               setTimeout(function() {
