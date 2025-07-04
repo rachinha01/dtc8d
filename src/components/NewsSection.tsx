@@ -30,7 +30,7 @@ export const NewsSection: React.FC = () => {
   const newsArticles: NewsArticle[] = [
     {
       id: 'cnn',
-      source: '🔴 CNN Health',
+      source: '', // ✅ REMOVED: Nome removido, só logo
       logo: 'https://i.imgur.com/0twf89j.png',
       title: 'A Surprising Natural Solution to Men\'s Performance Issues',
       summary: 'CNN reveals the growing demand for natural solutions among men over 40. Products like BlueDrops are gaining ground as alternatives to traditional treatments.',
@@ -40,8 +40,8 @@ export const NewsSection: React.FC = () => {
     },
     {
       id: 'mayo',
-      source: '🏥 Mayo Clinic',
-      logo: 'https://i.imgur.com/AYQHh2i.png', // ✅ TROCADO: Agora usa a imagem do WebMD
+      source: '', // ✅ REMOVED: Nome removido, só logo
+      logo: 'https://i.imgur.com/RegcEoX.png', // ✅ MANTIDO: Logo original da Mayo Clinic
       title: 'The Science Behind Herbal Support for Men\'s Vitality',
       summary: 'Mayo Clinic explores the benefits and limitations of natural approaches, suggesting products like BlueDrops may complement traditional treatment.',
       buttonText: 'Read Full Article',
@@ -50,8 +50,8 @@ export const NewsSection: React.FC = () => {
     },
     {
       id: 'webmd',
-      source: '🌐 WebMD',
-      logo: 'https://i.imgur.com/RegcEoX.png', // ✅ TROCADO: Agora usa a imagem da Mayo Clinic
+      source: '', // ✅ REMOVED: Nome removido, só logo
+      logo: 'https://i.imgur.com/hEggmdK.png', // ✅ UPDATED: Nova logo do WebMD conforme solicitado
       title: 'Natural Male Enhancers Gaining Ground in 2025',
       summary: 'WebMD highlights studies on the use of simple ingredients to improve male sexual health and performance naturally.',
       buttonText: 'Read Full Article',
@@ -373,7 +373,7 @@ export const NewsSection: React.FC = () => {
   );
 };
 
-// FIXED: News Card Component with better mobile styling
+// FIXED: News Card Component - ✅ REMOVED: Source text, only logos
 const NewsCard: React.FC<{ 
   article: any; 
   isActive: boolean; 
@@ -385,15 +385,14 @@ const NewsCard: React.FC<{
       isDragging ? 'shadow-2xl' : 'shadow-lg'
     } ${isActive ? 'ring-2 ring-blue-300' : ''}`}>
       
-      {/* Source Header */}
-      <div className="flex items-center gap-3 mb-4">
+      {/* ✅ FIXED: Source Header - Only logo, no text */}
+      <div className="flex items-center justify-center mb-4">
         <img 
           src={article.logo} 
-          alt={article.source}
+          alt="News Source"
           className="h-6 sm:h-8 w-auto object-contain"
           draggable={false}
         />
-        <span className="text-sm font-bold text-gray-700">{article.source}</span>
       </div>
 
       {/* Article Title */}
