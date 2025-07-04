@@ -19,8 +19,9 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
   isActive, 
   isDragging 
 }) => {
-  // ✅ Check if this is Michael R. with real VTurb video
-  const hasRealVideo = testimonial.videoId === "68677fbfd890d9c12c549f94";
+  // ✅ Check if this testimonial has a real VTurb video
+  const hasRealVideo = testimonial.videoId === "68677fbfd890d9c12c549f94" || // Michael R.
+                       testimonial.videoId === "6867816a78c1d68a675981f1";   // Robert S.
 
   // ✅ FIXED: Inject VTurb script only when card is active and has real video
   useEffect(() => {

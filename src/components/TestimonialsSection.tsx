@@ -26,7 +26,7 @@ export const TestimonialsSection: React.FC = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number>();
 
-  // ✅ UPDATED: Michael R. now has real VTurb video ID and new profile image
+  // ✅ UPDATED: Michael R. and Robert S. now have real VTurb video IDs and profile images
   const testimonials: Testimonial[] = [
     {
       id: 1,
@@ -40,8 +40,8 @@ export const TestimonialsSection: React.FC = () => {
       id: 2,
       name: "Robert S.",
       location: "California",
-      profileImage: "https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop&crop=face",
-      videoId: "robert_testimonial_id", // Replace with actual VTurb video ID
+      profileImage: "https://i.imgur.com/d1raEIm.png", // ✅ NEW profile image
+      videoId: "6867816a78c1d68a675981f1", // ✅ REAL VTurb video ID
       caption: "After 50, I thought there was no hope. BlueDrops proved me wrong!"
     },
     {
@@ -53,8 +53,6 @@ export const TestimonialsSection: React.FC = () => {
       caption: "My wife noticed the difference before I even told her about BlueDrops!"
     }
   ];
-
-  // ✅ REMOVED: Global video injection - now handled per card
 
   // Intersection Observer for lazy loading
   useEffect(() => {
