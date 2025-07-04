@@ -13,9 +13,10 @@ import { NewsSection } from './components/NewsSection';
 import { GuaranteeSection } from './components/GuaranteeSection';
 import { Footer } from './components/Footer';
 import { Modals } from './components/Modals';
+import { DelayController } from './components/DelayController';
 
 function App() {
-  const [showPurchaseButton, setShowPurchaseButton] = useState(true); // Show immediately
+  const [showPurchaseButton, setShowPurchaseButton] = useState(false); // Start hidden
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const [showPopup, setShowPopup] = useState(true);
   const [showUpsellPopup, setShowUpsellPopup] = useState(false);
@@ -24,6 +25,7 @@ function App() {
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [loginError, setLoginError] = useState('');
+  const [contentDelay, setContentDelay] = useState(0); // Delay in seconds
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -31,6 +33,19 @@ function App() {
 
   // Check if we're on the main page (show popup only on main page)
   const isMainPage = location.pathname === '/' || location.pathname === '/home';
+
+  // Handle content delay
+  useEffect(() => {
+    if (contentDelay > 0) {
+      const timer = setTimeout(() => {
+        setShowPurchaseButton(true);
+      }, contentDelay * 1000);
+
+      return () => clearTimeout(timer);
+    } else {
+      setShowPurchaseButton(true);
+    }
+  }, [contentDelay]);
 
   useEffect(() => {
     // Initialize URL tracking parameters
@@ -327,7 +342,8 @@ function App() {
       '6-bottle': 'https://pagamento.paybluedrops.com/checkout/176849703:1'
     };
     
-    window.open(links[packageType], '_blank');
+    // Open in same tab instead of new tab
+    window.location.href = links[packageType];
   };
 
   const handleUpsellAccept = () => {
@@ -344,6 +360,12 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 via-white to-gray-50 overflow-x-hidden">
+      {/* Delay Controller - Only show for admin */}
+      <DelayController 
+        currentDelay={contentDelay}
+        onDelayChange={setContentDelay}
+      />
+
       {/* Main container - Always visible */}
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-6 sm:py-8 max-w-full">
         
@@ -359,25 +381,27 @@ function App() {
           {/* Video Section */}
           <VideoSection />
 
-          {/* Product Offers */}
-          <ProductOffers 
-            showPurchaseButton={showPurchaseButton}
-            onPurchase={handlePurchase}
-            onSecondaryPackageClick={handleSecondaryPackageClick}
-          />
+          {/* Product Offers - Only show after delay */}
+          {showPurchaseButton && (
+            <ProductOffers 
+              showPurchaseButton={showPurchaseButton}
+              onPurchase={handlePurchase}
+              onSecondaryPackageClick={handleSecondaryPackageClick}
+            />
+          )}
         </div>
 
-        {/* Testimonials Section - Lazy load */}
-        <TestimonialsSection />
+        {/* Testimonials Section - Only show after delay */}
+        {showPurchaseButton && <TestimonialsSection />}
 
-        {/* Doctors Section - Lazy load */}
-        <DoctorsSection />
+        {/* Doctors Section - Only show after delay */}
+        {showPurchaseButton && <DoctorsSection />}
 
-        {/* News Section - Lazy load */}
-        <NewsSection />
+        {/* News Section - Only show after delay */}
+        {showPurchaseButton && <NewsSection />}
 
-        {/* Guarantee Section */}
-        <GuaranteeSection />
+        {/* Guarantee Section - Only show after delay */}
+        {showPurchaseButton && <GuaranteeSection />}
 
         {/* Footer */}
         <Footer />

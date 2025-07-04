@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { supabase } from '../lib/supabase';
 import { RefreshCw, Calendar, TrendingUp, Clock, MapPin } from 'lucide-react';
 
@@ -26,8 +27,20 @@ interface ConversionHeatmapProps {
   className?: string;
 }
 
+interface ChartData {
+  hour: string;
+  domingo: number;
+  segunda: number;
+  terca: number;
+  quarta: number;
+  quinta: number;
+  sexta: number;
+  sabado: number;
+}
+
 export const ConversionHeatmap: React.FC<ConversionHeatmapProps> = ({ className = '' }) => {
   const [heatmapData, setHeatmapData] = useState<HeatmapData>({});
+  const [chartData, setChartData] = useState<ChartData[]>([]);
   const [weekStats, setWeekStats] = useState<WeekStats>({
     totalPurchases: 0,
     bestSlot: null,
@@ -51,7 +64,6 @@ export const ConversionHeatmap: React.FC<ConversionHeatmapProps> = ({ className 
   
   const [loading, setLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
-  const [maxValue, setMaxValue] = useState<number>(0);
 
   // Day names in Portuguese
   const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
@@ -61,10 +73,13 @@ export const ConversionHeatmap: React.FC<ConversionHeatmapProps> = ({ className 
     setLoading(true);
     try {
       // Query offer_click events (using as proxy for purchases) within date range
+      // Exclude Brazilian IPs
       const { data: offerClicks, error } = await supabase
         .from('vsl_analytics')
-        .select('created_at, event_data')
+        .select('created_at, event_data, country_code, country_name')
         .eq('event_type', 'offer_click')
+        .neq('country_code', 'BR')
+        .neq('country_name', 'Brazil')
         .gte('created_at', `${start}T00:00:00.000Z`)
         .lte('created_at', `${end}T23:59:59.999Z`)
         .order('created_at', { ascending: true });
@@ -81,7 +96,6 @@ export const ConversionHeatmap: React.FC<ConversionHeatmapProps> = ({ className 
       }
 
       let totalPurchases = 0;
-      let maxCount = 0;
       const dayTotals: { [day: number]: number } = {};
 
       // Initialize day totals
@@ -99,10 +113,6 @@ export const ConversionHeatmap: React.FC<ConversionHeatmapProps> = ({ className 
           heatmap[dayOfWeek][hour]++;
           dayTotals[dayOfWeek]++;
           totalPurchases++;
-          
-          if (heatmap[dayOfWeek][hour] > maxCount) {
-            maxCount = heatmap[dayOfWeek][hour];
-          }
         });
       }
 
@@ -133,8 +143,23 @@ export const ConversionHeatmap: React.FC<ConversionHeatmapProps> = ({ className 
 
       const averagePerHour = totalPurchases / (7 * 24);
 
+      // Convert to chart data format
+      const chartDataArray: ChartData[] = [];
+      for (let hour = 0; hour < 24; hour++) {
+        chartDataArray.push({
+          hour: `${hour.toString().padStart(2, '0')}:00`,
+          domingo: heatmap[0][hour],
+          segunda: heatmap[1][hour],
+          terca: heatmap[2][hour],
+          quarta: heatmap[3][hour],
+          quinta: heatmap[4][hour],
+          sexta: heatmap[5][hour],
+          sabado: heatmap[6][hour],
+        });
+      }
+
       setHeatmapData(heatmap);
-      setMaxValue(maxCount);
+      setChartData(chartDataArray);
       setWeekStats({
         totalPurchases,
         bestSlot,
@@ -171,30 +196,6 @@ export const ConversionHeatmap: React.FC<ConversionHeatmapProps> = ({ className 
     setEndDate(event.target.value);
   };
 
-  const getIntensityColor = (value: number): string => {
-    if (maxValue === 0) return 'bg-gray-100';
-    
-    const intensity = value / maxValue;
-    
-    if (intensity === 0) return 'bg-gray-100';
-    if (intensity <= 0.2) return 'bg-blue-100';
-    if (intensity <= 0.4) return 'bg-blue-200';
-    if (intensity <= 0.6) return 'bg-blue-300';
-    if (intensity <= 0.8) return 'bg-blue-400';
-    return 'bg-blue-500';
-  };
-
-  const getTextColor = (value: number): string => {
-    if (maxValue === 0) return 'text-gray-600';
-    
-    const intensity = value / maxValue;
-    return intensity > 0.6 ? 'text-white' : 'text-gray-700';
-  };
-
-  const formatHour = (hour: number): string => {
-    return `${hour.toString().padStart(2, '0')}h`;
-  };
-
   const formatDateRange = (start: string, end: string): string => {
     const startDate = new Date(start);
     const endDate = new Date(end);
@@ -221,6 +222,25 @@ export const ConversionHeatmap: React.FC<ConversionHeatmapProps> = ({ className 
     
     setStartDate(lastMonday.toISOString().split('T')[0]);
     setEndDate(lastSunday.toISOString().split('T')[0]);
+  };
+
+  // Custom tooltip for the chart
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white p-4 border border-gray-200 rounded-lg shadow-lg">
+          <p className="font-semibold text-gray-900 mb-2">
+            {label}
+          </p>
+          {payload.map((entry: any, index: number) => (
+            <p key={index} className="text-sm" style={{ color: entry.color }}>
+              <span className="font-medium capitalize">{entry.dataKey}:</span> {entry.value} vendas
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
   };
 
   return (
@@ -302,7 +322,7 @@ export const ConversionHeatmap: React.FC<ConversionHeatmapProps> = ({ className 
             {weekStats.bestSlot ? (
               <>
                 <p className="text-lg font-bold text-green-800">
-                  {dayNames[weekStats.bestSlot.day]} às {formatHour(weekStats.bestSlot.hour)}
+                  {dayNames[weekStats.bestSlot.day]} às {weekStats.bestSlot.hour.toString().padStart(2, '0')}h
                 </p>
                 <p className="text-xs text-green-600">{weekStats.bestSlot.count} vendas</p>
               </>
@@ -341,7 +361,7 @@ export const ConversionHeatmap: React.FC<ConversionHeatmapProps> = ({ className 
         </div>
       </div>
 
-      {/* Heatmap */}
+      {/* Chart */}
       <div className="p-6">
         {loading ? (
           <div className="flex items-center justify-center h-64">
@@ -362,72 +382,105 @@ export const ConversionHeatmap: React.FC<ConversionHeatmapProps> = ({ className 
               </p>
             </div>
 
-            {/* Heatmap Grid */}
-            <div className="overflow-x-auto">
-              <div className="min-w-full">
-                {/* Hour Headers */}
-                <div className="flex mb-2">
-                  <div className="w-16 flex-shrink-0"></div> {/* Space for day labels */}
-                  {Array.from({ length: 24 }, (_, hour) => (
-                    <div key={hour} className="w-8 text-center text-xs text-gray-600 font-medium">
-                      {hour % 4 === 0 ? formatHour(hour) : ''}
-                    </div>
-                  ))}
-                </div>
-
-                {/* Heatmap Rows */}
-                {Array.from({ length: 7 }, (_, day) => (
-                  <div key={day} className="flex items-center mb-1">
-                    {/* Day Label */}
-                    <div className="w-16 flex-shrink-0 text-sm font-medium text-gray-700 text-right pr-2">
-                      {dayNames[day]}
-                    </div>
-                    
-                    {/* Hour Cells */}
-                    {Array.from({ length: 24 }, (_, hour) => {
-                      const value = heatmapData[day]?.[hour] || 0;
-                      return (
-                        <div
-                          key={hour}
-                          className={`w-8 h-8 m-0.5 rounded ${getIntensityColor(value)} ${getTextColor(value)} 
-                                    flex items-center justify-center text-xs font-medium cursor-pointer
-                                    hover:ring-2 hover:ring-blue-300 transition-all duration-200
-                                    ${value > 0 ? 'hover:scale-110' : ''}`}
-                          title={`${dayNamesFull[day]} às ${formatHour(hour)}: ${value} vendas`}
-                        >
-                          {value > 0 ? value : ''}
-                        </div>
-                      );
-                    })}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Legend */}
-            <div className="mt-6 flex items-center justify-center gap-4">
-              <span className="text-sm text-gray-600">Intensidade:</span>
-              <div className="flex items-center gap-1">
-                <div className="w-4 h-4 bg-gray-100 rounded"></div>
-                <span className="text-xs text-gray-500">0</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="w-4 h-4 bg-blue-100 rounded"></div>
-                <span className="text-xs text-gray-500">Baixa</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="w-4 h-4 bg-blue-300 rounded"></div>
-                <span className="text-xs text-gray-500">Média</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="w-4 h-4 bg-blue-500 rounded"></div>
-                <span className="text-xs text-gray-500">Alta</span>
-              </div>
-              {maxValue > 0 && (
-                <span className="text-xs text-gray-500 ml-2">
-                  (máx: {maxValue} vendas)
-                </span>
-              )}
+            {/* Line Chart */}
+            <div className="h-96">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart
+                  data={chartData}
+                  margin={{
+                    top: 20,
+                    right: 30,
+                    left: 20,
+                    bottom: 20,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis 
+                    dataKey="hour" 
+                    stroke="#6b7280"
+                    fontSize={12}
+                    interval={1}
+                  />
+                  <YAxis 
+                    stroke="#6b7280"
+                    fontSize={12}
+                    allowDecimals={false}
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend 
+                    formatter={(value) => (
+                      <span className="text-sm font-medium capitalize">
+                        {value}
+                      </span>
+                    )}
+                  />
+                  
+                  {/* Lines for each day */}
+                  <Line
+                    type="monotone"
+                    dataKey="domingo"
+                    stroke="#ef4444"
+                    strokeWidth={2}
+                    dot={{ fill: '#ef4444', strokeWidth: 2, r: 3 }}
+                    activeDot={{ r: 5, stroke: '#ef4444', strokeWidth: 2 }}
+                    name="domingo"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="segunda"
+                    stroke="#3b82f6"
+                    strokeWidth={2}
+                    dot={{ fill: '#3b82f6', strokeWidth: 2, r: 3 }}
+                    activeDot={{ r: 5, stroke: '#3b82f6', strokeWidth: 2 }}
+                    name="segunda"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="terca"
+                    stroke="#10b981"
+                    strokeWidth={2}
+                    dot={{ fill: '#10b981', strokeWidth: 2, r: 3 }}
+                    activeDot={{ r: 5, stroke: '#10b981', strokeWidth: 2 }}
+                    name="terça"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="quarta"
+                    stroke="#f59e0b"
+                    strokeWidth={2}
+                    dot={{ fill: '#f59e0b', strokeWidth: 2, r: 3 }}
+                    activeDot={{ r: 5, stroke: '#f59e0b', strokeWidth: 2 }}
+                    name="quarta"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="quinta"
+                    stroke="#8b5cf6"
+                    strokeWidth={2}
+                    dot={{ fill: '#8b5cf6', strokeWidth: 2, r: 3 }}
+                    activeDot={{ r: 5, stroke: '#8b5cf6', strokeWidth: 2 }}
+                    name="quinta"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="sexta"
+                    stroke="#06b6d4"
+                    strokeWidth={2}
+                    dot={{ fill: '#06b6d4', strokeWidth: 2, r: 3 }}
+                    activeDot={{ r: 5, stroke: '#06b6d4', strokeWidth: 2 }}
+                    name="sexta"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="sabado"
+                    stroke="#ec4899"
+                    strokeWidth={2}
+                    dot={{ fill: '#ec4899', strokeWidth: 2, r: 3 }}
+                    activeDot={{ r: 5, stroke: '#ec4899', strokeWidth: 2 }}
+                    name="sábado"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
 
             {/* No Data Message */}
@@ -453,7 +506,7 @@ export const ConversionHeatmap: React.FC<ConversionHeatmapProps> = ({ className 
                       <strong>Horário mais produtivo:</strong>{' '}
                       {weekStats.bestSlot && (
                         <span className="text-green-600 font-medium">
-                          {dayNamesFull[weekStats.bestSlot.day]} às {formatHour(weekStats.bestSlot.hour)} 
+                          {dayNamesFull[weekStats.bestSlot.day]} às {weekStats.bestSlot.hour.toString().padStart(2, '0')}h 
                           ({weekStats.bestSlot.count} vendas)
                         </span>
                       )}
