@@ -23,6 +23,17 @@ function App() {
   const [contentDelay, setContentDelay] = useState(0); // Delay in seconds
   const [isAdmin, setIsAdmin] = useState(false);
 
+  // ✅ NEW: Set default delay to 35min55s (2155 seconds)
+  useEffect(() => {
+    // Check if there's a stored delay, if not set to 35min55s
+    const storedDelay = localStorage.getItem('content_delay');
+    if (!storedDelay) {
+      localStorage.setItem('content_delay', '2155'); // 35min55s = 2155 seconds
+      setContentDelay(2155);
+      console.log('🕐 Default delay set to 35min55s (2155 seconds)');
+    }
+  }, []);
+
   const navigate = useNavigate();
   const location = useLocation();
   const { trackVideoPlay, trackVideoProgress, trackOfferClick } = useAnalytics();

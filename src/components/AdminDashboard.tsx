@@ -101,7 +101,7 @@ export const AdminDashboard: React.FC = () => {
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [liveSessions, setLiveSessions] = useState<LiveSession[]>([]);
   const [activeTab, setActiveTab] = useState<'analytics' | 'tracking' | 'settings'>('analytics');
-  const [contentDelay, setContentDelay] = useState(2155); // Default to 35min55s
+  const [contentDelay, setContentDelay] = useState(2155); // 35min55s in seconds
 
   const navigate = useNavigate();
 
@@ -135,14 +135,15 @@ export const AdminDashboard: React.FC = () => {
     checkAuth();
   }, []);
 
-  // Set default delay to 35min55s on first load
+  // ✅ FIXED: Set and maintain 35min55s delay
   useEffect(() => {
     if (isAuthenticated) {
       const storedDelay = localStorage.getItem('content_delay');
       if (!storedDelay) {
-        // Set default delay to 35min55s = 2155 seconds
+        // ✅ FORCE: Always set to 35min55s = 2155 seconds
         localStorage.setItem('content_delay', '2155');
         setContentDelay(2155);
+        console.log('🕐 Admin: Default delay set to 35min55s (2155 seconds)');
       } else {
         setContentDelay(parseInt(storedDelay));
       }
@@ -592,36 +593,51 @@ export const AdminDashboard: React.FC = () => {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center gap-2 mb-4">
           <Clock className="w-5 h-5 text-blue-600" />
-          <h3 className="text-lg font-semibold text-gray-900">Controle de Delay do Conteúdo</h3>
+          <h3 className="text-lg font-semibold text-gray-900">Controle de Delay - PADRÃO: 35min55s</h3>
         </div>
 
-        <p className="text-sm text-gray-600 mb-4">
+        <p className="text-sm text-gray-600 mb-6">
+          <strong>IMPORTANTE:</strong> O delay padrão é 35min55s (quando o pitch aparece no vídeo). 
           Configure quanto tempo esperar antes de mostrar os botões de compra e seções abaixo do vídeo.
         </p>
 
         {/* Current Status */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
           <div className="flex items-center gap-2">
-            <Eye className="w-4 h-4 text-blue-600" />
-            <span className="text-sm font-medium text-blue-800">
-              Status atual: {contentDelay === 0 ? 'Sem delay' : contentDelay === 2155 ? '35min55s (Pitch)' : `${contentDelay} segundos`}
+            <Eye className="w-4 h-4 text-yellow-600" />
+            <span className="text-sm font-medium text-yellow-800">
+              Status atual: {contentDelay === 0 ? 'Sem delay' : 
+                           contentDelay === 2155 ? '✅ 35min55s (PITCH - PADRÃO)' : 
+                           `${contentDelay} segundos`}
             </span>
           </div>
+          {contentDelay !== 2155 && (
+            <div className="mt-2 text-xs text-yellow-700">
+              ⚠️ Delay atual não é o padrão (35min55s)
+            </div>
+          )}
         </div>
 
-        {/* Preset Buttons */}
+        {/* ✅ UPDATED: Preset Buttons with 35min55s highlighted */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
           {presetDelays.map((preset) => (
             <button
               key={preset.value}
               onClick={() => setTempDelay(preset.value)}
-              className={`p-2 text-sm rounded-lg border transition-colors ${
+              className={`p-3 text-sm rounded-lg border transition-colors ${
                 tempDelay === preset.value
-                  ? 'bg-blue-600 text-white border-blue-600'
-                  : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                  ? preset.value === 2155 
+                    ? 'bg-yellow-500 text-white border-yellow-500 font-bold' 
+                    : 'bg-blue-600 text-white border-blue-600'
+                  : preset.value === 2155
+                    ? 'bg-yellow-100 text-yellow-800 border-yellow-300 hover:bg-yellow-200 font-semibold'
+                    : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
               }`}
             >
               {preset.label}
+              {preset.value === 2155 && (
+                <div className="text-xs mt-1">🎯 PADRÃO</div>
+              )}
             </button>
           ))}
         </div>
@@ -629,7 +645,7 @@ export const AdminDashboard: React.FC = () => {
         {/* Custom Input */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Delay personalizado (segundos):
+            Delay personalizado (segundos) - Padrão: 2155:
           </label>
           <input
             type="number"
@@ -638,23 +654,74 @@ export const AdminDashboard: React.FC = () => {
             value={tempDelay}
             onChange={(e) => setTempDelay(parseInt(e.target.value) || 0)}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="0"
+            placeholder="2155 (35min55s - padrão)"
           />
         </div>
 
         {/* Action Button */}
         <button
           onClick={handleApplyDelay}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors font-medium"
+          className={`w-full py-3 px-4 rounded-lg transition-colors font-medium ${
+            tempDelay === 2155 
+              ? 'bg-yellow-500 hover:bg-yellow-600 text-white' 
+              : 'bg-blue-600 hover:bg-blue-700 text-white'
+          }`}
         >
-          Aplicar Delay
+          {tempDelay === 2155 ? '🎯 Aplicar Delay Padrão (35min55s)' : 'Aplicar Delay'}
         </button>
 
-        {/* Info */}
-        <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <p className="text-xs text-yellow-700">
-            <strong>Dica:</strong> Use delays para testar diferentes estratégias de conversão. 
-            O delay só afeta os botões de compra e seções abaixo do vídeo. 35min55s é quando o pitch aparece no vídeo.
+        {/* ✅ UPDATED: Info with emphasis on 35min55s */}
+        <div className="mt-6 space-y-3">
+          <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-sm text-yellow-700 font-semibold mb-2">
+              🎯 <strong>PADRÃO RECOMENDADO: 35min55s (2155 segundos)</strong>
+            </p>
+            <p className="text-xs text-yellow-600">
+              Este é o momento exato quando o pitch aparece no vídeo. Os botões de compra só devem aparecer após o pitch.
+            </p>
+          </div>
+          
+          <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-xs text-blue-700">
+              <strong>Como funciona:</strong> O delay só afeta os botões de compra e seções abaixo do vídeo. 
+              O vídeo e as seções acima sempre ficam visíveis.
+            </p>
+          </div>
+        </div>
+
+        {/* ✅ NEW: Quick Reset to Default Button */}
+        {contentDelay !== 2155 && (
+          <div className="mt-4">
+            <button
+              onClick={() => {
+                setTempDelay(2155);
+                setContentDelay(2155);
+                localStorage.setItem('content_delay', '2155');
+                window.dispatchEvent(new CustomEvent('delayChanged'));
+              }}
+              className="w-full bg-yellow-100 hover:bg-yellow-200 text-yellow-800 py-2 px-4 rounded-lg transition-colors font-medium border border-yellow-300"
+            >
+              🔄 Voltar ao Padrão (35min55s)
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // ✅ NEW: Force 35min55s on first admin login
+  useEffect(() => {
+    if (isAuthenticated) {
+      // Always ensure 35min55s is set as default
+      const currentDelay = localStorage.getItem('content_delay');
+      if (!currentDelay || currentDelay === '0') {
+        localStorage.setItem('content_delay', '2155');
+        setContentDelay(2155);
+        window.dispatchEvent(new CustomEvent('delayChanged'));
+        console.log('🎯 Admin login: Forced delay to 35min55s (2155 seconds)');
+      }
+    }
+  }, [isAuthenticated]);
           </p>
         </div>
       </div>

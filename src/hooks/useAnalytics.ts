@@ -408,6 +408,18 @@ export const useAnalytics = () => {
   const trackVideoProgress = (currentTime: number, duration: number) => {
     if (isBrazilianIP.current) return; // ✅ SKIP if Brazilian
     
+    // ✅ NEW: Track when user reaches the pitch moment (35:55 = 2155 seconds)
+    if (currentTime >= 2155 && !hasTrackedPitchReached.current) {
+      hasTrackedPitchReached.current = true;
+      trackEvent('pitch_reached', { 
+        milestone: 'pitch_reached_35_55',
+        time_reached: currentTime,
+        current_time: currentTime,
+        country: geolocationData.current?.country_name || 'Unknown'
+      });
+      console.log('🎯 User reached pitch moment at 35:55 (2155 seconds)');
+    }
+    
     const progressPercent = (currentTime / duration) * 100;
     
     // Track lead reached at 7:45 (465 seconds)
