@@ -152,19 +152,6 @@ export const VideoSection: React.FC = () => {
 
       {/* ✅ NEW: Sound and Video Warning Section */}
       <div className="mt-4 space-y-3 max-w-sm mx-auto">
-        {/* ✅ NEW: Delay Information */}
-        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-3 text-center">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <Clock className="w-4 h-4 text-yellow-600" />
-            <span className="text-yellow-800 font-semibold text-sm">
-              Watch the full video to unlock offers
-            </span>
-          </div>
-          <p className="text-yellow-600 text-xs">
-            Purchase options appear after the pitch (35:55)
-          </p>
-        </div>
-
         {/* Sound Warning */}
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-center">
           <div className="flex items-center justify-center gap-2 mb-2">
