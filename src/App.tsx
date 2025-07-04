@@ -37,26 +37,57 @@ function App() {
     // Initialize tracking parameters on app load
     initializeTracking();
     
-    // Inject VTurb script immediately when component mounts
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.id = 'scr_683ba3d1b87ae17c6e07e7db';
-    script.async = true;
-    script.innerHTML = `
-      var s=document.createElement("script");
-      s.src="https://scripts.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/683ba3d1b87ae17c6e07e7db/player.js";
-      s.async=true;
-      document.head.appendChild(s);
-    `;
-    document.head.appendChild(script);
-    
-    // Set video as loaded and setup tracking
-    setTimeout(() => {
+    // Inject VTurb script with proper error handling and optimization
+    const injectVTurbScript = () => {
+      // Remove any existing script first
+      const existingScript = document.getElementById('scr_683ba3d1b87ae17c6e07e7db');
+      if (existingScript) {
+        existingScript.remove();
+      }
+
+      const script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.id = 'scr_683ba3d1b87ae17c6e07e7db';
+      script.async = true;
+      script.defer = true; // Add defer for better performance
+      
+      // Optimized VTurb injection
+      script.innerHTML = `
+        (function() {
+          try {
+            var s = document.createElement("script");
+            s.src = "https://scripts.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/683ba3d1b87ae17c6e07e7db/player.js";
+            s.async = true;
+            s.onload = function() {
+              console.log('VTurb player script loaded successfully');
+              window.vslVideoLoaded = true;
+            };
+            s.onerror = function() {
+              console.error('Failed to load VTurb player script');
+            };
+            document.head.appendChild(s);
+          } catch (error) {
+            console.error('Error injecting VTurb script:', error);
+          }
+        })();
+      `;
+      
+      document.head.appendChild(script);
+    };
+
+    // Delay script injection to improve initial page load
+    const scriptTimeout = setTimeout(() => {
+      injectVTurbScript();
       setIsVideoLoaded(true);
-      setupVideoTracking();
-    }, 2000);
+      
+      // Setup video tracking after script loads
+      setTimeout(() => {
+        setupVideoTracking();
+      }, 3000);
+    }, 1000); // Reduced delay for faster video loading
 
     return () => {
+      clearTimeout(scriptTimeout);
       const scriptToRemove = document.getElementById('scr_683ba3d1b87ae17c6e07e7db');
       if (scriptToRemove) {
         scriptToRemove.remove();
@@ -65,69 +96,143 @@ function App() {
   }, []);
 
   const setupVideoTracking = () => {
-    // Setup tracking for VTurb player
+    // Setup tracking for VTurb player with improved detection
     let hasTrackedPlay = false;
+    let trackingInterval: NodeJS.Timeout;
 
     const checkForPlayer = () => {
-      // Check for VTurb player events
-      if (window.smartplayer && window.smartplayer.instances) {
-        const playerInstance = window.smartplayer.instances['683ba3d1b87ae17c6e07e7db'];
-        if (playerInstance) {
-          // Track video play
-          playerInstance.on('play', () => {
-            if (!hasTrackedPlay) {
-              hasTrackedPlay = true;
-              trackVideoPlay();
-            }
-          });
-
-          // Track video progress
-          playerInstance.on('timeupdate', (event) => {
-            const currentTime = event.detail.currentTime;
-            const duration = event.detail.duration;
+      try {
+        // Multiple ways to detect VTurb player
+        const playerContainer = document.getElementById('vid_683ba3d1b87ae17c6e07e7db');
+        
+        // Method 1: Check for smartplayer instances
+        if (window.smartplayer && window.smartplayer.instances) {
+          const playerInstance = window.smartplayer.instances['683ba3d1b87ae17c6e07e7db'];
+          if (playerInstance) {
+            console.log('VTurb player instance found');
             
-            if (duration && currentTime) {
-              trackVideoProgress(currentTime, duration);
-            }
-          });
-        }
-      }
+            // Track video play
+            playerInstance.on('play', () => {
+              if (!hasTrackedPlay) {
+                hasTrackedPlay = true;
+                trackVideoPlay();
+                console.log('Video play tracked');
+              }
+            });
 
-      // Fallback: Track clicks on video container as play events
-      const videoContainer = document.getElementById('vid_683ba3d1b87ae17c6e07e7db');
-      if (videoContainer && !hasTrackedPlay) {
-        const handleClick = () => {
-          if (!hasTrackedPlay) {
-            hasTrackedPlay = true;
-            trackVideoPlay();
+            // Track video progress
+            playerInstance.on('timeupdate', (event: any) => {
+              const currentTime = event.detail?.currentTime || event.currentTime;
+              const duration = event.detail?.duration || event.duration;
+              
+              if (duration && currentTime) {
+                trackVideoProgress(currentTime, duration);
+              }
+            });
+
+            clearInterval(trackingInterval);
+            return;
           }
-        };
-        
-        videoContainer.addEventListener('click', handleClick);
-        
-        // Also track any video elements that might be created
-        const videos = videoContainer.querySelectorAll('video');
-        videos.forEach(video => {
-          video.addEventListener('play', () => {
-            if (!hasTrackedPlay) {
-              hasTrackedPlay = true;
-              trackVideoPlay();
-            }
-          });
-          
-          video.addEventListener('timeupdate', () => {
-            if (video.duration) {
-              trackVideoProgress(video.currentTime, video.duration);
-            }
-          });
-        });
+        }
+
+        // Method 2: Check for video elements in container
+        if (playerContainer) {
+          const videos = playerContainer.querySelectorAll('video');
+          if (videos.length > 0) {
+            console.log('Video elements found in container');
+            
+            videos.forEach(video => {
+              // Remove existing listeners to avoid duplicates
+              video.removeEventListener('play', handleVideoPlay);
+              video.removeEventListener('timeupdate', handleTimeUpdate);
+              
+              // Add new listeners
+              video.addEventListener('play', handleVideoPlay);
+              video.addEventListener('timeupdate', handleTimeUpdate);
+            });
+
+            clearInterval(trackingInterval);
+            return;
+          }
+
+          // Method 3: Track clicks on video container as fallback
+          if (!hasTrackedPlay) {
+            playerContainer.removeEventListener('click', handleContainerClick);
+            playerContainer.addEventListener('click', handleContainerClick);
+          }
+        }
+
+        // Method 4: Check for iframe (some VTurb implementations use iframe)
+        const iframe = document.querySelector('iframe[src*="converteai.net"]');
+        if (iframe) {
+          console.log('VTurb iframe found');
+          iframe.removeEventListener('load', handleIframeLoad);
+          iframe.addEventListener('load', handleIframeLoad);
+        }
+
+      } catch (error) {
+        console.error('Error in checkForPlayer:', error);
       }
     };
 
-    // Check immediately and then periodically
+    const handleVideoPlay = () => {
+      if (!hasTrackedPlay) {
+        hasTrackedPlay = true;
+        trackVideoPlay();
+        console.log('Video play tracked via video element');
+      }
+    };
+
+    const handleTimeUpdate = (event: Event) => {
+      const video = event.target as HTMLVideoElement;
+      if (video.duration && video.currentTime) {
+        trackVideoProgress(video.currentTime, video.duration);
+      }
+    };
+
+    const handleContainerClick = () => {
+      if (!hasTrackedPlay) {
+        hasTrackedPlay = true;
+        trackVideoPlay();
+        console.log('Video play tracked via container click');
+      }
+    };
+
+    const handleIframeLoad = () => {
+      console.log('VTurb iframe loaded');
+      // Try to access iframe content if same-origin
+      try {
+        const iframe = document.querySelector('iframe[src*="converteai.net"]') as HTMLIFrameElement;
+        if (iframe && iframe.contentWindow) {
+          // Setup postMessage listener for cross-origin communication
+          window.addEventListener('message', (event) => {
+            if (event.origin.includes('converteai.net')) {
+              if (event.data.type === 'video_play' && !hasTrackedPlay) {
+                hasTrackedPlay = true;
+                trackVideoPlay();
+                console.log('Video play tracked via iframe message');
+              }
+              if (event.data.type === 'video_progress') {
+                trackVideoProgress(event.data.currentTime, event.data.duration);
+              }
+            }
+          });
+        }
+      } catch (error) {
+        console.log('Cross-origin iframe, using fallback tracking');
+      }
+    };
+
+    // Start checking for player immediately and then periodically
     checkForPlayer();
-    const interval = setInterval(checkForPlayer, 1000);
-    setTimeout(() => clearInterval(interval), 15000);
+    trackingInterval = setInterval(checkForPlayer, 2000);
+    
+    // Stop checking after 30 seconds to avoid infinite loops
+    setTimeout(() => {
+      if (trackingInterval) {
+        clearInterval(trackingInterval);
+      }
+    }, 30000);
   };
 
   const closePopup = () => {
@@ -226,13 +331,13 @@ function App() {
           />
         </div>
 
-        {/* Testimonials Section */}
+        {/* Testimonials Section - Lazy load */}
         <TestimonialsSection />
 
-        {/* Doctors Section */}
+        {/* Doctors Section - Lazy load */}
         <DoctorsSection />
 
-        {/* News Section */}
+        {/* News Section - Lazy load */}
         <NewsSection />
 
         {/* Guarantee Section */}
@@ -265,16 +370,21 @@ function App() {
   );
 }
 
-// Add global type for smartplayer
+// Enhanced global type for smartplayer with better error handling
 declare global {
   interface Window {
     smartplayer?: {
       instances?: {
         [key: string]: {
           on: (event: string, callback: (event?: any) => void) => void;
+          play?: () => void;
+          pause?: () => void;
+          getCurrentTime?: () => number;
+          getDuration?: () => number;
         };
       };
     };
+    vslVideoLoaded?: boolean;
     pixelId?: string;
   }
 }
