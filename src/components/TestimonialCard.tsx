@@ -24,7 +24,7 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
                        testimonial.videoId === "6867816a78c1d68a675981f1" ||   // Robert S.
                        testimonial.videoId === "68678320c5ab1e6abe6e5b6f";     // John O.
 
-  // ✅ FIXED: Inject VTurb script only when card is active and has real video with v4 API
+  // ✅ FIXED: Inject VTurb script only when card is active and has real video
   useEffect(() => {
     if (isActive && hasRealVideo) {
       // ✅ CRITICAL: Wait for main video to be fully loaded first
@@ -41,16 +41,62 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
         existingScript.remove();
       }
 
-      // ✅ FORCE clear any existing VTurb instances that might interfere
-      if (window.smartplayer && window.smartplayer.instances) {
-        Object.keys(window.smartplayer.instances).forEach(key => {
-          if (key !== '683ba3d1b87ae17c6e07e7db' && key === testimonial.videoId) {
-            delete window.smartplayer.instances[key];
-          }
-        });
+      // ✅ CRITICAL: Ensure container exists and is properly isolated BEFORE injecting script
+      const targetContainer = document.getElementById(`vid-${testimonial.videoId}`);
+      if (!targetContainer) {
+        console.error('❌ Target container not found for video:', testimonial.videoId);
+        return;
       }
 
-      // Inject VTurb script specifically for this testimonial with v4 API
+      // ✅ Setup container isolation and positioning
+      targetContainer.style.position = 'absolute';
+      targetContainer.style.top = '0';
+      targetContainer.style.left = '0';
+      targetContainer.style.width = '100%';
+      targetContainer.style.height = '100%';
+      targetContainer.style.zIndex = '20';
+      targetContainer.style.overflow = 'hidden';
+      targetContainer.style.borderRadius = '0.75rem';
+      targetContainer.style.isolation = 'isolate';
+      targetContainer.innerHTML = ''; // ✅ Clear any existing content
+
+      // ✅ NEW: Add the HTML structure that you provided - SAME AS DR. OZ
+      if (testimonial.videoId === "68678320c5ab1e6abe6e5b6f") {
+        // ✅ JOHN O. - Using the EXACT same HTML structure as Dr. Oz
+        targetContainer.innerHTML = `
+          <div id="vid_${testimonial.videoId}" style="position:relative;width:100%;padding: 56.25% 0 0 0;">
+            <img id="thumb_${testimonial.videoId}" src="https://images.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${testimonial.videoId}/thumbnail.jpg" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;">
+            <div id="backdrop_${testimonial.videoId}" style="position:absolute;top:0;width:100%;height:100%;-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);"></div>
+          </div>
+          <style>
+            .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border-width:0;}
+          </style>
+        `;
+      } else if (testimonial.videoId === "68677fbfd890d9c12c549f94") {
+        // ✅ Michael R. - Same HTML structure
+        targetContainer.innerHTML = `
+          <div id="vid_${testimonial.videoId}" style="position:relative;width:100%;padding: 56.25% 0 0 0;">
+            <img id="thumb_${testimonial.videoId}" src="https://images.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${testimonial.videoId}/thumbnail.jpg" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;">
+            <div id="backdrop_${testimonial.videoId}" style="position:absolute;top:0;width:100%;height:100%;-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);"></div>
+          </div>
+          <style>
+            .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border-width:0;}
+          </style>
+        `;
+      } else if (testimonial.videoId === "6867816a78c1d68a675981f1") {
+        // ✅ Robert S. - Same HTML structure
+        targetContainer.innerHTML = `
+          <div id="vid_${testimonial.videoId}" style="position:relative;width:100%;padding: 56.25% 0 0 0;">
+            <img id="thumb_${testimonial.videoId}" src="https://images.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${testimonial.videoId}/thumbnail.jpg" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;">
+            <div id="backdrop_${testimonial.videoId}" style="position:absolute;top:0;width:100%;height:100%;-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);"></div>
+          </div>
+          <style>
+            .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border-width:0;}
+          </style>
+        `;
+      }
+
+      // ✅ Inject VTurb script with the EXACT same structure as Dr. Oz
       const script = document.createElement('script');
       script.type = 'text/javascript';
       script.id = `scr_testimonial_${testimonial.videoId}`;
@@ -58,33 +104,53 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
       script.innerHTML = `
         (function() {
           try {
-            // ✅ CRITICAL: Safe custom element handling
-            var customElementsAlreadyDefined = false;
-            try {
-              customElementsAlreadyDefined = window.customElements && window.customElements.get('vturb-bezel');
-            } catch (e) {
-              console.log('Custom elements check failed, proceeding safely');
-            }
+            console.log('🎬 Loading testimonial video: ${testimonial.videoId}');
             
-            // ✅ CRITICAL: Prevent interference with main video
-            if (document.getElementById('vid_683ba3d1b87ae17c6e07e7db')) {
-              console.log('🛡️ Main video detected, isolating testimonial video ${testimonial.videoId}');
-            }
+            var s = document.createElement("script");
+            // ✅ UPDATED: Use the correct VTurb script URL - SAME AS DR. OZ
+            s.src = "https://scripts.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${testimonial.videoId}/player.js";
+            s.async = true;
             
-            // Remove any existing video container content first
-            var existingContainer = document.getElementById('vid-${testimonial.videoId}');
-            if (existingContainer) {
-              existingContainer.innerHTML = '';
-            }
-            
-            // ✅ CRITICAL: Create isolated smartplayer instance
-            window.smartplayer = window.smartplayer || { instances: {} };
-            
-            // ✅ Ensure we don't override main video instance
-                    window.testimonialVideoLoaded_${testimonial.videoId} = true;
+            s.onload = function() {
+              console.log('✅ VTurb testimonial video loaded: ${testimonial.videoId}');
+              
+              // ✅ FIXED: Ensure video elements stay in correct container
+              setTimeout(function() {
+                // ✅ CRITICAL: Prevent video from appearing in main video container
+                var mainVideoContainer = document.getElementById('vid_683ba3d1b87ae17c6e07e7db');
+                var testimonialContainer = document.getElementById('vid-${testimonial.videoId}');
+                
+                if (mainVideoContainer && testimonialContainer) {
+                  // ✅ Move any testimonial video elements that ended up in main container
+                  var orphanedElements = mainVideoContainer.querySelectorAll('[src*="${testimonial.videoId}"], [data-video-id="${testimonial.videoId}"]');
+                  orphanedElements.forEach(function(element) {
+                    if (element.parentNode === mainVideoContainer) {
+                      testimonialContainer.appendChild(element);
+                      console.log('🔄 Moved testimonial video element back to correct container');
+                    }
+                  });
+                }
+                
+              }, 2000);
+              window.testimonialVideoLoaded_${testimonial.videoId} = true;
+            };
+            s.onerror = function() {
+              console.error('❌ Failed to load VTurb testimonial video: ${testimonial.videoId}');
+            };
+            document.head.appendChild(s);
+          } catch (error) {
+            console.error('Error injecting testimonial video script:', error);
+          }
+        })();
+      `;
+      
+      document.head.appendChild(script);
+    }
 
     // Cleanup when card becomes inactive
     return () => {
+      if (!isActive) {
+        const scriptToRemove = document.getElementById(`scr_testimonial_${testimonial.videoId}`);
         if (scriptToRemove) {
           scriptToRemove.remove();
         }
@@ -92,27 +158,8 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
     };
   }, [isActive, hasRealVideo, testimonial.videoId]);
 
-  // ✅ NEW: Add HTML structure for each testimonial video
-  useEffect(() => {
-    if (isActive && hasRealVideo) {
-      const targetContainer = document.getElementById(`vid-${testimonial.videoId}`);
-      if (targetContainer) {
-        // ✅ FIXED: Add the same HTML structure that works for doctors
-        targetContainer.innerHTML = `
-          <div id="vid_${testimonial.videoId}" style="position:relative;width:100%;padding: 56.25% 0 0 0;">
-            <img id="thumb_${testimonial.videoId}" src="https://images.converteai.net/b792ccfe-b151-4538-84c6-42bb48a19ba4/players/${testimonial.videoId}/thumbnail.jpg" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block;">
-            <div id="backdrop_${testimonial.videoId}" style="position:absolute;top:0;width:100%;height:100%;-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);"></div>
-          </div>
-        `;
-        
-        console.log(\`✅ HTML structure added for testimonial: ${testimonial.videoId}`);
-      }
-    }
-  }, [isActive, hasRealVideo, testimonial.videoId]);
-
   return (
-    <div className={\`bg-white backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-blue-200 hover:bg-white/95 transition-all duration-300 max-w-md w-full mx-4 ${
-        }
+    <div className={`bg-white backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-blue-200 hover:bg-white/95 transition-all duration-300 max-w-md w-full mx-4 ${
       isDragging ? 'shadow-2xl' : 'shadow-lg'
     } ${isActive ? 'ring-2 ring-blue-300' : ''}`}>
       
@@ -148,7 +195,7 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
         </p>
       </div>
 
-      {/* ✅ FIXED: Video container with proper z-index layering and v4 API */}
+      {/* ✅ FIXED: Video container with proper z-index layering */}
       {isActive && (
         <div className="mb-4">
           <div className="aspect-video rounded-xl overflow-hidden shadow-lg bg-gray-900 relative">
@@ -156,7 +203,7 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
               <>
                 {/* ✅ VTurb Video Container - HIGHEST z-index */}
                 <div
-                  id={\`vid-${testimonial.videoId}`}
+                  id={`vid-${testimonial.videoId}`}
                   style={{
                     display: 'block',
                     margin: '0 auto',
@@ -165,13 +212,15 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
                     position: 'absolute',
                     top: 0,
                     left: 0,
-                    zIndex: 20
+                    zIndex: 20,
+                    isolation: 'isolate',
+                    contain: 'layout style paint size'
                   }}
                 ></div>
                 
                 {/* ✅ Placeholder - Only show while loading */}
                 <div 
-                  id={\`placeholder_${testimonial.videoId}`}
+                  id={`placeholder_${testimonial.videoId}`}
                   className="absolute inset-0 bg-gradient-to-br from-blue-800 to-blue-900 flex items-center justify-center"
                   style={{ zIndex: 10 }}
                 >
@@ -223,6 +272,3 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
 };
 
 export default TestimonialCard;
-  }
-  )
-}
